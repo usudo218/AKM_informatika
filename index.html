@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ujian AKM Interaktif</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <div class="container">
         <div id="login-box" class="card">
-            <h2>Login Ujian AKM</h2>
+            <h2>Ujian AKM</h2>
+            <p style="text-align: center; color: #64748b; margin-bottom: 20px;">Silakan login untuk memulai ujian</p>
             <input type="text" id="username" placeholder="Nama Lengkap Siswa">
             <input type="password" id="password" placeholder="Password (siswa2026)">
             <button onclick="kendaliLogin()">Mulai Ujian</button>
@@ -18,15 +21,22 @@
         <div id="quiz-box" class="card" style="display:none;">
             <div id="header-quiz">
                 <span id="user-display"></span>
-                <span>Soal ke-<span id="current-idx">1</span></span>
+                <span>Soal <span id="current-idx">1</span> dari <span id="total-soal">0</span></span>
             </div>
-            <hr>
-            <div id="konten-soal"></div>
+            
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-fill"></div>
+            </div>
+
+            <div id="konten-soal">
+                </div>
+
             <div class="navigasi">
                 <button id="btn-next" onclick="prosesJawaban()">Simpan & Lanjut</button>
             </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
