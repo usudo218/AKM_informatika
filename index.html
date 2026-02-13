@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UJIAN TENGAH SEMESTER</title>
+    <title>AKM Application Ver 3.4 - SMAN 1 Muncar</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="siswa.js"></script>
     <style>
@@ -21,8 +21,9 @@
             background: var(--bg-gradient);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column; /* Mengatur urutan vertikal */
             align-items: center;
+            justify-content: center; /* Memusatkan secara vertikal */
             padding: 20px;
             -webkit-user-select: none;
             user-select: none;
@@ -36,11 +37,13 @@
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             position: relative;
+            margin: auto; /* Memastikan kartu berada di tengah */
         }
 
+        /* Header Style */
         .header-container { text-align: center; margin-bottom: 25px; }
         .logo-img { width: 90px; height: auto; margin-bottom: 15px; }
-        .title-uts { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1px; }
+        .title-uts { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); text-transform: uppercase; }
 
         label { display: block; margin-bottom: 5px; font-weight: 600; color: #636e72; font-size: 14px; text-align: left; }
         
@@ -54,7 +57,7 @@
             font-weight: 700; text-align: center; margin-bottom: 15px; border: 1px solid #fdcb6e;
         }
 
-        .info-siswa { background: #f1f2f6; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; line-height: 1.6; }
+        .info-siswa { background: #f1f2f6; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; line-height: 1.6; text-align: left; }
 
         button {
             width: 100%; padding: 15px; background-color: var(--primary-green);
@@ -62,6 +65,7 @@
             cursor: pointer; transition: 0.3s; text-transform: uppercase;
         }
 
+        button:hover { background-color: var(--dark-green); }
         button:disabled { background-color: #ccc; cursor: not-allowed; }
         .btn-logout { background-color: #fab1a0; color: #d63031; margin-top: 10px; font-size: 12px; padding: 10px; }
 
@@ -74,6 +78,19 @@
         .bar { width: 100%; height: 8px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
         #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
         
+        /* Footer Style Fix */
+        .footer {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            line-height: 1.6;
+            padding-top: 20px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            font-weight: 400;
+        }
+
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-gradient); display: none;
@@ -93,7 +110,7 @@
 <div class="card">
     <div id="box-login">
         <div class="header-container">
-             <img src="logo.png" class="logo-img" alt="Logo Tut Wuri Handayani">
+            <img src="logo.png" class="logo-img" alt="Logo Tut Wuri Handayani">
             <h1 class="title-uts">Ujian Tengah Semester</h1>
             <p style="color:var(--dark-green); font-weight:600;">INFORMATIKA</p>
             <hr style="margin-top:20px; border:0; border-top:1px solid #eee;">
@@ -138,11 +155,15 @@
     </div>
 </div>
 
+<footer class="footer">
+    AKM Application Ver 3.4 SMAN 1 Muncar<br>
+    <strong>Design By Agus Tjakra</strong>
+</footer>
+
 <script>
-    // URL WEB APP ANDA
     const URL_APP = "https://script.google.com/macros/s/AKfycbxkE7I2XutjKdOIf9RM7xZm3xpFwDgteAjenGDfi1MeDBV54TadW_sgljGrnRQSCWoT/exec";
 
-    const DURASI_UJIAN = 60; // Durasi dalam menit
+    const DURASI_UJIAN = 60; 
 
     let dataSoal = [];
     let curIdx = 0;
@@ -150,7 +171,6 @@
     let currentKelas = "";
     let timerInterval;
 
-    // 1. Inisialisasi Daftar Kelas
     window.onload = function() {
         const kelasUnik = [...new Set(SISWA_BARU.map(s => s.kelas))];
         const selKelas = document.getElementById('sel-kelas');
@@ -160,7 +180,6 @@
             selKelas.appendChild(opt);
         });
 
-        // Resume jika sudah login
         const savedUser = localStorage.getItem('active_student');
         const savedKelas = localStorage.getItem('active_kelas');
         if (savedUser && savedKelas) {
@@ -195,7 +214,6 @@
             try {
                 const rSoal = await fetch('soal.json?v=' + Date.now());
                 dataSoal = await rSoal.json();
-                
                 const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
                 const s = await rStatus.json();
 
@@ -222,12 +240,11 @@
                 loading.style.display = "none";
                 alert("Gagal koneksi server."); 
             }
-        } else { alert("Data tidak lengkap atau password salah!"); }
+        } else { if(!isAuto) alert("Data tidak lengkap atau password salah!"); }
     }
 
     function startTimer() {
         let time = DURASI_UJIAN * 60;
-        // Opsional: Jika ingin resume waktu, simpan timestamp di localStorage
         timerInterval = setInterval(() => {
             let min = Math.floor(time / 60);
             let sec = time % 60;
