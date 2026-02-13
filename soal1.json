@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1, "tipe": "benar-salah", "pertanyaan": "Proses pembersihan data (data cleaning) bertujuan untuk menghapus data yang memiliki nilai ganda atau duplikat agar hasil analisis lebih akurat.", "kunci": "Benar", "skor": 2.5
+  },
+  {
+    "id": 2, "tipe": "benar-salah", "pertanyaan": "Diagram lingkaran (pie chart) adalah visualisasi yang paling efektif untuk menunjukkan perubahan data dari waktu ke waktu secara berurutan.", "kunci": "Salah", "skor": 2.5
+  },
+  {
+    "id": 3, "tipe": "benar-salah", "pertanyaan": "Validasi sumber data dilakukan untuk memastikan bahwa informasi yang digunakan berasal dari institusi atau pakar yang memiliki kredibilitas di bidangnya.", "kunci": "Benar", "skor": 2.5
+  },
+  {
+    "id": 4, "tipe": "benar-salah", "pertanyaan": "Fungsi VLOOKUP dalam aplikasi lembar kerja digunakan untuk menjumlahkan angka secara otomatis berdasarkan kriteria tertentu.", "kunci": "Salah", "skor": 2.5
+  },
+  {
+    "id": 5, "tipe": "benar-salah", "pertanyaan": "Exploratory Data Analysis (EDA) biasanya dilakukan di awal proses untuk memahami pola dan karakteristik dasar dari kumpulan data.", "kunci": "Benar", "skor": 2.5
+  },
+  {
+    "id": 6, "tipe": "pilihan-ganda", "pertanyaan": "Manakah urutan tahapan analisis data yang paling tepat?", "opsi": ["Pengumpulan - Visualisasi - Pembersihan - Interpretasi", "Visualisasi - Pengumpulan - Pembersihan - Analisis", "Pengumpulan - Pembersihan - Analisis - Interpretasi", "Interpretasi - Analisis - Pembersihan - Pengumpulan", "Pembersihan - Pengumpulan - Interpretasi - Visualisasi"], "kunci": "Pengumpulan - Pembersihan - Analisis - Interpretasi", "skor": 2.5
+  },
+  {
+    "id": 7, "tipe": "pilihan-ganda", "pertanyaan": "Andi menemukan berita tentang kesehatan di media sosial yang tidak menyertakan sumber referensi medis. Tindakan validasi yang paling tepat adalah...", "opsi": ["Langsung membagikan berita tersebut agar orang lain waspada", "Menganggap berita tersebut benar karena banyak yang menyukai", "Mencari sumber asli atau verifikasi dari situs resmi kesehatan seperti Kemenkes", "Menghapus berita tersebut tanpa membacanya sama sekali", "Menunggu hingga berita tersebut muncul di televisi"], "kunci": "Mencari sumber asli atau verifikasi dari situs resmi kesehatan seperti Kemenkes", "skor": 2.5
+  },
+  {
+    "id": 8, "tipe": "pilihan-ganda", "pertanyaan": "Sebuah perusahaan ingin membandingkan jumlah penjualan produk kategori A, B, C, dan D dalam satu bulan. Grafik yang paling efektif digunakan adalah...", "opsi": ["Grafik Garis", "Grafik Batang", "Scatter Plot", "Area Chart", "Radar Chart"], "kunci": "Grafik Batang", "skor": 2.5
+  },
+  {
+    "id": 9, "tipe": "pilihan-ganda", "pertanyaan": "Dalam Microsoft Excel, rumus yang digunakan untuk menghitung rata-rata nilai siswa yang hanya berjenis kelamin 'Laki-laki' adalah...", "opsi": ["=AVERAGE()", "=SUMIF()", "=COUNTIF()", "=AVERAGEIF()", "=MAXIF()"], "kunci": "=AVERAGEIF()", "skor": 2.5
+  },
+  {
+    "id": 10, "tipe": "pilihan-ganda", "pertanyaan": "Data yang diperoleh dari hasil sensor suhu ruangan secara real-time termasuk dalam jenis data...", "opsi": ["Data Terstruktur", "Data Kualitatif", "Data Statis", "Data Tidak Terstruktur", "Data Sekunder"], "kunci": "Data Terstruktur", "skor": 2.5
+  },
+  {
+    "id": 11, "tipe": "pilihan-ganda", "pertanyaan": "Sebuah dataset memiliki nilai ekstrim yang sangat jauh dari rata-rata kelompoknya. Nilai ini dalam analisis data disebut...", "opsi": ["Missing Value", "Duplicate Data", "Outlier", "Parameter", "Metadata"], "kunci": "Outlier", "skor": 2.5
+  },
+  {
+    "id": 12, "tipe": "pilihan-ganda", "pertanyaan": "Fitur di aplikasi pengolah angka yang digunakan untuk meringkas dan menganalisis tabel data besar secara cepat tanpa mengubah data asli adalah...", "opsi": ["Filter", "Sort", "Pivot Table", "Conditional Formatting", "Merge Cells"], "kunci": "Pivot Table", "skor": 2.5
+  },
+  {
+    "id": 13, "tipe": "pilihan-ganda", "pertanyaan": "Mengapa visualisasi data dianggap penting dalam proses pengambilan keputusan?", "opsi": ["Agar tampilan laporan terlihat mewah", "Untuk menyembunyikan data yang tidak penting", "Mempercepat pemahaman tren dan pola yang sulit dilihat pada tabel angka", "Mengurangi jumlah data yang harus dianalisis", "Agar data tidak bisa diubah oleh orang lain"], "kunci": "Mempercepat pemahaman tren dan pola yang sulit dilihat pada tabel angka", "skor": 2.5
+  },
+  {
+    "id": 14, "tipe": "pilihan-ganda", "pertanyaan": "Sumber data yang berasal dari publikasi badan resmi pemerintah seperti BPS (Badan Pusat Statistik) dikategorikan sebagai sumber yang...", "opsi": ["Subjektif", "Bias", "Valid dan Kredibel", "Tidak Teruji", "Opini Pribadi"], "kunci": "Valid dan Kredibel", "skor": 2.5
+  },
+  {
+    "id": 15, "tipe": "pilihan-ganda", "pertanyaan": "Kegiatan mengumpulkan data dari berbagai halaman situs web secara otomatis disebut dengan...", "opsi": ["Data Cleaning", "Web Scraping", "Data Mining", "Data Entry", "Digital Marketing"], "kunci": "Web Scraping", "skor": 2.5
+  },
+  {
+    "id": 16, "tipe": "pilihan-ganda", "pertanyaan": "Jika Anda ingin melihat korelasi atau hubungan antara tinggi badan dan berat badan sekelompok orang, visualisasi yang tepat adalah...", "opsi": ["Pie Chart", "Line Chart", "Scatter Plot", "Bar Chart", "Donut Chart"], "kunci": "Scatter Plot", "skor": 2.5
+  },
+  {
+    "id": 17, "tipe": "pilihan-ganda", "pertanyaan": "Format data yang sering digunakan dalam pertukaran data antar aplikasi karena strukturnya yang ringan dan mudah dibaca (text-based) adalah...", "opsi": ["EXE", "JSON", "DOCX", "JPG", "MP4"], "kunci": "JSON", "skor": 2.5
+  },
+  {
+    "id": 18, "tipe": "pilihan-ganda", "pertanyaan": "Langkah pertama yang harus dilakukan ketika menemukan data yang kosong (missing values) pada kolom penting dalam sebuah dataset adalah...", "opsi": ["Langsung menghapus seluruh baris data tersebut", "Mengisi secara acak agar tabel terlihat penuh", "Menganalisis penyebab kekosongan dan menentukan apakah akan diisi rata-rata atau dihapus", "Mengabaikan saja karena tidak berpengaruh", "Mengganti nama kolom tersebut"], "kunci": "Menganalisis penyebab kekosongan dan menentukan apakah akan diisi rata-rata atau dihapus", "skor": 2.5
+  },
+  {
+    "id": 19, "tipe": "pilihan-ganda", "pertanyaan": "Berikut ini adalah aspek keamanan data pribadi yang harus diperhatikan dalam analisis data, kecuali...", "opsi": ["Anonimitas identitas subjek", "Enkripsi file hasil analisis", "Izin penggunaan data dari pemilik", "Mempublikasikan nama lengkap dan alamat rumah subjek secara bebas", "Menghapus data sensitif yang tidak relevan"], "kunci": "Mempublikasikan nama lengkap dan alamat rumah subjek secara bebas", "skor": 2.5
+  },
+  {
+    "id": 20, "tipe": "pilihan-ganda", "pertanyaan": "Sebuah grafik menunjukkan tren kenaikan harga beras selama 12 bulan terakhir. Jenis interpretasi yang dilakukan adalah...", "opsi": ["Interpretasi Deskriptif", "Interpretasi Prediktif", "Interpretasi Subjektif", "Interpretasi Komparatif", "Interpretasi Historis"], "kunci": "Interpretasi Deskriptif", "skor": 2.5
+  },
+  {
+    "id": 21, "tipe": "pg-kompleks", "pertanyaan": "Pilih dua karakteristik dari sumber data yang dianggap valid dan reliabel:", "opsi": ["Data didasarkan pada asumsi pribadi penulis", "Data berasal dari lembaga resmi atau otoritas terkait", "Data tidak mencantumkan tanggal pengambilan", "Data memiliki metodologi pengumpulan yang transparan", "Data hanya diambil dari satu sumber media sosial"], "kunci": ["Data berasal dari lembaga resmi atau otoritas terkait", "Data memiliki metodologi pengumpulan yang transparan"], "skor": 2.5
+  },
+  {
+    "id": 22, "tipe": "pg-kompleks", "pertanyaan": "Manakah dua fungsi Microsoft Excel yang digunakan untuk menghitung jumlah data berdasarkan kriteria tertentu?", "opsi": ["SUMIFS", "VLOOKUP", "COUNTIFS", "CONCATENATE", "IFERROR"], "kunci": ["COUNTIFS", "SUMIFS"], "skor": 2.5
+  },
+  {
+    "id": 23, "tipe": "pg-kompleks", "pertanyaan": "Pilih dua jenis visualisasi data yang cocok untuk membandingkan komposisi atau persentase dari sebuah total unit:", "opsi": ["Grafik Garis (Line)", "Grafik Lingkaran (Pie)", "Grafik Batang Tumpuk (Stacked Bar)", "Scatter Plot", "Histogram"], "kunci": ["Grafik Lingkaran (Pie)", "Grafik Batang Tumpuk (Stacked Bar)"], "skor": 2.5
+  },
+  {
+    "id": 24, "tipe": "pg-kompleks", "pertanyaan": "Manakah dua kegiatan yang termasuk dalam tahap pembersihan data (data cleaning)?", "opsi": ["Menghapus baris data yang duplikat", "Membuat dashboard interaktif", "Memperbaiki kesalahan penulisan (typo) pada kolom kategori", "Mencetak laporan ke printer", "Membagikan dataset ke media sosial"], "kunci": ["Menghapus baris data yang duplikat", "Memperbaiki kesalahan penulisan (typo) pada kolom kategori"], "skor": 2.5
+  },
+  {
+    "id": 25, "tipe": "pg-kompleks", "pertanyaan": "Dua hal yang perlu diperhatikan untuk menghindari 'bias' dalam pengumpulan data adalah:", "opsi": ["Mengambil sampel data hanya dari teman dekat", "Menggunakan jumlah sampel yang cukup besar dan representatif", "Memilih responden yang hanya setuju dengan pendapat kita", "Menggunakan instrumen survei yang netral dan tidak mengarahkan", "Mengabaikan data yang tidak sesuai dengan keinginan kita"], "kunci": ["Menggunakan jumlah sampel yang cukup besar dan representatif", "Menggunakan instrumen survei yang netral dan tidak mengarahkan"], "skor": 2.5
+  },
+  {
+    "id": 26, "tipe": "pg-kompleks", "pertanyaan": "Pilih dua keunggulan utama menggunakan dashboard dalam visualisasi data bisnis:", "opsi": ["Dapat dipantau secara real-time", "Menyajikan data dalam bentuk tabel yang sangat panjang", "Memudahkan pemantauan indikator kinerja utama (KPI)", "Menyulitkan akses data bagi pengguna awam", "Hanya bisa dibuka di satu komputer saja"], "kunci": ["Dapat dipantau secara real-time", "Memudahkan pemantauan indikator kinerja utama (KPI)"], "skor": 2.5
+  },
+  {
+    "id": 27, "tipe": "pg-kompleks", "pertanyaan": "Dua jenis format file yang umum digunakan sebagai sumber dataset adalah:", "opsi": ["CSV", "XLSX", "MP3", "MP4", "EXE"], "kunci": ["CSV", "XLSX"], "skor": 2.5
+  },
+  {
+    "id": 28, "tipe": "pg-kompleks", "pertanyaan": "Dua manfaat dari melakukan Exploratory Data Analysis (EDA) adalah:", "opsi": ["Memastikan data tidak bisa dicuri orang lain", "Mendeteksi keberadaan outlier atau pencilan", "Memahami distribusi dan korelasi antar variabel", "Mengganti seluruh data mentah dengan data buatan", "Mempercepat proses pencetakan dokumen"], "kunci": ["Mendeteksi keberadaan outlier atau pencilan", "Memahami distribusi dan korelasi antar variabel"], "skor": 2.5
+  },
+  {
+    "id": 29, "tipe": "pg-kompleks", "pertanyaan": "Manakah dua tindakan yang benar jika menemukan data yang tidak konsisten (misal: penulisan 'Jakarta' dan 'JKT' pada kolom yang sama)?", "opsi": ["Menghapus semua baris yang berisi 'JKT'", "Melakukan standarisasi data menjadi satu format penulisan yang sama", "Membiarkan saja karena artinya sama", "Menggunakan fitur 'Find and Replace' untuk menyeragamkan data", "Menambah kolom baru untuk setiap variasi penulisan"], "kunci": ["Melakukan standarisasi data menjadi satu format penulisan yang sama", "Menggunakan fitur 'Find and Replace' untuk menyeragamkan data"], "skor": 2.5
+  },
+  {
+    "id": 30, "tipe": "pg-kompleks", "pertanyaan": "Pilih dua elemen penting yang harus ada dalam sebuah grafik agar mudah dibaca:", "opsi": ["Judul grafik yang jelas", "Warna latar belakang yang sangat terang", "Label pada sumbu X dan sumbu Y", "Font tulisan yang sangat kecil agar muat banyak", "Animasi yang bergerak terus menerus"], "kunci": ["Judul grafik yang jelas", "Label pada sumbu X dan sumbu Y"], "skor": 2.5
+  },
+  {
+    "id": 31, "tipe": "menjodohkan", "pertanyaan": "Pasangkan tahapan analisis data dengan tujuannya yang tepat:", "kiri": ["Pengumpulan Data", "Pembersihan Data", "Visualisasi Data"], "kanan": ["Menyajikan hasil dalam grafik", "Memperoleh data mentah", "Memperbaiki integritas dataset"], "kunci": {"Pengumpulan Data": "Memperoleh data mentah", "Pembersihan Data": "Memperbaiki integritas dataset", "Visualisasi Data": "Menyajikan hasil dalam grafik"}, "skor": 2.5
+  },
+  {
+    "id": 32, "tipe": "menjodohkan", "pertanyaan": "Pasangkan fungsi pengolah angka dengan kegunaannya:", "kiri": ["VLOOKUP", "AVERAGE", "SUMIF"], "kanan": ["Menghitung rata-rata", "Mencari data secara vertikal", "Menjumlahkan dengan syarat"], "kunci": {"VLOOKUP": "Mencari data secara vertikal", "AVERAGE": "Menghitung rata-rata", "SUMIF": "Menjumlahkan dengan syarat"}, "skor": 2.5
+  },
+  {
+    "id": 33, "tipe": "menjodohkan", "pertanyaan": "Pasangkan jenis grafik dengan skenario penggunaan terbaiknya:", "kiri": ["Line Chart", "Bar Chart", "Scatter Plot"], "kanan": ["Melihat hubungan/korelasi", "Melihat tren perkembangan", "Membandingkan antar kategori"], "kunci": {"Line Chart": "Melihat tren perkembangan", "Bar Chart": "Membandingkan antar kategori", "Scatter Plot": "Melihat hubungan/korelasi"}, "skor": 2.5
+  },
+  {
+    "id": 34, "tipe": "menjodohkan", "pertanyaan": "Pasangkan istilah data berikut dengan definisinya:", "kiri": ["Dataset", "Metadata", "Data Cleaning"], "kanan": ["Data tentang data", "Proses koreksi data", "Kumpulan data"], "kunci": {"Dataset": "Kumpulan data", "Metadata": "Data tentang data", "Data Cleaning": "Proses koreksi data"}, "skor": 2.5
+  },
+  {
+    "id": 35, "tipe": "menjodohkan", "pertanyaan": "Pasangkan sumber data dengan tingkat kredibilitas umumnya:", "kiri": ["Situs Berita Anonim", "Jurnal Ilmiah Terindeks", "Opini Influencer"], "kanan": ["Kredibilitas Tinggi", "Kredibilitas Rendah", "Subjektif/Personal"], "kunci": {"Situs Berita Anonim": "Kredibilitas Rendah", "Jurnal Ilmiah Terindeks": "Kredibilitas Tinggi", "Opini Influencer": "Subjektif/Personal"}, "skor": 2.5
+  },
+  {
+    "id": 36, "tipe": "essay", "pertanyaan": "Jelaskan mengapa tahap pembersihan data (data cleaning) merupakan tahap yang sangat krusial sebelum melakukan analisis!", "kunci": "Untuk menjamin kualitas data, menghilangkan bias akibat data ganda/salah, dan memastikan hasil keputusan akurat.", "skor": 2.5
+  },
+  {
+    "id": 37, "tipe": "essay", "pertanyaan": "Menurut pendapat Anda, kriteria apa saja yang membuat sebuah sumber data dapat dikatakan valid dan dapat dipercaya?", "kunci": "Otoritas/Kredibilitas pembuat, objektivitas, kemutakhiran (update), dan akurasi informasi yang didukung referensi.", "skor": 2.5
+  },
+  {
+    "id": 38, "tipe": "essay", "pertanyaan": "Kapan seseorang sebaiknya menggunakan Diagram Garis (Line Chart) daripada Diagram Batang (Bar Chart)? Berikan satu contoh skenarionya!", "kunci": "Line chart digunakan untuk tren waktu. Contoh: perkembangan suhu tubuh pasien setiap jam.", "skor": 2.5
+  },
+  {
+    "id": 39, "tipe": "essay", "pertanyaan": "Apa yang dimaksud dengan data tidak terstruktur (unstructured data) dan berikan dua contoh format datanya dalam kehidupan sehari-hari!", "kunci": "Data yang tidak memiliki format tabel baku. Contoh: Video, rekaman suara, atau gambar.", "skor": 2.5
+  },
+  {
+    "id": 40, "tipe": "essay", "pertanyaan": "Jelaskan bagaimana penggunaan Pivot Table dapat membantu seorang analis dalam mengolah data penjualan yang berjumlah ribuan baris!", "kunci": "Membantu meringkas data besar secara otomatis (sum/average) berdasarkan kategori tertentu tanpa rumus manual yang rumit.", "skor": 2.5
+  }
+]
