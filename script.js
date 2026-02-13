@@ -1,4 +1,4 @@
-const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz0JycsalbzRons5523b9vvnKVxPvptiM-kd1t78MhpdEm9qabiXUe0OZNdVNWZuw3H/exec";
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzkG--xG0Mj0y7gZqYFrw17x0huTNVjtpDtE-5ncr_fiiQ2u9LqbIR8HpSgp5oNgBZU/exec";
 let daftarSoal = [];
 let indexSekarang = 0;
 
@@ -101,3 +101,4 @@ async function prosesJawaban() {
         document.getElementById('btn-next').style.display = 'none';
     }
 }
+
