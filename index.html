@@ -233,18 +233,22 @@
     }
 
     async function mulai(isAuto = false) {
-        const u = document.getElementById('sel-nama').value;
-        const k = document.getElementById('sel-kelas').value;
-        const p = document.getElementById('pass').value;
-        const loading = document.getElementById('loading-overlay');
+    const u = document.getElementById('sel-nama').value;
+    const k = document.getElementById('sel-kelas').value;
+    const p = document.getElementById('pass').value;
+    const loading = document.getElementById('loading-overlay');
 
-        if(u && k && p === "siswa2026") {
-            loading.style.display = "flex";
-            try {
-                const rSoal = await fetch('soal.json?v=' + Date.now());
-                const soalAsli = await rSoal.json();
-                const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
-                const s = await rStatus.json();
+    // MENCARI DATA SISWA DI DATABASE LOKAL
+    const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
+
+    // VERIFIKASI PASSWORD PER SISWA
+    if(dataSiswa && p === dataSiswa.pass) {
+        loading.style.display = "flex";
+        try {
+            const rSoal = await fetch('soal.json?v=' + Date.now());
+            const soalAsli = await rSoal.json();
+            
+            // ... (logika fetch status dan acak soal tetap sama seperti versi sebelumnya)
 
                 if(s.jumlahDikerjakan >= soalAsli.length) {
                     alert("Akses Ditolak: Anda sudah menyelesaikan ujian!");
@@ -392,3 +396,4 @@
 </script>
 </body>
 </html>
+
