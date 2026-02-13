@@ -3,35 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ujian AKM Interaktif</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>Ujian AKM Pak Cokro</title>
+    <style>
+        :root { --p: #2563eb; --bg: #f1f5f9; }
+        body { font-family: sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; width: 100%; max-width: 500px; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input[type="text"], input[type="password"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--p); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .opsi-item { display: block; padding: 12px; margin: 8px 0; border: 1px solid #eee; border-radius: 8px; cursor: pointer; }
+        .opsi-item:has(input:checked) { background: #eff6ff; border-color: var(--p); }
+        .bar { width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; margin: 15px 0; overflow: hidden; }
+        #progress { height: 100%; background: var(--p); width: 0%; transition: 0.3s; }
+    </style>
 </head>
 <body>
 
-    <div class="container">
-    <div id="login-box" class="card">
-        <h2>Ujian AKM</h2>
-        <input type="text" id="username" placeholder="Nama Lengkap">
-        <input type="password" id="password" placeholder="Password (siswa2026)">
-        <button onclick="kendaliLogin()">Mulai Ujian</button>
+<div class="card">
+    <div id="box-login">
+        <h2 style="text-align:center">Login Siswa</h2>
+        <input type="text" id="user" placeholder="Nama Lengkap">
+        <input type="password" id="pass" placeholder="Password (siswa2026)">
+        <button onclick="mulai()">Masuk Ujian</button>
     </div>
 
-    <div id="quiz-box" class="card" style="display:none;">
-        <div id="header-quiz">
-            <span id="user-display"></span>
-            <span>Soal <span id="current-idx">1</span>/<span id="total-soal">0</span></span>
+    <div id="box-kuis" style="display:none">
+        <div style="display:flex; justify-content:space-between; font-size:14px; color:#666">
+            <span id="txt-nama"></span>
+            <span>Soal <span id="idx">1</span></span>
         </div>
-        <div class="progress-container"><div id="progress-bar" class="progress-fill"></div></div>
-        <div id="konten-soal"></div>
-        <button id="btn-next" onclick="prosesJawaban()">Simpan & Lanjut</button>
+        <div class="bar"><div id="progress"></div></div>
+        <div id="soal-area"></div>
+        <button id="btn-next" style="margin-top:15px" onclick="simpan()">Simpan & Lanjut</button>
     </div>
 </div>
-            
-            
-    </div>
 
-    <script src="script.js"></script>
+<script>
+    const URL_APP = "PASTE_URL_WEB_APP_ANDA_DISINI";
+    let dataSoal = [];
+    let curIdx = 0;
+
+    async function mulai() {
+        const u = document.getElementById('user').value.trim();
+        const p = document.getElementById('pass').value;
+        const btn = document.querySelector('button');
+
+        if(u && p === "siswa2026") {
+            btn.innerText = "Checking..."; btn.disabled = true;
+            try {
+                const rSoal = await fetch('soal.json');
+                dataSoal = await rSoal.json();
+                
+                const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
+                const s = await rStatus.json();
+
+                if(s.jumlahDikerjakan >= dataSoal.length) {
+                    alert("Anda sudah selesai!");
+                    btn.disabled = false; btn.innerText = "Masuk Ujian";
+                    return;
+                }
+
+                curIdx = s.jumlahDikerjakan;
+                document.getElementById('box-login').style.display = 'none';
+                document.getElementById('box-kuis').style.display = 'block';
+                document.getElementById('txt-nama').innerText = u.toUpperCase();
+                tampil();
+            } catch(e) { alert("Error koneksi!"); btn.disabled = false; }
+        } else { alert("Login Salah!"); }
+    }
+
+    function tampil() {
+        const s = dataSoal[curIdx];
+        document.getElementById('idx').innerText = (curIdx + 1) + "/" + dataSoal.length;
+        document.getElementById('progress').style.width = (curIdx / dataSoal.length * 100) + "%";
+        
+        let h = `<h3>${s.pertanyaan}</h3>`;
+        const opsi = s.opsi || ["Benar", "Salah"];
+        opsi.forEach(o => {
+            const tipe = s.tipe === "pg-kompleks" ? "checkbox" : "radio";
+            h += `<label class="opsi-item"><input type="${tipe}" name="j" value="${o}"> ${o}</label>`;
+        });
+        document.getElementById('soal-area').innerHTML = h;
+    }
+
+    function simpan() {
+        const u = document.getElementById('user').value.trim();
+        const s = dataSoal[curIdx];
+        let pil = [];
+        document.querySelectorAll('input[name="j"]:checked').forEach(i => pil.push(i.value));
+
+        if(pil.length === 0) return alert("Pilih jawaban!");
+
+        const jwb = pil.sort().join(",");
+        const knc = Array.isArray(s.kunci) ? s.kunci.sort().join(",") : s.kunci;
+
+        fetch(URL_APP, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify({ nama: u, id_soal: s.id, jawaban: jwb, status: (jwb === knc ? "Benar" : "Salah") })
+        });
+
+        curIdx++;
+        if(curIdx < dataSoal.length) { tampil(); }
+        else {
+            document.getElementById('progress').style.width = "100%";
+            document.getElementById('soal-area').innerHTML = "<h2 style='text-align:center'>Ujian Selesai!</h2>";
+            document.getElementById('btn-next').style.display = 'none';
+        }
+    }
+</script>
 </body>
 </html>
-
