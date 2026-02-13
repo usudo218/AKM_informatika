@@ -2,86 +2,75 @@ let daftarSoal = [];
 let indexSekarang = 0;
 const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz0JycsalbzRons5523b9vvnKVxPvptiM-kd1t78MhpdEm9qabiXUe0OZNdVNWZuw3H/exec";
 
-// 1. Fungsi Login Sederhana
-function kendaliLogin() {
+async function kendaliLogin() {
     const user = document.getElementById('username').value;
     const pass = document.getElementById('password').value;
     
-    // Ganti 'admin123' dengan password yang Anda inginkan
     if (user !== "" && pass === "siswa2026") {
         document.getElementById('login-box').style.display = 'none';
         document.getElementById('quiz-box').style.display = 'block';
-        document.getElementById('user-display').innerText = "Siswa: " + user;
-        muatSoal();
+        document.getElementById('user-display').innerText = user;
+        
+        // Ambil data soal
+        const response = await fetch('soal.json');
+        daftarSoal = await response.json();
+        tampilkanSoal();
     } else {
-        alert("Login Gagal! Periksa nama dan password.");
+        alert("Nama wajib diisi dan password harus benar!");
     }
 }
 
-// 2. Ambil Soal dari JSON
-async function muatSoal() {
-    const response = await fetch('soal.json');
-    daftarSoal = await response.json();
-    tampilkanSoal();
-}
-
-// 3. Render Soal ke HTML
 function tampilkanSoal() {
     const soal = daftarSoal[indexSekarang];
     const wadah = document.getElementById('konten-soal');
     document.getElementById('current-idx').innerText = indexSekarang + 1;
     
-    let htmlSoal = `<h3>${soal.pertanyaan}</h3>`;
+    let html = `<h3>${soal.pertanyaan}</h3>`;
     
-    if (soal.tipe === "pilihan-ganda") {
-        soal.opsi.forEach(o => {
-            htmlSoal += `<label class="opsi-item"><input type="radio" name="jawaban" value="${o}"> ${o}</label>`;
+    if (soal.tipe === "pilihan-ganda" || soal.tipe === "benar-salah") {
+        const opsi = soal.opsi || ["Benar", "Salah"];
+        opsi.forEach(o => {
+            html += `<label class="opsi-item"><input type="radio" name="jawaban" value="${o}"> ${o}</label>`;
         });
     } else if (soal.tipe === "pg-kompleks") {
         soal.opsi.forEach(o => {
-            htmlSoal += `<label class="opsi-item"><input type="checkbox" name="jawaban" value="${o}"> ${o}</label>`;
+            html += `<label class="opsi-item"><input type="checkbox" name="jawaban" value="${o}"> ${o}</label>`;
         });
-    } else if (soal.tipe === "benar-salah") {
-        htmlSoal += `
-            <label class="opsi-item"><input type="radio" name="jawaban" value="Benar"> Benar</label>
-            <label class="opsi-item"><input type="radio" name="jawaban" value="Salah"> Salah</label>`;
     }
-
-    wadah.innerHTML = htmlSoal;
+    wadah.innerHTML = html;
 }
 
-// 4. Proses Jawaban & Kirim ke Spreadsheet
 function prosesJawaban() {
-    const nama = document.getElementById('username').value;
+    const namaSiswa = document.getElementById('username').value;
     const soal = daftarSoal[indexSekarang];
     let jawabanSiswa = [];
     
-    const inputs = document.querySelectorAll('input[name="jawaban"]:checked');
-    inputs.forEach(i => jawabanSiswa.push(i.value));
+    const terpilih = document.querySelectorAll('input[name="jawaban"]:checked');
+    terpilih.forEach(i => jawabanSiswa.push(i.value));
     
-    if (jawabanSiswa.length === 0) return alert("Pilih jawaban dulu!");
+    if (jawabanSiswa.length === 0) return alert("Pilih jawaban dahulu!");
 
-    // Kirim data ke Spreadsheet secara Real-time
+    // Kirim ke Google Sheets
     const dataKirim = {
-        nama: nama,
+        nama: namaSiswa,
         id_soal: soal.id,
         jawaban: jawabanSiswa.join(", "),
-        status: (JSON.stringify(jawabanSiswa) === JSON.stringify(soal.kunci)) ? "Benar" : "Salah"
+        status: (JSON.stringify(jawabanSiswa.sort()) === JSON.stringify(Array.isArray(soal.kunci) ? soal.kunci.sort() : soal.kunci)) ? "Benar" : "Salah"
     };
 
+    // Eksekusi pengiriman
     fetch(URL_APPS_SCRIPT, {
         method: "POST",
         mode: "no-cors",
         body: JSON.stringify(dataKirim)
     });
 
-    // Lanjut ke soal berikutnya
+    // Pindah Soal
     indexSekarang++;
     if (indexSekarang < daftarSoal.length) {
         tampilkanSoal();
     } else {
-        document.getElementById('konten-soal').innerHTML = "<h2>Ujian Selesai! Terima kasih.</h2>";
-        document.getElementById('btn-next').style.display = 'none';
+        document.getElementById('quiz-box').innerHTML = "<h2>Ujian Selesai! Data sedang dikirim ke server.</h2>";
     }
-
 }
+
