@@ -18,12 +18,11 @@
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-gradient);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            /* Anti-Select Teks */
             -webkit-user-select: none;
             -ms-user-select: none;
             user-select: none;
@@ -32,42 +31,29 @@
         .card {
             background: white;
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             padding: 40px 30px;
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            text-align: center;
         }
 
-        .logo-container { margin-bottom: 20px; }
-        .logo-img { width: 80px; height: auto; }
+        .header-container { text-align: center; margin-bottom: 25px; }
+        .logo-img { width: 90px; height: auto; margin-bottom: 15px; }
+        .title-uts { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1px; }
+        .subtitle { color: var(--dark-green); font-weight: 600; margin-top: 5px; }
 
-        .title-uts {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 30px;
-            text-transform: capitalize;
-        }
-
-        input {
+        input[type="text"], input[type="password"], textarea, select {
             width: 100%;
-            padding: 14px 18px;
+            padding: 14px;
             margin-bottom: 15px;
             border: 1px solid #e0e0e0;
             border-radius: 10px;
             background-color: #f8faff;
             font-size: 15px;
-            transition: all 0.3s ease;
             outline: none;
-            user-select: text; /* Izinkan input bisa diketik */
         }
 
-        input:focus {
-            border-color: var(--primary-green);
-            background-color: #fff;
-            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
-        }
+        input:focus, textarea:focus { border-color: var(--primary-green); background-color: #fff; }
 
         button {
             width: 100%;
@@ -80,26 +66,12 @@
             font-size: 16px;
             text-transform: uppercase;
             cursor: pointer;
-            transition: background 0.3s ease;
-            margin-top: 10px;
+            transition: 0.3s;
         }
 
         button:hover { background-color: var(--dark-green); }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        button:disabled { background-color: #ccc; }
 
-        .footer-link {
-            margin-top: 25px;
-            font-size: 13px;
-            color: #636e72;
-            text-decoration: none;
-            display: block;
-        }
-
-        /* Tampilan Kuis */
-        #box-kuis { text-align: left; }
-        .bar { width: 100%; height: 8px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
-        
         .opsi-item {
             display: block;
             padding: 15px;
@@ -107,30 +79,39 @@
             border: 2px solid #f1f2f6;
             border-radius: 12px;
             cursor: pointer;
-            transition: 0.2s;
         }
-        .opsi-item:hover { background: #f8f9fa; }
-        .opsi-item:has(input:checked) {
-            border-color: var(--primary-green);
-            background-color: #f0fff4;
+        .opsi-item:has(input:checked) { border-color: var(--primary-green); background-color: #f0fff4; }
+
+        .match-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #eee;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: #fdfdfd;
         }
-        h3 { margin-bottom: 20px; line-height: 1.5; color: var(--text-dark); }
+
+        .bar { width: 100%; height: 8px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
+        
+        h3 { margin-bottom: 15px; color: var(--text-dark); line-height: 1.4; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <div id="box-login">
-        <div class="logo-container">
-    <img src="logo.png" class="logo-img" alt="Logo Tut Wuri Handayani">
-</div>
-        <h1 class="title-uts">Ujian Tengah Semester</h1>
-        
+        <div class="header-container">
+            <img src="logo.png" class="logo-img" alt="Logo Tut Wuri Handayani">
+            <h1 class="title-uts">Ujian Tengah Semester</h1>
+            <p class="subtitle">INFORMATIKA</p>
+            <hr style="margin-top:20px; border:0; border-top:1px solid #eee;">
+        </div>
         <input type="text" id="user" placeholder="Nama Lengkap Siswa" autocomplete="off">
         <input type="password" id="pass" placeholder="Password (siswa2026)">
-        
         <button onclick="mulai()">Masuk Ujian</button>
-        <a href="#" class="footer-link">← Kembali ke Menu Utama</a>
     </div>
 
     <div id="box-kuis" style="display:none">
@@ -145,20 +126,16 @@
 </div>
 
 <script>
-    // --- KONFIGURASI ---
     const URL_APP = "https://script.google.com/macros/s/AKfycbxkE7I2XutjKdOIf9RM7xZm3xpFwDgteAjenGDfi1MeDBV54TadW_sgljGrnRQSCWoT/exec";
     let dataSoal = [];
     let curIdx = 0;
 
-    // --- PROTEKSI KEAMANAN ---
-    document.addEventListener('contextmenu', e => e.preventDefault()); // Matikan Klik Kanan
+    // PROTEKSI KEAMANAN
+    document.addEventListener('contextmenu', e => e.preventDefault());
     document.onkeydown = function(e) {
-        if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 86 || e.keyCode === 85 || e.keyCode === 83)) {
-            return false; // Matikan Ctrl+C, V, U, S
-        }
+        if (e.ctrlKey && [67, 86, 85, 83].includes(e.keyCode)) return false;
     };
 
-    // --- LOGIKA UTAMA ---
     async function mulai() {
         const u = document.getElementById('user').value.trim();
         const p = document.getElementById('pass').value;
@@ -169,7 +146,6 @@
             try {
                 const rSoal = await fetch('soal.json');
                 dataSoal = await rSoal.json();
-                
                 const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
                 const s = await rStatus.json();
 
@@ -184,57 +160,67 @@
                 document.getElementById('box-kuis').style.display = 'block';
                 document.getElementById('txt-nama').innerText = u.toUpperCase();
                 tampil();
-            } catch(e) { 
-                alert("Gagal koneksi server!"); 
-                btn.disabled = false; btn.innerText = "Masuk Ujian";
-            }
-        } else { alert("Data tidak valid!"); }
+            } catch(e) { alert("Error koneksi!"); btn.disabled = false; btn.innerText = "Masuk Ujian"; }
+        } else { alert("Data login salah!"); }
     }
 
     function tampil() {
         const s = dataSoal[curIdx];
         document.getElementById('idx').innerText = (curIdx + 1) + "/" + dataSoal.length;
         document.getElementById('progress').style.width = (curIdx / dataSoal.length * 100) + "%";
-        
         let h = `<h3>${s.pertanyaan}</h3>`;
-        const opsi = s.opsi || ["Benar", "Salah"];
-        opsi.forEach(o => {
-            const tipe = s.tipe === "pg-kompleks" ? "checkbox" : "radio";
-            h += `<label class="opsi-item"><input type="${tipe}" name="j" value="${o}"> <span>${o}</span></label>`;
-        });
+
+        if (["pilihan-ganda", "benar-salah", "pg-kompleks"].includes(s.tipe)) {
+            const opsi = s.opsi || ["Benar", "Salah"];
+            opsi.forEach(o => {
+                const tipe = s.tipe === "pg-kompleks" ? "checkbox" : "radio";
+                h += `<label class="opsi-item"><input type="${tipe}" name="j" value="${o}"> <span>${o}</span></label>`;
+            });
+        } else if (s.tipe === "menjodohkan") {
+            s.kiri.forEach(k => {
+                h += `<div class="match-row"><span>${k}</span>
+                      <select name="j-match" data-key="${k}" style="width:60%; margin:0;">
+                      <option value="">-- Pilih --</option>
+                      ${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}
+                      </select></div>`;
+            });
+        } else if (s.tipe === "essay") {
+            h += `<textarea id="j-essay" rows="5" placeholder="Jawaban Anda..."></textarea>`;
+        }
         document.getElementById('soal-area').innerHTML = h;
     }
 
-    function simpan() {
+    async function simpan() {
         const u = document.getElementById('user').value.trim();
         const s = dataSoal[curIdx];
-        let pil = [];
-        document.querySelectorAll('input[name="j"]:checked').forEach(i => pil.push(i.value));
+        let jwb = ""; let stat = "Salah";
 
-        if(pil.length === 0) return alert("Pilih jawaban!");
-
-        const jwb = pil.sort().join(",");
-        const knc = Array.isArray(s.kunci) ? s.kunci.sort().join(",") : s.kunci;
-
-        fetch(URL_APP, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify({ nama: u, id_soal: s.id, jawaban: jwb, status: (jwb === knc ? "Benar" : "Salah") })
-        });
-
-        curIdx++;
-        if(curIdx < dataSoal.length) { tampil(); }
-        else {
-            document.getElementById('box-kuis').innerHTML = `
-                <div style="text-align:center; padding:20px;">
-                    <h2 style="color:var(--primary-green)">✔ SELESAI</h2>
-                    <p style="margin-top:10px; color:#636e72">Jawaban Anda berhasil terkirim.</p>
-                </div>`;
+        if (s.tipe === "essay") {
+            jwb = document.getElementById('j-essay').value.trim();
+            if(!jwb) return alert("Isi jawaban!");
+            stat = "Perlu Koreksi";
+        } else if (s.tipe === "menjodohkan") {
+            let res = {}; let count = 0;
+            document.querySelectorAll('select[name="j-match"]').forEach(sel => {
+                if(sel.value) { res[sel.dataset.key] = sel.value; count++; }
+            });
+            if(count < s.kiri.length) return alert("Jodohkan semua!");
+            jwb = JSON.stringify(res);
+            stat = (jwb === JSON.stringify(s.kunci)) ? "Benar" : "Salah";
+        } else {
+            let p = []; document.querySelectorAll('input[name="j"]:checked').forEach(i => p.push(i.value));
+            if(p.length === 0) return alert("Pilih jawaban!");
+            jwb = p.sort().join(",");
+            const knc = Array.isArray(s.kunci) ? s.kunci.sort().join(",") : s.kunci;
+            stat = (jwb === knc) ? "Benar" : "Salah";
         }
+
+        fetch(URL_APP, { method: "POST", mode: "no-cors", body: JSON.stringify({ nama: u, id_soal: s.id, jawaban: jwb, status: stat }) });
+        
+        curIdx++;
+        if(curIdx < dataSoal.length) tampil();
+        else document.getElementById('box-kuis').innerHTML = "<div style='text-align:center'><h2>✔ SELESAI</h2><p>Jawaban terkirim.</p></div>";
     }
 </script>
 </body>
 </html>
-
-
-
