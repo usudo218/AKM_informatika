@@ -8,6 +8,12 @@
         :root { --p: #2563eb; --bg: #f1f5f9; }
         body { font-family: sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; }
         .card { background: white; width: 100%; max-width: 500px; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        /* Gaya Logo dan Judul */
+        .header-container { text-align: center; margin-bottom: 20px; }
+        .logo { width: 80px; height: auto; margin-bottom: 10px; }
+        .title-uts { font-size: 1.2rem; font-weight: bold; color: #333; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        
         input[type="text"], input[type="password"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background: var(--p); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .opsi-item { display: block; padding: 12px; margin: 8px 0; border: 1px solid #eee; border-radius: 8px; cursor: pointer; }
@@ -20,7 +26,14 @@
 
 <div class="card">
     <div id="box-login">
-        <h2 style="text-align:center">Login Siswa</h2>
+        <div class="header-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_Tut_Wuri_Handayani.png" alt="Logo Tut Wuri" class="logo">
+            <p class="title-uts">Ujian Tengah Semester
+            <p SMA NEGERI 1 MUNCAR</P>
+            <hr style="border: 0; border-top: 1px solid #eee; margin-top: 15px;">
+        </div>
+        
+        <h2 style="text-align:center; font-size: 1.1rem; color: #666;">Login Siswa</h2>
         <input type="text" id="user" placeholder="Nama Lengkap">
         <input type="password" id="pass" placeholder="Password (siswa2026)">
         <button onclick="mulai()">Masuk Ujian</button>
@@ -38,6 +51,7 @@
 </div>
 
 <script>
+    // URL Web App Google Script Anda
     const URL_APP = "https://script.google.com/macros/s/AKfycbxkE7I2XutjKdOIf9RM7xZm3xpFwDgteAjenGDfi1MeDBV54TadW_sgljGrnRQSCWoT/exec";
     let dataSoal = [];
     let curIdx = 0;
@@ -45,11 +59,12 @@
     async function mulai() {
         const u = document.getElementById('user').value.trim();
         const p = document.getElementById('pass').value;
-        const btn = document.querySelector('button');
+        const btn = document.querySelector('#box-login button');
 
         if(u && p === "siswa2026") {
             btn.innerText = "Checking..."; btn.disabled = true;
             try {
+                // Pastikan file soal.json ada di folder yang sama di GitHub
                 const rSoal = await fetch('soal.json');
                 dataSoal = await rSoal.json();
                 
@@ -57,7 +72,7 @@
                 const s = await rStatus.json();
 
                 if(s.jumlahDikerjakan >= dataSoal.length) {
-                    alert("Anda sudah selesai!");
+                    alert("Akses Ditolak: Anda sudah menyelesaikan ujian ini!");
                     btn.disabled = false; btn.innerText = "Masuk Ujian";
                     return;
                 }
@@ -65,10 +80,16 @@
                 curIdx = s.jumlahDikerjakan;
                 document.getElementById('box-login').style.display = 'none';
                 document.getElementById('box-kuis').style.display = 'block';
-                document.getElementById('txt-nama').innerText = u.toUpperCase();
+                document.getElementById('txt-nama').innerText = "Siswa: " + u.toUpperCase();
                 tampil();
-            } catch(e) { alert("Error koneksi!"); btn.disabled = false; }
-        } else { alert("Login Salah!"); }
+            } catch(e) { 
+                alert("Gagal terhubung ke server/soal. Cek koneksi Anda."); 
+                btn.disabled = false; 
+                btn.innerText = "Masuk Ujian";
+            }
+        } else { 
+            alert("Nama Lengkap wajib diisi atau Password salah!"); 
+        }
     }
 
     function tampil() {
@@ -91,27 +112,36 @@
         let pil = [];
         document.querySelectorAll('input[name="j"]:checked').forEach(i => pil.push(i.value));
 
-        if(pil.length === 0) return alert("Pilih jawaban!");
+        if(pil.length === 0) return alert("Pilih jawaban terlebih dahulu!");
 
         const jwb = pil.sort().join(",");
         const knc = Array.isArray(s.kunci) ? s.kunci.sort().join(",") : s.kunci;
 
+        // Mengirim data ke Google Sheets secara background
         fetch(URL_APP, {
             method: "POST",
             mode: "no-cors",
-            body: JSON.stringify({ nama: u, id_soal: s.id, jawaban: jwb, status: (jwb === knc ? "Benar" : "Salah") })
+            body: JSON.stringify({ 
+                nama: u, 
+                id_soal: s.id, 
+                jawaban: jwb, 
+                status: (jwb === knc ? "Benar" : "Salah") 
+            })
         });
 
         curIdx++;
-        if(curIdx < dataSoal.length) { tampil(); }
-        else {
+        if(curIdx < dataSoal.length) { 
+            tampil(); 
+        } else {
             document.getElementById('progress').style.width = "100%";
-            document.getElementById('soal-area').innerHTML = "<h2 style='text-align:center'>Ujian Selesai!</h2>";
+            document.getElementById('soal-area').innerHTML = `
+                <div style="text-align:center; padding: 20px;">
+                    <h2 style="color: #22c55e;">✔ Ujian Selesai!</h2>
+                    <p>Terima kasih, jawaban Anda sudah tersimpan di server.</p>
+                </div>`;
             document.getElementById('btn-next').style.display = 'none';
         }
     }
 </script>
 </body>
 </html>
-
-
