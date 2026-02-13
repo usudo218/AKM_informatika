@@ -222,59 +222,69 @@
         });
     }
 
-    async function mulai(isAuto = false) {
-        const u = document.getElementById('sel-nama').value;
-        const k = document.getElementById('sel-kelas').value;
-        const p = document.getElementById('pass').value;
-        const loading = document.getElementById('loading-overlay');
+   async function mulai(isAuto = false) {
+    const u = document.getElementById('sel-nama').value;
+    const k = document.getElementById('sel-kelas').value;
+    const p = document.getElementById('pass').value;
+    const loading = document.getElementById('loading-overlay');
 
-        const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
+    // MENCARI DATA SISWA DI DATABASE LOKAL
+    const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
 
-        if(dataSiswa && p === dataSiswa.pass) {
-            loading.style.display = "flex";
-            try {
-                // 1. Fetch data kuis
-                const rSoal = await fetch('soal.json?v=' + Date.now());
-                const soalAsli = await rSoal.json();
-                
-                // 2. Cek status di Google Sheets
-                const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
-                const s = await rStatus.json();
+    if(dataSiswa && p === dataSiswa.pass) {
+        loading.style.display = "flex";
+        try {
+            // --- LOGIKA OTOMATIS PILIH FILE SOAL ---
+            // Mengambil angka terakhir dari string kelas (Contoh: "KELAS 10-1" mengambil "1")
+            const nomorKelas = k.split('-')[1]; 
+            const fileSoal = `soal${nomorKelas}.json`;
 
-                // BLOKIR JIKA SUDAH SELESAI
-                if(s.jumlahDikerjakan >= soalAsli.length) {
-                    loading.style.display = "none";
-                    alert("AKSES DITOLAK: Anda sudah menyelesaikan ujian!");
-                    logout();
-                    return;
-                }
+            // Fetch soal berdasarkan file yang ditentukan di atas
+            const rSoal = await fetch(`${fileSoal}?v=${Date.now()}`);
+            if (!rSoal.ok) throw new Error("File soal tidak ditemukan");
+            
+            const soalAsli = await rSoal.json();
+            // --- AKHIR LOGIKA OTOMATIS ---
 
-                // Acak Soal
-                if (s.jumlahDikerjakan === 0 && !localStorage.getItem('urutan_soal')) {
-                    dataSoal = shuffle(soalAsli);
-                    localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
-                } else {
-                    const savedOrder = localStorage.getItem('urutan_soal');
-                    dataSoal = savedOrder ? JSON.parse(savedOrder) : soalAsli;
-                }
+            // Cek status pengerjaan ke Google Sheets
+            const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
+            const s = await rStatus.json();
 
-                currentUser = u; currentKelas = k;
-                localStorage.setItem('active_student', u);
-                localStorage.setItem('active_kelas', k);
-                curIdx = s.jumlahDikerjakan;
-
-                document.getElementById('box-login').style.display = 'none';
-                document.getElementById('box-kuis').style.display = 'block';
-                document.getElementById('txt-nama').innerText = u;
-                document.getElementById('txt-kelas').innerText = k;
-                
-                tampil(); startTimer();
+            if(s.jumlahDikerjakan >= soalAsli.length) {
                 loading.style.display = "none";
-            } catch(e) { 
-                loading.style.display = "none";
-                alert("Gagal koneksi server."); 
+                alert("AKSES DITOLAK: Anda sudah menyelesaikan ujian!");
+                logout();
+                return;
             }
-        } else { if(!isAuto) alert("Data tidak lengkap atau Password salah!"); }
+
+            // Logika Acak Soal (Tetap dipertahankan agar urutan antar siswa berbeda)
+            if (s.jumlahDikerjakan === 0 && !localStorage.getItem('urutan_soal')) {
+                dataSoal = shuffle(soalAsli);
+                localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
+            } else {
+                const savedOrder = localStorage.getItem('urutan_soal');
+                dataSoal = savedOrder ? JSON.parse(savedOrder) : soalAsli;
+            }
+
+            currentUser = u;
+            currentKelas = k;
+            localStorage.setItem('active_student', u);
+            localStorage.setItem('active_kelas', k);
+            curIdx = s.jumlahDikerjakan;
+
+            document.getElementById('box-login').style.display = 'none';
+            document.getElementById('box-kuis').style.display = 'block';
+            document.getElementById('txt-nama').innerText = u;
+            document.getElementById('txt-kelas').innerText = k;
+            
+            tampil();
+            startTimer();
+            loading.style.display = "none";
+        } catch(e) { 
+            loading.style.display = "none";
+            alert("Gagal memuat soal: " + e.message); 
+        }
+    } else { if(!isAuto) alert("Nama atau Password salah!"); }
     }
 
     function startTimer() {
@@ -377,3 +387,4 @@
 </script>
 </body>
 </html>
+
