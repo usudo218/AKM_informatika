@@ -83,4 +83,5 @@ function prosesJawaban() {
         document.getElementById('konten-soal').innerHTML = "<h2>Ujian Selesai! Terima kasih.</h2>";
         document.getElementById('btn-next').style.display = 'none';
     }
+
 }
