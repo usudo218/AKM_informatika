@@ -41,7 +41,7 @@
             transition: filter 0.3s ease;
         }
 
-        /* Efek Blur untuk Anti-Screenshot/Pindah Tab */
+        /* Anti-Screenshot/Pindah Tab Blur */
         .blur-mode {
             filter: blur(15px);
             pointer-events: none;
@@ -56,6 +56,13 @@
         input, select, textarea {
             width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #e0e0e0;
             border-radius: 10px; background-color: #f8faff; font-size: 15px; outline: none;
+        }
+
+        /* Style Lihat Password */
+        .pass-wrapper { position: relative; width: 100%; }
+        .toggle-password {
+            position: absolute; right: 15px; top: 15px; cursor: pointer;
+            color: var(--dark-green); font-size: 11px; font-weight: 700;
         }
 
         .timer-box { 
@@ -85,15 +92,8 @@
         #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
         
         .footer {
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-            color: white;
-            font-size: 11px; 
-            line-height: 1.4;
-            padding-top: 5px; 
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-            font-weight: 400;
+            width: 100%; max-width: 500px; text-align: center; color: white;
+            font-size: 11px; line-height: 1.4; padding-top: 5px; text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
         }
 
         #loading-overlay {
@@ -129,7 +129,10 @@
             <option value="">-- Pilih Nama --</option>
         </select>
         <label>Password</label>
-        <input type="password" id="pass" placeholder="Password (siswa2026)">
+        <div class="pass-wrapper">
+            <input type="password" id="pass" placeholder="Password Siswa">
+            <span class="toggle-password" onclick="intipPass()">LIHAT</span>
+        </div>
         <button onclick="mulai()">Masuk Ujian</button>
     </div>
 
@@ -171,7 +174,7 @@
     let currentKelas = "";
     let timerInterval;
 
-    // --- PROTEKSI KEAMANAN VERSI 3.5 ---
+    // --- PROTEKSI KEAMANAN & ANTI SCREENSHOT ---
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('keyup', (e) => {
         if (e.key === 'PrintScreen') {
@@ -185,14 +188,20 @@
         }
         if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73)) return false;
     };
-    // Efek Blur saat pindah Tab
     document.addEventListener("visibilitychange", function() {
         const card = document.querySelector('.card');
         if (document.hidden) card.classList.add('blur-mode');
         else card.classList.remove('blur-mode');
     });
 
-    // Fungsi Pengacak
+    // --- FITUR LIHAT PASSWORD ---
+    function intipPass() {
+        const p = document.getElementById('pass');
+        const t = document.querySelector('.toggle-password');
+        if (p.type === "password") { p.type = "text"; t.innerText = "TUTUP"; }
+        else { p.type = "password"; t.innerText = "LIHAT"; }
+    }
+
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -216,7 +225,8 @@
             document.getElementById('sel-kelas').value = savedKelas;
             updateDaftarNama();
             document.getElementById('sel-nama').value = savedUser;
-            document.getElementById('pass').value = "siswa2026";
+            const s = SISWA_BARU.find(x => x.nama === savedUser);
+            if(s) document.getElementById('pass').value = s.pass;
             mulai(true);
         }
     };
@@ -233,29 +243,26 @@
     }
 
     async function mulai(isAuto = false) {
-    const u = document.getElementById('sel-nama').value;
-    const k = document.getElementById('sel-kelas').value;
-    const p = document.getElementById('pass').value;
-    const loading = document.getElementById('loading-overlay');
+        const u = document.getElementById('sel-nama').value;
+        const k = document.getElementById('sel-kelas').value;
+        const p = document.getElementById('pass').value;
+        const loading = document.getElementById('loading-overlay');
 
-    // MENCARI DATA SISWA DI DATABASE LOKAL
-    const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
+        const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
 
-    // VERIFIKASI PASSWORD PER SISWA
-    if(dataSiswa && p === dataSiswa.pass) {
-        loading.style.display = "flex";
-        try {
-            const rSoal = await fetch('soal.json?v=' + Date.now());
-            const soalAsli = await rSoal.json();
-            
-            // ... (logika fetch status dan acak soal tetap sama seperti versi sebelumnya)
+        if(dataSiswa && p === dataSiswa.pass) {
+            loading.style.display = "flex";
+            try {
+                const rSoal = await fetch('soal.json?v=' + Date.now());
+                const soalAsli = await rSoal.json();
+                const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
+                const s = await rStatus.json();
 
                 if(s.jumlahDikerjakan >= soalAsli.length) {
                     alert("Akses Ditolak: Anda sudah menyelesaikan ujian!");
                     logout(); return;
                 }
 
-                // Logika Acak Soal Permanen per Sesi
                 if (s.jumlahDikerjakan === 0 && !localStorage.getItem('urutan_soal')) {
                     dataSoal = shuffle(soalAsli);
                     localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
@@ -264,8 +271,7 @@
                     dataSoal = savedOrder ? JSON.parse(savedOrder) : soalAsli;
                 }
 
-                currentUser = u;
-                currentKelas = k;
+                currentUser = u; currentKelas = k;
                 localStorage.setItem('active_student', u);
                 localStorage.setItem('active_kelas', k);
                 curIdx = s.jumlahDikerjakan;
@@ -275,14 +281,13 @@
                 document.getElementById('txt-nama').innerText = u;
                 document.getElementById('txt-kelas').innerText = k;
                 
-                tampil();
-                startTimer();
+                tampil(); startTimer();
                 loading.style.display = "none";
             } catch(e) { 
                 loading.style.display = "none";
                 alert("Gagal koneksi server."); 
             }
-        } else { if(!isAuto) alert("Data tidak lengkap!"); }
+        } else { if(!isAuto) alert("Data tidak lengkap atau Password salah!"); }
     }
 
     function startTimer() {
@@ -298,8 +303,7 @@
             if (sisaWaktu <= 0) {
                 clearInterval(timerInterval);
                 document.getElementById('timer').innerText = "Waktu Tersisa: 0:00";
-                alert("Waktu Habis!");
-                finishUjian();
+                alert("Waktu Habis!"); finishUjian();
             } else {
                 let min = Math.floor(sisaWaktu / 60);
                 let sec = sisaWaktu % 60;
@@ -310,19 +314,13 @@
 
     function logout() {
         clearInterval(timerInterval);
-        localStorage.removeItem('active_student');
-        localStorage.removeItem('active_kelas');
-        localStorage.removeItem('ujian_deadline');
-        localStorage.removeItem('urutan_soal');
+        localStorage.clear();
         location.reload();
     }
 
     function finishUjian() {
         clearInterval(timerInterval);
-        localStorage.removeItem('active_student');
-        localStorage.removeItem('active_kelas');
-        localStorage.removeItem('ujian_deadline');
-        localStorage.removeItem('urutan_soal');
+        localStorage.clear();
         document.getElementById('box-kuis').style.display = 'none';
         document.getElementById('box-selesai').style.display = 'block';
     }
@@ -335,7 +333,7 @@
         let h = `<h3 style="margin-bottom:15px; text-align:left;">${s.pertanyaan}</h3>`;
 
         if (["pilihan-ganda", "pg-kompleks"].includes(s.tipe)) {
-            const opsiAcak = shuffle([...s.opsi]); // Acak Opsi
+            const opsiAcak = shuffle([...s.opsi]); 
             opsiAcak.forEach(o => {
                 const tipe = s.tipe === "pg-kompleks" ? "checkbox" : "radio";
                 h += `<label class="opsi-item"><input type="${tipe}" name="j" value="${o}"> <span>${o}</span></label>`;
@@ -396,4 +394,3 @@
 </script>
 </body>
 </html>
-
