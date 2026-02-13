@@ -1,22 +1,77 @@
 [
   {
-    "id": 1,
-    "tipe": "pilihan-ganda",
-    "pertanyaan": "Siapakah tokoh yang dikenal sebagai Pak Cokro dalam cerita?",
-    "opsi": ["Petani", "Guru", "Pelaut", "Pedagang", "Masinis"],
-    "kunci": "Guru"
+    "id": 1, "tipe": "benar-salah", "pertanyaan": "Hardware adalah komponen fisik komputer yang dapat disentuh.", "kunci": "Benar", "skor": 4
   },
   {
-    "id": 2,
-    "tipe": "pg-kompleks",
-    "pertanyaan": "Manakah pernyataan yang sesuai dengan karakter Pak Cokro? (Pilih 2)",
-    "opsi": ["Sabar", "Disiplin", "Pemarah", "Pemalas", "Sombong"],
-    "kunci": ["Sabar", "Disiplin"]
+    "id": 2, "tipe": "benar-salah", "pertanyaan": "Sistem operasi Windows dikembangkan oleh perusahaan Apple.", "kunci": "Salah", "skor": 4
   },
   {
-    "id": 3,
-    "tipe": "benar-salah",
-    "pertanyaan": "Pak Cokro tinggal di desa makmur yang asri.",
-    "kunci": "Benar"
+    "id": 3, "tipe": "benar-salah", "pertanyaan": "Mouse merupakan salah satu perangkat input pada komputer.", "kunci": "Benar", "skor": 4
+  },
+  {
+    "id": 4, "tipe": "benar-salah", "pertanyaan": "RAM berfungsi untuk menyimpan data secara permanen meskipun komputer mati.", "kunci": "Salah", "skor": 4
+  },
+  {
+    "id": 5, "tipe": "benar-salah", "pertanyaan": "Browser digunakan untuk menjelajahi informasi di internet.", "kunci": "Benar", "skor": 4
+  },
+  {
+    "id": 6, "tipe": "pilihan-ganda", "pertanyaan": "Manakah yang termasuk perangkat output?", "opsi": ["Keyboard", "Scanner", "Monitor", "Mouse", "Microphone"], "kunci": "Monitor", "skor": 4
+  },
+  {
+    "id": 7, "tipe": "pilihan-ganda", "pertanyaan": "Satuan kecepatan prosesor adalah...", "opsi": ["Byte", "Hertz", "Meter", "Watt", "Volt"], "kunci": "Hertz", "skor": 4
+  },
+  {
+    "id": 8, "tipe": "pilihan-ganda", "pertanyaan": "Otak dari sebuah komputer disebut...", "opsi": ["RAM", "Harddisk", "Power Supply", "CPU", "Motherboard"], "kunci": "CPU", "skor": 4
+  },
+  {
+    "id": 9, "tipe": "pilihan-ganda", "pertanyaan": "Program yang digunakan untuk mengetik surat adalah...", "opsi": ["MS Excel", "MS PowerPoint", "MS Word", "MS Access", "Photoshop"], "kunci": "MS Word", "skor": 4
+  },
+  {
+    "id": 10, "tipe": "pilihan-ganda", "pertanyaan": "Kombinasi tombol untuk menyalin (copy) teks adalah...", "opsi": ["Ctrl+X", "Ctrl+V", "Ctrl+S", "Ctrl+A", "Ctrl+C"], "kunci": "Ctrl+C", "skor": 4
+  },
+  {
+    "id": 11, "tipe": "pg-kompleks", "pertanyaan": "Pilih dua sistem operasi untuk smartphone:", "opsi": ["Android", "Windows 11", "iOS", "macOS", "Linux Ubuntu"], "kunci": ["Android", "iOS"], "skor": 4
+  },
+  {
+    "id": 12, "tipe": "pg-kompleks", "pertanyaan": "Pilih dua perangkat yang berfungsi sebagai media penyimpanan:", "opsi": ["SSD", "RAM", "Flashdisk", "VGA Card", "Sound Card"], "kunci": ["Flashdisk", "SSD"], "skor": 4
+  },
+  {
+    "id": 13, "tipe": "pg-kompleks", "pertanyaan": "Manakah dua aplikasi yang termasuk Web Browser?", "opsi": ["Google Chrome", "Adobe Reader", "Mozilla Firefox", "Zoom", "WhatsApp"], "kunci": ["Google Chrome", "Mozilla Firefox"], "skor": 4
+  },
+  {
+    "id": 14, "tipe": "pg-kompleks", "pertanyaan": "Pilih dua komponen utama di dalam CPU:", "opsi": ["ALU", "Monitor", "Control Unit", "Keyboard", "Printer"], "kunci": ["ALU", "Control Unit"], "skor": 4
+  },
+  {
+    "id": 15, "tipe": "pg-kompleks", "pertanyaan": "Pilih dua jenis topologi jaringan komputer:", "opsi": ["Bus", "Car", "Star", "Plane", "Train"], "kunci": ["Bus", "Star"], "skor": 4
+  },
+  {
+    "id": 16, "tipe": "menjodohkan", "pertanyaan": "Pasangkan aplikasi dengan fungsinya:", "kiri": ["MS Word", "MS Excel", "Photoshop"], "kanan": ["Edit Foto", "Olah Kata", "Olah Angka"], "kunci": {"MS Word": "Olah Kata", "MS Excel": "Olah Angka", "Photoshop": "Edit Foto"}, "skor": 4
+  },
+  {
+    "id": 17, "tipe": "menjodohkan", "pertanyaan": "Pasangkan ekstensi file dengan jenis filenya:", "kiri": [".jpg", ".mp3", ".docx"], "kanan": ["Dokumen", "Gambar", "Audio"], "kunci": {".jpg": "Gambar", ".mp3": "Audio", ".docx": "Dokumen"}, "skor": 4
+  },
+  {
+    "id": 18, "tipe": "menjodohkan", "pertanyaan": "Pasangkan perangkat dengan jenisnya:", "kiri": ["Keyboard", "Speaker", "Harddisk"], "kanan": ["Output", "Input", "Storage"], "kunci": {"Keyboard": "Input", "Speaker": "Output", "Harddisk": "Storage"}, "skor": 4
+  },
+  {
+    "id": 19, "tipe": "menjodohkan", "pertanyaan": "Pasangkan perintah shortcut dengan fungsinya:", "kiri": ["Ctrl+S", "Ctrl+Z", "Ctrl+P"], "kanan": ["Undo", "Print", "Save"], "kunci": {"Ctrl+S": "Save", "Ctrl+Z": "Undo", "Ctrl+P": "Print"}, "skor": 4
+  },
+  {
+    "id": 20, "tipe": "menjodohkan", "pertanyaan": "Pasangkan istilah internet berikut:", "kiri": ["URL", "HTTP", "WWW"], "kanan": ["Protokol", "Alamat Web", "Kumpulan Web"], "kunci": {"URL": "Alamat Web", "HTTP": "Protokol", "WWW": "Kumpulan Web"}, "skor": 4
+  },
+  {
+    "id": 21, "tipe": "essay", "pertanyaan": "Sebutkan dan jelaskan tiga fungsi utama dari sistem operasi!", "kunci": "Manajemen memori, manajemen file, penyedia antarmuka", "skor": 4
+  },
+  {
+    "id": 22, "tipe": "essay", "pertanyaan": "Apa perbedaan utama antara RAM dan Harddisk?", "kunci": "RAM sementara & cepat, Harddisk permanen & kapasitas besar", "skor": 4
+  },
+  {
+    "id": 23, "tipe": "essay", "pertanyaan": "Mengapa kita harus melakukan 'Eject' sebelum mencabut Flashdisk?", "kunci": "Mencegah kerusakan data/file korup", "skor": 4
+  },
+  {
+    "id": 24, "tipe": "essay", "pertanyaan": "Jelaskan apa yang dimaksud dengan jaringan LAN!", "kunci": "Jaringan lokal dalam area terbatas seperti kantor/sekolah", "skor": 4
+  },
+  {
+    "id": 25, "tipe": "essay", "pertanyaan": "Apa manfaat penggunaan Cloud Storage di zaman sekarang?", "kunci": "Akses data di mana saja, keamanan cadangan, kolaborasi mudah", "skor": 4
   }
 ]
