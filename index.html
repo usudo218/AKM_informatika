@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AKM Application Ver 3.4 - SMAN 1 Muncar</title>
+    <title>AKM Application Ver 3.5 - SMAN 1 Muncar</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="siswa.js"></script>
     <style>
@@ -17,31 +17,35 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-    font-family: 'Inter', sans-serif;
-    background: var(--bg-gradient);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* Ubah justify-content dari center menjadi flex-start agar konten mulai dari atas */
-    justify-content: flex-start; 
-    /* Tambahkan padding top agar box login tidak terlalu mepet ke atas layar */
-    padding: 40px 20px 20px 20px; 
-    -webkit-user-select: none;
-    user-select: none;
-}
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+            padding: 40px 20px 20px 20px; 
+            -webkit-user-select: none;
+            user-select: none;
+        }
 
-       .card {
-    background: white;
-    width: 100%;
-    max-width: 500px;
-    padding: 30px; /* Sedikit dikurangi agar lebih ringkas di HP */
-    border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    position: relative;
-    /* Hilangkan margin: auto agar tidak mendorong footer ke bawah */
-    margin-bottom: 15px; 
-}
+        .card {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            position: relative;
+            margin-bottom: 15px;
+            transition: filter 0.3s ease;
+        }
+
+        /* Efek Blur untuk Anti-Screenshot/Pindah Tab */
+        .blur-mode {
+            filter: blur(15px);
+            pointer-events: none;
+        }
 
         .header-container { text-align: center; margin-bottom: 25px; }
         .logo-img { width: 90px; height: auto; margin-bottom: 15px; }
@@ -81,16 +85,16 @@
         #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
         
         .footer {
-    width: 100%;
-    max-width: 500px;
-    text-align: center;
-    color: white;
-    font-size: 11px; /* Ukuran font diperkecil sedikit */
-    line-height: 1.4;
-    padding-top: 5px; /* Jarak atas footer ke card dipersempit */
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-    font-weight: 400;
-}
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            color: white;
+            font-size: 11px; 
+            line-height: 1.4;
+            padding-top: 5px; 
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            font-weight: 400;
+        }
 
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -111,25 +115,21 @@
 <div class="card">
     <div id="box-login">
         <div class="header-container">
-            <img src="logo.png" class="logo-img" alt="Logo Tut Wuri Handayani">
+            <img src="logo.png" class="logo-img" alt="Logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_Tut_Wuri_Handayani.png/100px-Logo_Tut_Wuri_Handayani.png'">
             <h1 class="title-uts">Ujian Tengah Semester</h1>
             <p style="color:var(--dark-green); font-weight:600;">INFORMATIKA</p>
             <hr style="margin-top:20px; border:0; border-top:1px solid #eee;">
         </div>
-        
         <label>Pilih Kelas</label>
         <select id="sel-kelas" onchange="updateDaftarNama()">
             <option value="">-- Pilih Kelas --</option>
         </select>
-
         <label>Nama Siswa</label>
         <select id="sel-nama">
             <option value="">-- Pilih Nama --</option>
         </select>
-
         <label>Password</label>
         <input type="password" id="pass" placeholder="Password (siswa2026)">
-        
         <button onclick="mulai()">Masuk Ujian</button>
     </div>
 
@@ -157,13 +157,12 @@
 </div>
 
 <footer class="footer">
-    AKM Application Ver 3.4 SMAN 1 Muncar<br>
+    AKM Application Ver 3.5 SMAN 1 Muncar<br>
     <strong>Design By Agus Tjakra</strong>
 </footer>
 
 <script>
     const URL_APP = "https://script.google.com/macros/s/AKfycbxkE7I2XutjKdOIf9RM7xZm3xpFwDgteAjenGDfi1MeDBV54TadW_sgljGrnRQSCWoT/exec";
-
     const DURASI_UJIAN = 60; 
 
     let dataSoal = [];
@@ -172,8 +171,37 @@
     let currentKelas = "";
     let timerInterval;
 
+    // --- PROTEKSI KEAMANAN VERSI 3.5 ---
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keyup', (e) => {
+        if (e.key === 'PrintScreen') {
+            navigator.clipboard.writeText("");
+            alert("Dilarang melakukan screenshot!");
+        }
+    });
+    document.onkeydown = function(e) {
+        if (e.ctrlKey && (e.keyCode === 80 || e.keyCode === 83 || e.keyCode === 67 || e.keyCode === 86 || e.keyCode === 85)) {
+            return false;
+        }
+        if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73)) return false;
+    };
+    // Efek Blur saat pindah Tab
+    document.addEventListener("visibilitychange", function() {
+        const card = document.querySelector('.card');
+        if (document.hidden) card.classList.add('blur-mode');
+        else card.classList.remove('blur-mode');
+    });
+
+    // Fungsi Pengacak
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
     window.onload = function() {
-        // SISWA_BARU berasal dari siswa.js
         const kelasUnik = [...new Set(SISWA_BARU.map(s => s.kelas))];
         const selKelas = document.getElementById('sel-kelas');
         kelasUnik.sort().forEach(k => {
@@ -197,7 +225,6 @@
         const kelas = document.getElementById('sel-kelas').value;
         const selNama = document.getElementById('sel-nama');
         selNama.innerHTML = '<option value="">-- Pilih Nama --</option>';
-        
         SISWA_BARU.filter(s => s.kelas === kelas).sort((a,b) => a.nama.localeCompare(b.nama)).forEach(s => {
             const opt = document.createElement('option');
             opt.value = s.nama; opt.innerText = s.nama;
@@ -215,13 +242,22 @@
             loading.style.display = "flex";
             try {
                 const rSoal = await fetch('soal.json?v=' + Date.now());
-                dataSoal = await rSoal.json();
+                const soalAsli = await rSoal.json();
                 const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
                 const s = await rStatus.json();
 
-                if(s.jumlahDikerjakan >= dataSoal.length) {
+                if(s.jumlahDikerjakan >= soalAsli.length) {
                     alert("Akses Ditolak: Anda sudah menyelesaikan ujian!");
                     logout(); return;
+                }
+
+                // Logika Acak Soal Permanen per Sesi
+                if (s.jumlahDikerjakan === 0 && !localStorage.getItem('urutan_soal')) {
+                    dataSoal = shuffle(soalAsli);
+                    localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
+                } else {
+                    const savedOrder = localStorage.getItem('urutan_soal');
+                    dataSoal = savedOrder ? JSON.parse(savedOrder) : soalAsli;
                 }
 
                 currentUser = u;
@@ -236,29 +272,25 @@
                 document.getElementById('txt-kelas').innerText = k;
                 
                 tampil();
-                startTimer(); // Memulai timer anti-reset
+                startTimer();
                 loading.style.display = "none";
             } catch(e) { 
                 loading.style.display = "none";
                 alert("Gagal koneksi server."); 
             }
-        } else { if(!isAuto) alert("Data tidak lengkap atau password salah!"); }
+        } else { if(!isAuto) alert("Data tidak lengkap!"); }
     }
 
-    // --- FUNGSI TIMER BARU (ANTI-RESET) ---
     function startTimer() {
         let deadline = localStorage.getItem('ujian_deadline');
-        
         if (!deadline) {
             deadline = Date.now() + (DURASI_UJIAN * 60 * 1000);
             localStorage.setItem('ujian_deadline', deadline);
         }
-
         clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             let sekarang = Date.now();
             let sisaWaktu = Math.floor((deadline - sekarang) / 1000);
-
             if (sisaWaktu <= 0) {
                 clearInterval(timerInterval);
                 document.getElementById('timer').innerText = "Waktu Tersisa: 0:00";
@@ -272,21 +304,21 @@
         }, 1000);
     }
 
-    // --- FUNGSI LOGOUT BARU ---
     function logout() {
         clearInterval(timerInterval);
         localStorage.removeItem('active_student');
         localStorage.removeItem('active_kelas');
-        localStorage.removeItem('ujian_deadline'); // Hapus deadline saat logout
+        localStorage.removeItem('ujian_deadline');
+        localStorage.removeItem('urutan_soal');
         location.reload();
     }
 
-    // --- FUNGSI FINISH BARU ---
     function finishUjian() {
         clearInterval(timerInterval);
         localStorage.removeItem('active_student');
         localStorage.removeItem('active_kelas');
-        localStorage.removeItem('ujian_deadline'); // Hapus deadline saat selesai
+        localStorage.removeItem('ujian_deadline');
+        localStorage.removeItem('urutan_soal');
         document.getElementById('box-kuis').style.display = 'none';
         document.getElementById('box-selesai').style.display = 'block';
     }
@@ -298,11 +330,15 @@
         
         let h = `<h3 style="margin-bottom:15px; text-align:left;">${s.pertanyaan}</h3>`;
 
-        if (["pilihan-ganda", "benar-salah", "pg-kompleks"].includes(s.tipe)) {
-            const opsi = s.opsi || ["Benar", "Salah"];
-            opsi.forEach(o => {
+        if (["pilihan-ganda", "pg-kompleks"].includes(s.tipe)) {
+            const opsiAcak = shuffle([...s.opsi]); // Acak Opsi
+            opsiAcak.forEach(o => {
                 const tipe = s.tipe === "pg-kompleks" ? "checkbox" : "radio";
                 h += `<label class="opsi-item"><input type="${tipe}" name="j" value="${o}"> <span>${o}</span></label>`;
+            });
+        } else if (s.tipe === "benar-salah") {
+            ["Benar", "Salah"].forEach(o => {
+                h += `<label class="opsi-item"><input type="radio" name="j" value="${o}"> <span>${o}</span></label>`;
             });
         } else if (s.tipe === "menjodohkan") {
             s.kiri.forEach(k => {
@@ -326,14 +362,14 @@
 
         if (s.tipe === "essay") {
             jwb = document.getElementById('j-essay').value.trim();
-            if(!jwb) return alert("Jawaban tidak boleh kosong!");
+            if(!jwb) return alert("Isi jawaban!");
             stat = "Perlu Koreksi";
         } else if (s.tipe === "menjodohkan") {
             let res = {}; let count = 0;
             document.querySelectorAll('select[name="j-match"]').forEach(sel => {
                 if(sel.value) { res[sel.dataset.key] = sel.value; count++; }
             });
-            if(count < s.kiri.length) return alert("Jodohkan semua pilihan!");
+            if(count < s.kiri.length) return alert("Jodohkan semua!");
             jwb = JSON.stringify(res);
             stat = (jwb === JSON.stringify(s.kunci)) ? "Benar" : "Salah";
         } else {
@@ -351,9 +387,8 @@
             if(curIdx < dataSoal.length) {
                 tampil(); btnNext.disabled = false;
             } else { finishUjian(); }
-        } catch (e) { alert("Gagal mengirim. Coba lagi."); btnNext.disabled = false; }
+        } catch (e) { alert("Gagal mengirim."); btnNext.disabled = false; }
     }
 </script>
 </body>
 </html>
-
