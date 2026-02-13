@@ -21,9 +21,9 @@
             background: var(--bg-gradient);
             min-height: 100vh;
             display: flex;
-            flex-direction: column; /* Mengatur urutan vertikal */
+            flex-direction: column;
             align-items: center;
-            justify-content: center; /* Memusatkan secara vertikal */
+            justify-content: center;
             padding: 20px;
             -webkit-user-select: none;
             user-select: none;
@@ -37,10 +37,9 @@
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             position: relative;
-            margin: auto; /* Memastikan kartu berada di tengah */
+            margin: auto;
         }
 
-        /* Header Style */
         .header-container { text-align: center; margin-bottom: 25px; }
         .logo-img { width: 90px; height: auto; margin-bottom: 15px; }
         .title-uts { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); text-transform: uppercase; }
@@ -78,7 +77,6 @@
         .bar { width: 100%; height: 8px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
         #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
         
-        /* Footer Style Fix */
         .footer {
             width: 100%;
             max-width: 500px;
@@ -172,6 +170,7 @@
     let timerInterval;
 
     window.onload = function() {
+        // SISWA_BARU berasal dari siswa.js
         const kelasUnik = [...new Set(SISWA_BARU.map(s => s.kelas))];
         const selKelas = document.getElementById('sel-kelas');
         kelasUnik.sort().forEach(k => {
@@ -234,7 +233,7 @@
                 document.getElementById('txt-kelas').innerText = k;
                 
                 tampil();
-                startTimer();
+                startTimer(); // Memulai timer anti-reset
                 loading.style.display = "none";
             } catch(e) { 
                 loading.style.display = "none";
@@ -243,19 +242,50 @@
         } else { if(!isAuto) alert("Data tidak lengkap atau password salah!"); }
     }
 
+    // --- FUNGSI TIMER BARU (ANTI-RESET) ---
     function startTimer() {
-        let time = DURASI_UJIAN * 60;
+        let deadline = localStorage.getItem('ujian_deadline');
+        
+        if (!deadline) {
+            deadline = Date.now() + (DURASI_UJIAN * 60 * 1000);
+            localStorage.setItem('ujian_deadline', deadline);
+        }
+
+        clearInterval(timerInterval);
         timerInterval = setInterval(() => {
-            let min = Math.floor(time / 60);
-            let sec = time % 60;
-            document.getElementById('timer').innerText = `Waktu Tersisa: ${min}:${sec < 10 ? '0' : ''}${sec}`;
-            if (time <= 0) {
+            let sekarang = Date.now();
+            let sisaWaktu = Math.floor((deadline - sekarang) / 1000);
+
+            if (sisaWaktu <= 0) {
                 clearInterval(timerInterval);
+                document.getElementById('timer').innerText = "Waktu Tersisa: 0:00";
                 alert("Waktu Habis!");
                 finishUjian();
+            } else {
+                let min = Math.floor(sisaWaktu / 60);
+                let sec = sisaWaktu % 60;
+                document.getElementById('timer').innerText = `Waktu Tersisa: ${min}:${sec < 10 ? '0' : ''}${sec}`;
             }
-            time--;
         }, 1000);
+    }
+
+    // --- FUNGSI LOGOUT BARU ---
+    function logout() {
+        clearInterval(timerInterval);
+        localStorage.removeItem('active_student');
+        localStorage.removeItem('active_kelas');
+        localStorage.removeItem('ujian_deadline'); // Hapus deadline saat logout
+        location.reload();
+    }
+
+    // --- FUNGSI FINISH BARU ---
+    function finishUjian() {
+        clearInterval(timerInterval);
+        localStorage.removeItem('active_student');
+        localStorage.removeItem('active_kelas');
+        localStorage.removeItem('ujian_deadline'); // Hapus deadline saat selesai
+        document.getElementById('box-kuis').style.display = 'none';
+        document.getElementById('box-selesai').style.display = 'block';
     }
 
     function tampil() {
@@ -319,21 +349,6 @@
                 tampil(); btnNext.disabled = false;
             } else { finishUjian(); }
         } catch (e) { alert("Gagal mengirim. Coba lagi."); btnNext.disabled = false; }
-    }
-
-    function finishUjian() {
-        clearInterval(timerInterval);
-        localStorage.removeItem('active_student');
-        localStorage.removeItem('active_kelas');
-        document.getElementById('box-kuis').style.display = 'none';
-        document.getElementById('box-selesai').style.display = 'block';
-    }
-
-    function logout() {
-        clearInterval(timerInterval);
-        localStorage.removeItem('active_student');
-        localStorage.removeItem('active_kelas');
-        location.reload();
     }
 </script>
 </body>
