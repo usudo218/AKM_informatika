@@ -17,28 +17,31 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            -webkit-user-select: none;
-            user-select: none;
-        }
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-gradient);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Ubah justify-content dari center menjadi flex-start agar konten mulai dari atas */
+    justify-content: flex-start; 
+    /* Tambahkan padding top agar box login tidak terlalu mepet ke atas layar */
+    padding: 40px 20px 20px 20px; 
+    -webkit-user-select: none;
+    user-select: none;
+}
 
-        .card {
-            background: white;
-            width: 100%;
-            max-width: 500px;
-            padding: 40px 30px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            position: relative;
-            margin: auto;
-        }
+       .card {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    padding: 30px; /* Sedikit dikurangi agar lebih ringkas di HP */
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    position: relative;
+    /* Hilangkan margin: auto agar tidak mendorong footer ke bawah */
+    margin-bottom: 15px; 
+}
 
         .header-container { text-align: center; margin-bottom: 25px; }
         .logo-img { width: 90px; height: auto; margin-bottom: 15px; }
@@ -78,16 +81,16 @@
         #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
         
         .footer {
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-            color: white;
-            font-size: 12px;
-            line-height: 1.6;
-            padding-top: 20px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-            font-weight: 400;
-        }
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    color: white;
+    font-size: 11px; /* Ukuran font diperkecil sedikit */
+    line-height: 1.4;
+    padding-top: 5px; /* Jarak atas footer ke card dipersempit */
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    font-weight: 400;
+}
 
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -353,3 +356,4 @@
 </script>
 </body>
 </html>
+
