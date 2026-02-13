@@ -41,11 +41,7 @@
             transition: filter 0.3s ease;
         }
 
-        /* Anti-Screenshot/Pindah Tab Blur */
-        .blur-mode {
-            filter: blur(15px);
-            pointer-events: none;
-        }
+        .blur-mode { filter: blur(15px); pointer-events: none; }
 
         .header-container { text-align: center; margin-bottom: 25px; }
         .logo-img { width: 90px; height: auto; margin-bottom: 15px; }
@@ -58,7 +54,6 @@
             border-radius: 10px; background-color: #f8faff; font-size: 15px; outline: none;
         }
 
-        /* Style Lihat Password */
         .pass-wrapper { position: relative; width: 100%; }
         .toggle-password {
             position: absolute; right: 15px; top: 15px; cursor: pointer;
@@ -168,33 +163,18 @@
     const URL_APP = "https://script.google.com/macros/s/AKfycbxkE7I2XutjKdOIf9RM7xZm3xpFwDgteAjenGDfi1MeDBV54TadW_sgljGrnRQSCWoT/exec";
     const DURASI_UJIAN = 60; 
 
-    let dataSoal = [];
-    let curIdx = 0;
-    let currentUser = "";
-    let currentKelas = "";
-    let timerInterval;
+    let dataSoal = []; let curIdx = 0; let currentUser = ""; let currentKelas = ""; let timerInterval;
 
-    // --- PROTEKSI KEAMANAN & ANTI SCREENSHOT ---
+    // --- PROTEKSI KERAS ---
+    window.history.pushState(null, "", window.location.href);
+    window.onpopstate = function() { window.history.pushState(null, "", window.location.href); };
     document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('keyup', (e) => {
-        if (e.key === 'PrintScreen') {
-            navigator.clipboard.writeText("");
-            alert("Dilarang melakukan screenshot!");
-        }
-    });
-    document.onkeydown = function(e) {
-        if (e.ctrlKey && (e.keyCode === 80 || e.keyCode === 83 || e.keyCode === 67 || e.keyCode === 86 || e.keyCode === 85)) {
-            return false;
-        }
-        if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73)) return false;
-    };
     document.addEventListener("visibilitychange", function() {
         const card = document.querySelector('.card');
         if (document.hidden) card.classList.add('blur-mode');
         else card.classList.remove('blur-mode');
     });
 
-    // --- FITUR LIHAT PASSWORD ---
     function intipPass() {
         const p = document.getElementById('pass');
         const t = document.querySelector('.toggle-password');
@@ -253,16 +233,23 @@
         if(dataSiswa && p === dataSiswa.pass) {
             loading.style.display = "flex";
             try {
+                // 1. Fetch data kuis
                 const rSoal = await fetch('soal.json?v=' + Date.now());
                 const soalAsli = await rSoal.json();
+                
+                // 2. Cek status di Google Sheets
                 const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
                 const s = await rStatus.json();
 
+                // BLOKIR JIKA SUDAH SELESAI
                 if(s.jumlahDikerjakan >= soalAsli.length) {
-                    alert("Akses Ditolak: Anda sudah menyelesaikan ujian!");
-                    logout(); return;
+                    loading.style.display = "none";
+                    alert("AKSES DITOLAK: Anda sudah menyelesaikan ujian!");
+                    logout();
+                    return;
                 }
 
+                // Acak Soal
                 if (s.jumlahDikerjakan === 0 && !localStorage.getItem('urutan_soal')) {
                     dataSoal = shuffle(soalAsli);
                     localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
@@ -302,7 +289,6 @@
             let sisaWaktu = Math.floor((deadline - sekarang) / 1000);
             if (sisaWaktu <= 0) {
                 clearInterval(timerInterval);
-                document.getElementById('timer').innerText = "Waktu Tersisa: 0:00";
                 alert("Waktu Habis!"); finishUjian();
             } else {
                 let min = Math.floor(sisaWaktu / 60);
@@ -315,6 +301,7 @@
     function logout() {
         clearInterval(timerInterval);
         localStorage.clear();
+        sessionStorage.clear();
         location.reload();
     }
 
@@ -329,9 +316,7 @@
         const s = dataSoal[curIdx];
         document.getElementById('idx').innerText = (curIdx + 1) + "/" + dataSoal.length;
         document.getElementById('progress').style.width = (curIdx / dataSoal.length * 100) + "%";
-        
-        let h = `<h3 style="margin-bottom:15px; text-align:left;">${s.pertanyaan}</h3>`;
-
+        let h = `<h3>${s.pertanyaan}</h3>`;
         if (["pilihan-ganda", "pg-kompleks"].includes(s.tipe)) {
             const opsiAcak = shuffle([...s.opsi]); 
             opsiAcak.forEach(o => {
@@ -345,8 +330,8 @@
         } else if (s.tipe === "menjodohkan") {
             s.kiri.forEach(k => {
                 h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border:1px solid #eee; margin-bottom:8px; border-radius:8px;">
-                      <span style="font-size:14px;">${k}</span>
-                      <select name="j-match" data-key="${k}" style="width:50%; margin:0; padding:5px; font-size:13px;">
+                      <span>${k}</span>
+                      <select name="j-match" data-key="${k}" style="width:50%; margin:0; padding:5px;">
                       <option value="">-- Pilih --</option>
                       ${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}
                       </select></div>`;
@@ -364,8 +349,7 @@
 
         if (s.tipe === "essay") {
             jwb = document.getElementById('j-essay').value.trim();
-            if(!jwb) return alert("Isi jawaban!");
-            stat = "Perlu Koreksi";
+            if(!jwb) return alert("Isi jawaban!"); stat = "Perlu Koreksi";
         } else if (s.tipe === "menjodohkan") {
             let res = {}; let count = 0;
             document.querySelectorAll('select[name="j-match"]').forEach(sel => {
@@ -386,9 +370,8 @@
         try {
             await fetch(URL_APP, { method: "POST", mode: "no-cors", body: JSON.stringify({ nama: currentUser, id_soal: s.id, jawaban: jwb, status: stat }) });
             curIdx++;
-            if(curIdx < dataSoal.length) {
-                tampil(); btnNext.disabled = false;
-            } else { finishUjian(); }
+            if(curIdx < dataSoal.length) { tampil(); btnNext.disabled = false; }
+            else { finishUjian(); }
         } catch (e) { alert("Gagal mengirim."); btnNext.disabled = false; }
     }
 </script>
