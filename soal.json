@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "tipe": "pilihan-ganda",
+    "pertanyaan": "Siapakah tokoh yang dikenal sebagai Pak Cokro dalam cerita?",
+    "opsi": ["Petani", "Guru", "Pelaut", "Pedagang", "Masinis"],
+    "kunci": "Guru"
+  },
+  {
+    "id": 2,
+    "tipe": "pg-kompleks",
+    "pertanyaan": "Manakah pernyataan yang sesuai dengan karakter Pak Cokro? (Pilih 2)",
+    "opsi": ["Sabar", "Disiplin", "Pemarah", "Pemalas", "Sombong"],
+    "kunci": ["Sabar", "Disiplin"]
+  },
+  {
+    "id": 3,
+    "tipe": "benar-salah",
+    "pertanyaan": "Pak Cokro tinggal di desa makmur.",
+    "kunci": "Benar"
+  },
+  {
+    "id": 4,
+    "tipe": "menjodohkan",
+    "pertanyaan": "Pasangkan kata berikut dengan sinonimnya:",
+    "kiri": ["Giat", "Pintar"],
+    "kanan": ["Cerdas", "Rajin", "Malas"],
+    "kunci": {"Giat": "Rajin", "Pintar": "Cerdas"}
+  }
+]

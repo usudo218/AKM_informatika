@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Ujian AKM Interaktif</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <div id="login-box" class="card">
+            <h2>Ujian AKM - Login</h2>
+            <input type="text" id="username" placeholder="Nama Siswa">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="kendaliLogin()">Masuk Ujian</button>
+        </div>
+
+        <div id="quiz-box" class="card" style="display:none;">
+            <div id="header-quiz">
+                <span id="user-display"></span>
+                <span id="timer">Soal <span id="current-idx">1</span></span>
+            </div>
+            <hr>
+            <div id="konten-soal">
+                </div>
+            <div class="navigasi">
+                <button id="btn-next" onclick="prosesJawaban()">Kirim Jawaban & Lanjut</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
