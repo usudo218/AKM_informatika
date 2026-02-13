@@ -1,4 +1,4 @@
-const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzijUrsUOPOeku81GGVgsGFBj0pesI5uqIdY3JIt1HdzKIVIVNDAqSg8qG3Ah99Md0/exec";
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz0JycsalbzRons5523b9vvnKVxPvptiM-kd1t78MhpdEm9qabiXUe0OZNdVNWZuw3H/exec";
 
 async function kendaliLogin() {
     const userInput = document.getElementById('username').value.trim();
@@ -45,3 +45,4 @@ async function kendaliLogin() {
         alert("Nama atau Password salah!");
     }
 }
+
