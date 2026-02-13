@@ -53,8 +53,6 @@
             outline: none;
         }
 
-        input:focus, textarea:focus { border-color: var(--primary-green); background-color: #fff; }
-
         button {
             width: 100%;
             padding: 15px;
@@ -103,15 +101,14 @@
 
 <div class="card">
     <div id="box-login">
-        <div class="header-container">
-             <img src="logo.png" class="logo-img" alt="Logo Tut Wuri Handayani">
+        <img src="logo.png" class="logo-img" alt="Logo Tut Wuri Handayani">
             <h1 class="title-uts">Ujian Tengah Semester</h1>
             <p class="subtitle">INFORMATIKA</p>
             <hr style="margin-top:20px; border:0; border-top:1px solid #eee;">
         </div>
         <input type="text" id="user" placeholder="Nama Lengkap Siswa" autocomplete="off">
         <input type="password" id="pass" placeholder="Password (siswa2026)">
-        <button onclick="mulai()">Masuk Ujian</button>
+        <button id="btn-login" onclick="mulai()">Masuk Ujian</button>
     </div>
 
     <div id="box-kuis" style="display:none">
@@ -129,6 +126,7 @@
     const URL_APP = "https://script.google.com/macros/s/AKfycbxkE7I2XutjKdOIf9RM7xZm3xpFwDgteAjenGDfi1MeDBV54TadW_sgljGrnRQSCWoT/exec";
     let dataSoal = [];
     let curIdx = 0;
+    let currentUser = "";
 
     // PROTEKSI KEAMANAN
     document.addEventListener('contextmenu', e => e.preventDefault());
@@ -136,38 +134,61 @@
         if (e.ctrlKey && [67, 86, 85, 83].includes(e.keyCode)) return false;
     };
 
-    async function mulai() {
+    // --- LOGIKA AUTO-RESUME ---
+    window.onload = function() {
+        const savedUser = localStorage.getItem('active_student');
+        if (savedUser) {
+            document.getElementById('user').value = savedUser;
+            document.getElementById('pass').value = "siswa2026";
+            mulai(true);
+        }
+    };
+
+    async function mulai(isAuto = false) {
         const u = document.getElementById('user').value.trim();
         const p = document.getElementById('pass').value;
-        const btn = document.querySelector('#box-login button');
+        const btn = document.getElementById('btn-login');
 
         if(u && p === "siswa2026") {
-            btn.innerText = "Memverifikasi..."; btn.disabled = true;
+            btn.innerText = isAuto ? "Melanjutkan Soal..." : "Memverifikasi...";
+            btn.disabled = true;
+            
             try {
                 const rSoal = await fetch('soal.json');
                 dataSoal = await rSoal.json();
+                
+                // Cek status ke Google Sheets untuk tahu soal terakhir yang sukses terkirim
                 const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
                 const s = await rStatus.json();
 
                 if(s.jumlahDikerjakan >= dataSoal.length) {
-                    alert("Akses Ditolak: Anda sudah menyelesaikan ujian!");
+                    alert("Ujian sudah selesai untuk akun ini.");
+                    localStorage.removeItem('active_student');
                     btn.disabled = false; btn.innerText = "Masuk Ujian";
                     return;
                 }
 
-                curIdx = s.jumlahDikerjakan;
+                // Masuk ke mode kuis
+                currentUser = u;
+                localStorage.setItem('active_student', u);
+                curIdx = s.jumlahDikerjakan; // Melanjutkan dari nomor terakhir di Sheets
+
                 document.getElementById('box-login').style.display = 'none';
                 document.getElementById('box-kuis').style.display = 'block';
                 document.getElementById('txt-nama').innerText = u.toUpperCase();
                 tampil();
-            } catch(e) { alert("Error koneksi!"); btn.disabled = false; btn.innerText = "Masuk Ujian"; }
-        } else { alert("Data login salah!"); }
+            } catch(e) { 
+                alert("Gagal memuat data. Periksa koneksi."); 
+                btn.disabled = false;
+            }
+        } else { alert("Login tidak valid!"); }
     }
 
     function tampil() {
         const s = dataSoal[curIdx];
         document.getElementById('idx').innerText = (curIdx + 1) + "/" + dataSoal.length;
         document.getElementById('progress').style.width = (curIdx / dataSoal.length * 100) + "%";
+        
         let h = `<h3>${s.pertanyaan}</h3>`;
 
         if (["pilihan-ganda", "benar-salah", "pg-kompleks"].includes(s.tipe)) {
@@ -191,13 +212,13 @@
     }
 
     async function simpan() {
-        const u = document.getElementById('user').value.trim();
+        const u = currentUser;
         const s = dataSoal[curIdx];
         let jwb = ""; let stat = "Salah";
 
         if (s.tipe === "essay") {
             jwb = document.getElementById('j-essay').value.trim();
-            if(!jwb) return alert("Isi jawaban!");
+            if(!jwb) return alert("Jawaban tidak boleh kosong!");
             stat = "Perlu Koreksi";
         } else if (s.tipe === "menjodohkan") {
             let res = {}; let count = 0;
@@ -215,11 +236,17 @@
             stat = (jwb === knc) ? "Benar" : "Salah";
         }
 
+        // Simpan ke Google Sheets
         fetch(URL_APP, { method: "POST", mode: "no-cors", body: JSON.stringify({ nama: u, id_soal: s.id, jawaban: jwb, status: stat }) });
         
         curIdx++;
-        if(curIdx < dataSoal.length) tampil();
-        else document.getElementById('box-kuis').innerHTML = "<div style='text-align:center'><h2>✔ SELESAI</h2><p>Jawaban terkirim.</p></div>";
+        if(curIdx < dataSoal.length) {
+            tampil();
+        } else {
+            localStorage.removeItem('active_student'); // Selesai, hapus sesi login otomatis
+            document.getElementById('box-kuis').innerHTML = "<div style='text-align:center; padding:30px;'><h2 style='color:#2ecc71;'>✔ UJIAN SELESAI</h2><p style='margin-top:10px; color:#636e72;'>Jawaban Anda telah tersimpan.</p></div>";
+            document.getElementById('btn-next').style.display = 'none';
+        }
     }
 </script>
 </body>
