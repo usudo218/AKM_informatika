@@ -3,79 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ujian AKM Informatika</title>
+    <title>UJIAN TENGAH SEMESTER - INFORMATIKA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --p: #2563eb; --bg: #f1f5f9; }
-        body { font-family: sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; width: 100%; max-width: 500px; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        :root {
+            --primary-green: #2ecc71;
+            --dark-green: #27ae60;
+            --bg-gradient: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            --text-dark: #2d3436;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            /* Anti-Select Teks */
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .card {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .logo-container { margin-bottom: 20px; }
+        .logo-img { width: 80px; height: auto; }
+
+        .title-uts {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 30px;
+            text-transform: capitalize;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background-color: #f8faff;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            outline: none;
+            user-select: text; /* Izinkan input bisa diketik */
+        }
+
+        input:focus {
+            border-color: var(--primary-green);
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover { background-color: var(--dark-green); }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        .footer-link {
+            margin-top: 25px;
+            font-size: 13px;
+            color: #636e72;
+            text-decoration: none;
+            display: block;
+        }
+
+        /* Tampilan Kuis */
+        #box-kuis { text-align: left; }
+        .bar { width: 100%; height: 8px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
         
-        /* Gaya Logo dan Judul agar muncul */
-        .header-container { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            text-align: center; 
-            margin-bottom: 25px; 
+        .opsi-item {
+            display: block;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #f1f2f6;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .logo { 
-            width: 90px; 
-            height: auto; 
-            margin-bottom: 15px; 
-            display: block; /* Memastikan gambar dianggap elemen blok */
+        .opsi-item:hover { background: #f8f9fa; }
+        .opsi-item:has(input:checked) {
+            border-color: var(--primary-green);
+            background-color: #f0fff4;
         }
-        .title-uts { 
-            font-size: 1.3rem; 
-            font-weight: bold; 
-            color: #1e293b; 
-            margin: 0; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px;
-        }
-        
-        input[type="text"], input[type="password"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--p); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .opsi-item { display: block; padding: 12px; margin: 8px 0; border: 1px solid #eee; border-radius: 8px; cursor: pointer; }
-        .opsi-item:has(input:checked) { background: #eff6ff; border-color: var(--p); }
-        .bar { width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; margin: 15px 0; overflow: hidden; }
-        #progress { height: 100%; background: var(--p); width: 0%; transition: 0.3s; }
+        h3 { margin-bottom: 20px; line-height: 1.5; color: var(--text-dark); }
     </style>
 </head>
 <body>
 
 <div class="card">
     <div id="box-login">
-        <div class="header-container">
-            <img src="https://drive.google.com/file/d/1RKDL1Sp0kC7whULa8vXMKt72llrJBRs6/view?usp=sharing" 
-                 alt="Logo" class="logo" 
-                 onerror="this.src='https://w7.pngwing.com/pngs/454/958/png-transparent-logo-tut-wuri-handayani-vector-thumbnail.png'">
-            
-            <p class="title-uts">Ujian Tengah Semester</p>
-            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px; font-weight: 600;">INFORMATIKA</p>
-            <hr style="width: 100%; border: 0; border-top: 1px solid #e2e8f0; margin-top: 20px;">
+        <div class="logo-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_Tut_Wuri_Handayani.png/200px-Logo_Tut_Wuri_Handayani.png" class="logo-img" alt="Logo">
         </div>
+        <h1 class="title-uts">Ujian Tengah Semester</h1>
         
-        <h2 style="text-align:center; font-size: 1rem; color: #475569; margin-bottom: 10px;">Silakan Login</h2>
-        <input type="text" id="user" placeholder="Nama Lengkap">
+        <input type="text" id="user" placeholder="Nama Lengkap Siswa" autocomplete="off">
         <input type="password" id="pass" placeholder="Password (siswa2026)">
+        
         <button onclick="mulai()">Masuk Ujian</button>
+        <a href="#" class="footer-link">← Kembali ke Menu Utama</a>
     </div>
 
     <div id="box-kuis" style="display:none">
-        <div style="display:flex; justify-content:space-between; font-size:14px; color:#666">
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#636e72; font-weight:600">
             <span id="txt-nama"></span>
             <span>Soal <span id="idx">1</span></span>
         </div>
         <div class="bar"><div id="progress"></div></div>
         <div id="soal-area"></div>
-        <button id="btn-next" style="margin-top:15px" onclick="simpan()">Simpan & Lanjut</button>
+        <button id="btn-next" style="margin-top:20px" onclick="simpan()">Simpan & Lanjut</button>
     </div>
 </div>
 
 <script>
+    // --- KONFIGURASI ---
     const URL_APP = "https://script.google.com/macros/s/AKfycbxkE7I2XutjKdOIf9RM7xZm3xpFwDgteAjenGDfi1MeDBV54TadW_sgljGrnRQSCWoT/exec";
     let dataSoal = [];
     let curIdx = 0;
 
+    // --- PROTEKSI KEAMANAN ---
+    document.addEventListener('contextmenu', e => e.preventDefault()); // Matikan Klik Kanan
+    document.onkeydown = function(e) {
+        if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 86 || e.keyCode === 85 || e.keyCode === 83)) {
+            return false; // Matikan Ctrl+C, V, U, S
+        }
+    };
+
+    // --- LOGIKA UTAMA ---
     async function mulai() {
         const u = document.getElementById('user').value.trim();
         const p = document.getElementById('pass').value;
@@ -91,7 +174,7 @@
                 const s = await rStatus.json();
 
                 if(s.jumlahDikerjakan >= dataSoal.length) {
-                    alert("Akses Ditolak: Anda sudah menyelesaikan ujian ini!");
+                    alert("Akses Ditolak: Anda sudah menyelesaikan ujian!");
                     btn.disabled = false; btn.innerText = "Masuk Ujian";
                     return;
                 }
@@ -99,16 +182,13 @@
                 curIdx = s.jumlahDikerjakan;
                 document.getElementById('box-login').style.display = 'none';
                 document.getElementById('box-kuis').style.display = 'block';
-                document.getElementById('txt-nama').innerText = "Siswa: " + u.toUpperCase();
+                document.getElementById('txt-nama').innerText = u.toUpperCase();
                 tampil();
             } catch(e) { 
-                alert("Gagal terhubung ke server. Periksa internet Anda."); 
-                btn.disabled = false; 
-                btn.innerText = "Masuk Ujian";
+                alert("Gagal koneksi server!"); 
+                btn.disabled = false; btn.innerText = "Masuk Ujian";
             }
-        } else { 
-            alert("Nama atau Password salah!"); 
-        }
+        } else { alert("Data tidak valid!"); }
     }
 
     function tampil() {
@@ -120,7 +200,7 @@
         const opsi = s.opsi || ["Benar", "Salah"];
         opsi.forEach(o => {
             const tipe = s.tipe === "pg-kompleks" ? "checkbox" : "radio";
-            h += `<label class="opsi-item"><input type="${tipe}" name="j" value="${o}"> ${o}</label>`;
+            h += `<label class="opsi-item"><input type="${tipe}" name="j" value="${o}"> <span>${o}</span></label>`;
         });
         document.getElementById('soal-area').innerHTML = h;
     }
@@ -143,16 +223,15 @@
         });
 
         curIdx++;
-        if(curIdx < dataSoal.length) { 
-            tampil(); 
-        } else {
-            document.getElementById('progress').style.width = "100%";
-            document.getElementById('soal-area').innerHTML = "<div style='text-align:center; padding:20px;'><h2 style='color:#22c55e;'>✔ Ujian Selesai!</h2><p>Jawaban Anda sudah tersimpan.</p></div>";
-            document.getElementById('btn-next').style.display = 'none';
+        if(curIdx < dataSoal.length) { tampil(); }
+        else {
+            document.getElementById('box-kuis').innerHTML = `
+                <div style="text-align:center; padding:20px;">
+                    <h2 style="color:var(--primary-green)">✔ SELESAI</h2>
+                    <p style="margin-top:10px; color:#636e72">Jawaban Anda berhasil terkirim.</p>
+                </div>`;
         }
     }
 </script>
 </body>
 </html>
-
-
