@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presensi Digital & Berita Acara - Guru</title>
+    <title>Presensi Digital SMANCAR</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="siswa.js"></script>
     <style>
@@ -19,7 +19,6 @@
         button { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
         .btn-kirim { background: var(--primary-blue); color: white; }
         .btn-reset { background: #fab1a0; color: #d63031; }
-        #status-list { margin-top: 25px; width: 100%; max-width: 600px; background: white; border-radius: 15px; padding: 15px; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -36,23 +35,19 @@
         <option value="">-- Pilih Nama Siswa --</option>
     </select>
 
-    <label>Tanda Tangan Siswa (Coret di kotak bawah)</label>
+    <label>Tanda Tangan</label>
     <div class="canvas-container">
         <canvas id="canvas-ttd"></canvas>
     </div>
 
     <div class="btn-group">
         <button class="btn-reset" onclick="hapusCanvas()">Reset</button>
-        <button class="btn-kirim" id="btn-kirim" onclick="kirimPresensi()">Simpan Kehadiran</button>
+        <button class="btn-kirim" id="btn-kirim" onclick="kirimPresensi()">SIMPAN</button>
     </div>
 </div>
 
-<div id="status-list">
-    <strong>Siswa Baru Saja Absen:</strong>
-    <ul id="log-absen" style="margin-top:10px; padding-left:20px;"></ul>
-</div>
-
 <script>
+    // PENTING: Pakai URL Web App Bapak yang terakhir
     const URL_APP = "https://script.google.com/macros/s/AKfycbz_tWn2AcF50EM1RgjgBb_s1vxvAXQymIroxKh7MYDBrOditZ-LrIf0lEK1jslRYkKg/exec";
 
     const canvas = document.getElementById('canvas-ttd');
@@ -62,7 +57,6 @@
     function inisialisasiCanvas() {
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
-        // Background putih agar saat diconvert ke JPEG tidak jadi hitam
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
@@ -82,7 +76,7 @@
         const k = document.getElementById('sel-kelas').value;
         const selNama = document.getElementById('sel-nama');
         selNama.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
-        SISWA_BARU.filter(s => s.kelas === k).sort((a,b) => a.nama.localeCompare(b.nama)).forEach(s => {
+        SISWA_BARU.filter(s => s.kelas === k).forEach(s => {
             let opt = document.createElement('option');
             opt.value = s.nama; opt.innerText = s.nama;
             selNama.appendChild(opt);
@@ -93,115 +87,61 @@
         let rect = canvas.getBoundingClientRect();
         let clientX = e.clientX || (e.touches && e.touches[0].clientX);
         let clientY = e.clientY || (e.touches && e.touches[0].clientY);
-        return {
-            x: clientX - rect.left,
-            y: clientY - rect.top
-        };
+        return { x: clientX - rect.left, y: clientY - rect.top };
     }
 
-    function startDraw(e) { drawing = true; draw(e); }
-    function stopDraw() { drawing = false; ctx.beginPath(); }
+    canvas.addEventListener('mousedown', (e) => { drawing = true; draw(e); });
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; draw(e); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+    window.addEventListener('touchend', () => { drawing = false; ctx.beginPath(); });
+
     function draw(e) {
         if (!drawing) return;
         let pos = getPos(e);
-        ctx.lineWidth = 3; 
-        ctx.lineCap = 'round'; 
-        ctx.strokeStyle = '#2d3436';
-        ctx.lineTo(pos.x, pos.y); 
-        ctx.stroke();
-        ctx.beginPath(); 
-        ctx.moveTo(pos.x, pos.y);
+        ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
+        ctx.lineTo(pos.x, pos.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
     }
 
-    canvas.addEventListener('mousedown', startDraw);
-    canvas.addEventListener('mousemove', draw);
-    window.addEventListener('mouseup', stopDraw);
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
-    window.addEventListener('touchend', stopDraw);
-
-    function hapusCanvas() { 
+    function hapusCanvas() {
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.beginPath();
     }
 
     function kirimPresensi() {
-    const namaSiswa = document.getElementById('sel-nama').value;
-    const btn = document.getElementById('btn-kirim');
-    if (!namaSiswa) return alert("Pilih nama siswa!");
+        const u = document.getElementById('sel-nama').value;
+        if (!u) return alert("Pilih nama!");
 
-    // --- TEKNIK PENGECILAN DATA AGAR RUMUS =IMAGE BISA BACA ---
-    // Kita buat canvas bayangan yang lebih kecil (misal 150x80 pixel)
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = 150; 
-    tempCanvas.height = 80;
-    const tCtx = tempCanvas.getContext('2d');
-    
-    // Gambar ulang tanda tangan asli ke canvas kecil ini
-    tCtx.fillStyle = "white";
-    tCtx.fillRect(0, 0, 150, 80);
-    tCtx.drawImage(canvas, 0, 0, 150, 80);
-
-    // Ambil data dalam format JPEG kualitas rendah agar teksnya PENDEK
-    const tandaTanganKecil = tempCanvas.toDataURL("image/jpeg", 0.2);
-    // ---------------------------------------------------------
-
-    btn.disabled = true;
-    btn.innerText = "MENGIRIM...";
-
-    const payload = {
-        nama: namaSiswa,
-        id_soal: "PRESENSI_DIGITAL",
-        jawaban: tandaTanganKecil, 
-        status: "Hadir"
-    };
-
-    fetch(URL_APP, { 
-        method: "POST", 
-        mode: "no-cors", 
-        body: JSON.stringify(payload) 
-    })
-    .then(() => {
-        alert("Presensi Berhasil!");
-        location.reload(); 
-    });
-}
-        
-        // Kompres gambar ke JPEG kualitas rendah (0.1) agar teks tidak terlalu panjang
-        const gambarKompres = canvas.toDataURL("image/jpeg", 0.1);
-
+        const btn = document.getElementById('btn-kirim');
         btn.disabled = true;
-        btn.innerText = "MENGIRIM...";
+        btn.innerText = "PROSES...";
+
+        // --- PROSES PENYUSUTAN GAMBAR (PENTING) ---
+        const sCanvas = document.createElement('canvas');
+        sCanvas.width = 100; // Kecilkan ke 100px
+        sCanvas.height = 50;
+        const sCtx = sCanvas.getContext('2d');
+        sCtx.drawImage(canvas, 0, 0, 100, 50);
+        
+        // Gunakan JPEG kualitas rendah agar teks sangat pendek
+        const dataSingkat = sCanvas.toDataURL("image/jpeg", 0.3);
 
         const payload = {
-            nama: namaSiswa,
+            nama: u,
             id_soal: "PRESENSI_DIGITAL",
-            jawaban: gambarKompres, 
+            jawaban: dataSingkat,
             status: "Hadir"
         };
 
-        fetch(URL_APP, { 
-            method: "POST", 
-            mode: "no-cors", 
-            body: JSON.stringify(payload) 
-        })
+        fetch(URL_APP, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
         .then(() => {
-            let li = document.createElement('li');
-            li.innerText = namaSiswa + " (Berhasil Tersimpan)";
-            document.getElementById('log-absen').prepend(li);
-            
-            document.getElementById('sel-nama').value = "";
-            hapusCanvas();
-            alert("Terima kasih, presensi " + namaSiswa + " sudah dikirim.");
-        })
-        .catch((err) => {
-            console.error(err);
-            alert("Gagal mengirim. Silakan coba lagi.");
-        })
-        .finally(() => {
+            alert("Berhasil! Silakan cek Spreadsheet.");
+            location.reload();
+        }).catch(() => {
+            alert("Gagal koneksi.");
             btn.disabled = false;
-            btn.innerText = "SIMPAN KEHADIRAN";
         });
     }
 </script>
