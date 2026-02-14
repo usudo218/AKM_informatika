@@ -12,14 +12,15 @@
         .card { background: white; width: 100%; max-width: 600px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: var(--text-dark); margin-bottom: 20px; font-size: 1.2rem; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #636e72; }
-        select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; outline: none; }
-        .canvas-container { border: 2px dashed var(--primary-blue); border-radius: 15px; background: #fff; margin-bottom: 15px; touch-action: none; }
-        canvas { width: 100%; height: 200px; cursor: crosshair; }
+        select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; outline: none; font-size: 16px; }
+        .canvas-container { border: 2px dashed var(--primary-blue); border-radius: 15px; background: #fff; margin-bottom: 15px; touch-action: none; position: relative; }
+        canvas { width: 100%; height: 250px; cursor: crosshair; display: block; border-radius: 15px; }
         .btn-group { display: flex; gap: 10px; }
         button { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
         .btn-kirim { background: var(--primary-blue); color: white; }
         .btn-reset { background: #fab1a0; color: #d63031; }
-        #status-list { margin-top: 25px; width: 100%; max-width: 600px; background: white; border-radius: 15px; padding: 15px; font-size: 12px; }
+        .btn-kirim:disabled { background: #ccc; cursor: not-allowed; }
+        #status-list { margin-top: 25px; width: 100%; max-width: 600px; background: white; border-radius: 15px; padding: 15px; font-size: 12px; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -36,7 +37,7 @@
         <option value="">-- Pilih Nama Siswa --</option>
     </select>
 
-    <label>Tanda Tangan Siswa</label>
+    <label>Tanda Tangan Siswa (Coret di bawah)</label>
     <div class="canvas-container">
         <canvas id="canvas-ttd"></canvas>
     </div>
@@ -53,18 +54,26 @@
 </div>
 
 <script>
-    // URL Web App Google Sheets Bapak
+    // URL Web App Google Sheets Bapak (Gunakan yang paling baru jika dideploy ulang)
     const URL_APP = "https://script.google.com/macros/s/AKfycbz_tWn2AcF50EM1RgjgBb_s1vxvAXQymIroxKh7MYDBrOditZ-LrIf0lEK1jslRYkKg/exec";
 
     const canvas = document.getElementById('canvas-ttd');
     const ctx = canvas.getContext('2d');
     let drawing = false;
 
-    // Set Ukuran Canvas Internal
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    // Fungsi menyesuaikan resolusi canvas agar tidak pecah/blur
+    function resizeCanvas() {
+        const ratio = window.devicePixelRatio || 1;
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        ctx.scale(ratio, ratio);
+        hapusCanvas(); // Reset saat diputar agar koordinat tidak meleset
+    }
 
+    window.addEventListener('resize', resizeCanvas);
     window.onload = function() {
+        resizeCanvas();
+        // Load Kelas
         const kelasUnik = [...new Set(SISWA_BARU.map(s => s.kelas))].sort();
         const selKelas = document.getElementById('sel-kelas');
         kelasUnik.forEach(k => {
@@ -85,40 +94,46 @@
         });
     }
 
-    // Fungsi Menggambar
     function getPos(e) {
         let rect = canvas.getBoundingClientRect();
+        let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        let clientY = e.touches ? e.touches[0].clientY : e.clientY;
         return {
-            x: (e.clientX || e.touches[0].clientX) - rect.left,
-            y: (e.clientY || e.touches[0].clientY) - rect.top
+            x: clientX - rect.left,
+            y: clientY - rect.top
         };
     }
 
-    function startDraw(e) { drawing = true; draw(e); }
-    function stopDraw() { drawing = false; ctx.beginPath(); }
     function draw(e) {
         if (!drawing) return;
         let pos = getPos(e);
-        ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#2d3436';
-        ctx.lineTo(pos.x, pos.y); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#2d3436';
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
     }
 
-    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousedown', (e) => { drawing = true; draw(e); });
     canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', stopDraw);
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
-    canvas.addEventListener('touchend', stopDraw);
+    window.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
 
-    function hapusCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    canvas.addEventListener('touchstart', (e) => { drawing = true; draw(e); e.preventDefault(); }, {passive: false});
+    canvas.addEventListener('touchmove', (e) => { draw(e); e.preventDefault(); }, {passive: false});
+    window.addEventListener('touchend', () => { drawing = false; ctx.beginPath(); });
+
+    function hapusCanvas() { 
+        ctx.clearRect(0, 0, canvas.width, canvas.height); 
+    }
 
     async function kirimPresensi() {
         const u = document.getElementById('sel-nama').value;
         const btn = document.getElementById('btn-kirim');
         if (!u) return alert("Pilih nama siswa!");
         
-        // Cek jika canvas kosong
+        // Validasi canvas kosong
         const blank = document.createElement('canvas');
         blank.width = canvas.width; blank.height = canvas.height;
         if (canvas.toDataURL() === blank.toDataURL()) return alert("Siswa belum tanda tangan!");
@@ -129,24 +144,34 @@
         const payload = {
             nama: u,
             id_soal: "PRESENSI_DIGITAL",
-            jawaban: canvas.toDataURL(), // Kirim data gambar
+            jawaban: canvas.toDataURL(), 
             status: "Hadir"
         };
 
         try {
-            await fetch(URL_APP, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-            
-            // Tambah ke Log
-            let li = document.createElement('li');
-            li.innerText = u + " (Berhasil Absen)";
-            document.getElementById('log-absen').prepend(li);
-            
-            // Reset Form
-            document.getElementById('sel-nama').value = "";
-            hapusCanvas();
-            alert("Presensi " + u + " Berhasil!");
+            // Hapus mode: "no-cors" agar bisa membaca respon dari Google
+            const response = await fetch(URL_APP, { 
+                method: "POST", 
+                body: JSON.stringify(payload) 
+            });
+
+            const result = await response.json();
+
+            if (result.result === "success") {
+                let li = document.createElement('li');
+                li.innerText = u + " (" + new Date().toLocaleTimeString() + " - Berhasil)";
+                document.getElementById('log-absen').prepend(li);
+                
+                document.getElementById('sel-nama').value = "";
+                hapusCanvas();
+                alert("Presensi " + u + " Berhasil dicatat!");
+            } else {
+                throw new Error("Gagal menyimpan");
+            }
+
         } catch (e) {
-            alert("Gagal mengirim data.");
+            console.error(e);
+            alert("Terjadi masalah saat mengirim. Silakan coba lagi.");
         } finally {
             btn.disabled = false;
             btn.innerText = "SIMPAN KEHADIRAN";
