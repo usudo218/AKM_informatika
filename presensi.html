@@ -127,10 +127,46 @@
     }
 
     function kirimPresensi() {
-        const namaSiswa = document.getElementById('sel-nama').value;
-        const btn = document.getElementById('btn-kirim');
-        
-        if (!namaSiswa) return alert("Pilih nama siswa!");
+    const namaSiswa = document.getElementById('sel-nama').value;
+    const btn = document.getElementById('btn-kirim');
+    if (!namaSiswa) return alert("Pilih nama siswa!");
+
+    // --- TEKNIK PENGECILAN DATA AGAR RUMUS =IMAGE BISA BACA ---
+    // Kita buat canvas bayangan yang lebih kecil (misal 150x80 pixel)
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = 150; 
+    tempCanvas.height = 80;
+    const tCtx = tempCanvas.getContext('2d');
+    
+    // Gambar ulang tanda tangan asli ke canvas kecil ini
+    tCtx.fillStyle = "white";
+    tCtx.fillRect(0, 0, 150, 80);
+    tCtx.drawImage(canvas, 0, 0, 150, 80);
+
+    // Ambil data dalam format JPEG kualitas rendah agar teksnya PENDEK
+    const tandaTanganKecil = tempCanvas.toDataURL("image/jpeg", 0.2);
+    // ---------------------------------------------------------
+
+    btn.disabled = true;
+    btn.innerText = "MENGIRIM...";
+
+    const payload = {
+        nama: namaSiswa,
+        id_soal: "PRESENSI_DIGITAL",
+        jawaban: tandaTanganKecil, 
+        status: "Hadir"
+    };
+
+    fetch(URL_APP, { 
+        method: "POST", 
+        mode: "no-cors", 
+        body: JSON.stringify(payload) 
+    })
+    .then(() => {
+        alert("Presensi Berhasil!");
+        location.reload(); 
+    });
+}
         
         // Kompres gambar ke JPEG kualitas rendah (0.1) agar teks tidak terlalu panjang
         const gambarKompres = canvas.toDataURL("image/jpeg", 0.1);
