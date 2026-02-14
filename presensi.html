@@ -53,25 +53,22 @@
 </div>
 
 <script>
-    /**
-     * PENTING: Ganti URL di bawah ini dengan URL Web App terbaru Bapak 
-     * yang didapat setelah klik Deploy > New Version.
-     */
     const URL_APP = "https://script.google.com/macros/s/AKfycbz_tWn2AcF50EM1RgjgBb_s1vxvAXQymIroxKh7MYDBrOditZ-LrIf0lEK1jslRYkKg/exec";
 
     const canvas = document.getElementById('canvas-ttd');
     const ctx = canvas.getContext('2d');
     let drawing = false;
 
-    // Set Ukuran Canvas Internal agar coretan pas
     function inisialisasiCanvas() {
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
+        // Background putih agar saat diconvert ke JPEG tidak jadi hitam
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     window.onload = function() {
         inisialisasiCanvas();
-        // Load Data Kelas dari siswa.js
         const kelasUnik = [...new Set(SISWA_BARU.map(s => s.kelas))].sort();
         const selKelas = document.getElementById('sel-kelas');
         kelasUnik.forEach(k => {
@@ -92,7 +89,6 @@
         });
     }
 
-    // Fungsi Koordinat Menggambar
     function getPos(e) {
         let rect = canvas.getBoundingClientRect();
         let clientX = e.clientX || (e.touches && e.touches[0].clientX);
@@ -117,7 +113,6 @@
         ctx.moveTo(pos.x, pos.y);
     }
 
-    // Event Mouse & Touch
     canvas.addEventListener('mousedown', startDraw);
     canvas.addEventListener('mousemove', draw);
     window.addEventListener('mouseup', stopDraw);
@@ -126,7 +121,9 @@
     window.addEventListener('touchend', stopDraw);
 
     function hapusCanvas() { 
-        ctx.clearRect(0, 0, canvas.width, canvas.height); 
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
     }
 
     function kirimPresensi() {
@@ -135,10 +132,8 @@
         
         if (!namaSiswa) return alert("Pilih nama siswa!");
         
-        // Cek apakah canvas kosong
-        const blank = document.createElement('canvas');
-        blank.width = canvas.width; blank.height = canvas.height;
-        if (canvas.toDataURL() === blank.toDataURL()) return alert("Siswa belum tanda tangan!");
+        // Kompres gambar ke JPEG kualitas rendah (0.1) agar teks tidak terlalu panjang
+        const gambarKompres = canvas.toDataURL("image/jpeg", 0.1);
 
         btn.disabled = true;
         btn.innerText = "MENGIRIM...";
@@ -146,30 +141,27 @@
         const payload = {
             nama: namaSiswa,
             id_soal: "PRESENSI_DIGITAL",
-            jawaban: canvas.toDataURL(), 
+            jawaban: gambarKompres, 
             status: "Hadir"
         };
 
-        // Menggunakan mode no-cors agar pengiriman data gambar tidak diblokir browser
         fetch(URL_APP, { 
             method: "POST", 
             mode: "no-cors", 
             body: JSON.stringify(payload) 
         })
         .then(() => {
-            // Log ke daftar absen sementara
             let li = document.createElement('li');
             li.innerText = namaSiswa + " (Berhasil Tersimpan)";
             document.getElementById('log-absen').prepend(li);
             
-            // Reset Form
             document.getElementById('sel-nama').value = "";
             hapusCanvas();
             alert("Terima kasih, presensi " + namaSiswa + " sudah dikirim.");
         })
         .catch((err) => {
             console.error(err);
-            alert("Gagal mengirim. Periksa koneksi atau Izin Google Drive.");
+            alert("Gagal mengirim. Silakan coba lagi.");
         })
         .finally(() => {
             btn.disabled = false;
