@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presensi Digital & Berita Acara - Guru</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="siswa.js"></script>
+    <style>
+        :root { --bg-sky: #87CEEB; --primary-blue: #00BFFF; --text-dark: #2d3436; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-sky); padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .card { background: white; width: 100%; max-width: 600px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: var(--text-dark); margin-bottom: 20px; font-size: 1.2rem; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #636e72; }
+        select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; outline: none; }
+        .canvas-container { border: 2px dashed var(--primary-blue); border-radius: 15px; background: #fff; margin-bottom: 15px; touch-action: none; }
+        canvas { width: 100%; height: 200px; cursor: crosshair; }
+        .btn-group { display: flex; gap: 10px; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+        .btn-kirim { background: var(--primary-blue); color: white; }
+        .btn-reset { background: #fab1a0; color: #d63031; }
+        #status-list { margin-top: 25px; width: 100%; max-width: 600px; background: white; border-radius: 15px; padding: 15px; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>PRESENSI DIGITAL SISWA</h2>
+    <label>Pilih Kelas</label>
+    <select id="sel-kelas" onchange="updateNama()">
+        <option value="">-- Pilih Kelas --</option>
+    </select>
+
+    <label>Nama Siswa</label>
+    <select id="sel-nama">
+        <option value="">-- Pilih Nama Siswa --</option>
+    </select>
+
+    <label>Tanda Tangan Siswa</label>
+    <div class="canvas-container">
+        <canvas id="canvas-ttd"></canvas>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-reset" onclick="hapusCanvas()">Reset</button>
+        <button class="btn-kirim" id="btn-kirim" onclick="kirimPresensi()">Simpan Kehadiran</button>
+    </div>
+</div>
+
+<div id="status-list">
+    <strong>Siswa Baru Saja Absen:</strong>
+    <ul id="log-absen" style="margin-top:10px; padding-left:20px;"></ul>
+</div>
+
+<script>
+    // URL Web App Google Sheets Bapak
+    const URL_APP = "https://script.google.com/macros/s/AKfycbyr9hFlZ4UyKh2W4-5YWY_78Il6ZOgD7RlcbP9jxwMQyx_Bn25xORhRE_qnDFElP-3b5w/exec";
+
+    const canvas = document.getElementById('canvas-ttd');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    // Set Ukuran Canvas Internal
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    window.onload = function() {
+        const kelasUnik = [...new Set(SISWA_BARU.map(s => s.kelas))].sort();
+        const selKelas = document.getElementById('sel-kelas');
+        kelasUnik.forEach(k => {
+            let opt = document.createElement('option');
+            opt.value = k; opt.innerText = k;
+            selKelas.appendChild(opt);
+        });
+    };
+
+    function updateNama() {
+        const k = document.getElementById('sel-kelas').value;
+        const selNama = document.getElementById('sel-nama');
+        selNama.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
+        SISWA_BARU.filter(s => s.kelas === k).sort((a,b) => a.nama.localeCompare(b.nama)).forEach(s => {
+            let opt = document.createElement('option');
+            opt.value = s.nama; opt.innerText = s.nama;
+            selNama.appendChild(opt);
+        });
+    }
+
+    // Fungsi Menggambar
+    function getPos(e) {
+        let rect = canvas.getBoundingClientRect();
+        return {
+            x: (e.clientX || e.touches[0].clientX) - rect.left,
+            y: (e.clientY || e.touches[0].clientY) - rect.top
+        };
+    }
+
+    function startDraw(e) { drawing = true; draw(e); }
+    function stopDraw() { drawing = false; ctx.beginPath(); }
+    function draw(e) {
+        if (!drawing) return;
+        let pos = getPos(e);
+        ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#2d3436';
+        ctx.lineTo(pos.x, pos.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+    canvas.addEventListener('touchend', stopDraw);
+
+    function hapusCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+    async function kirimPresensi() {
+        const u = document.getElementById('sel-nama').value;
+        const btn = document.getElementById('btn-kirim');
+        if (!u) return alert("Pilih nama siswa!");
+        
+        // Cek jika canvas kosong
+        const blank = document.createElement('canvas');
+        blank.width = canvas.width; blank.height = canvas.height;
+        if (canvas.toDataURL() === blank.toDataURL()) return alert("Siswa belum tanda tangan!");
+
+        btn.disabled = true;
+        btn.innerText = "MENGIRIM...";
+
+        const payload = {
+            nama: u,
+            id_soal: "PRESENSI_DIGITAL",
+            jawaban: canvas.toDataURL(), // Kirim data gambar
+            status: "Hadir"
+        };
+
+        try {
+            await fetch(URL_APP, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+            
+            // Tambah ke Log
+            let li = document.createElement('li');
+            li.innerText = u + " (Berhasil Absen)";
+            document.getElementById('log-absen').prepend(li);
+            
+            // Reset Form
+            document.getElementById('sel-nama').value = "";
+            hapusCanvas();
+            alert("Presensi " + u + " Berhasil!");
+        } catch (e) {
+            alert("Gagal mengirim data.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "SIMPAN KEHADIRAN";
+        }
+    }
+</script>
+</body>
+</html>
