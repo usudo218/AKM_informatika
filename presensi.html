@@ -120,13 +120,13 @@
 
         // --- PERBAIKAN: UKURAN DINAIKKAN AGAR TIDAK PECAH (600x300) ---
         const sCanvas = document.createElement('canvas');
-        sCanvas.width = 600; 
-        sCanvas.height = 300;
+        sCanvas.width = 800; 
+        sCanvas.height = 400;
         const sCtx = sCanvas.getContext('2d');
-        sCtx.drawImage(canvas, 0, 0, 600, 300);
+        sCtx.drawImage(canvas, 0, 0, 800,400);
         
         // Kualitas dinaikkan ke 0.9 agar tajam
-        const dataGambar = sCanvas.toDataURL("image/jpeg", 0.9);
+        const dataGambar = sCanvas.toDataURL("image/jpeg", 0.12);
 
         const payload = {
             nama: u,
