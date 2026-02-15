@@ -7,24 +7,157 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="siswa.js"></script>
     <style>
-        :root { --bg-sky: #87CEEB; --primary-blue: #00BFFF; --text-dark: #2d3436; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-sky); padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .card { background: white; width: 100%; max-width: 600px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: var(--text-dark); margin-bottom: 20px; font-size: 1.2rem; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #636e72; }
-        select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; outline: none; font-size: 16px; }
-        .canvas-container { border: 2px dashed var(--primary-blue); border-radius: 15px; background: #fff; margin-bottom: 15px; touch-action: none; }
-        canvas { width: 100%; height: 200px; cursor: crosshair; display: block; }
-        .btn-group { display: flex; gap: 10px; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
-        .btn-kirim { background: var(--primary-blue); color: white; }
-        .btn-reset { background: #fab1a0; color: #d63031; }
+        :root { 
+            --primary-green: #2ecc71; 
+            --dark-green: #27ae60; 
+            --bg-body: #f4f7f6; 
+            --text-dark: #2d3436; 
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--primary-green); /* Latar belakang hijau seperti gambar */
+            margin: 0;
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh;
+        }
+
+        .card { 
+            background: white; 
+            width: 100%; 
+            max-width: 500px; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        /* Container Logo */
+        .header-container {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header-container img {
+            width: 80px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .header-container h2 {
+            margin: 5px 0;
+            color: var(--text-dark);
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-container p {
+            margin: 0;
+            color: var(--dark-green);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #eee;
+            margin: 20px 0;
+        }
+
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #636e72; 
+        }
+
+        select { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            border: 1px solid #dfe6e9; 
+            background-color: #f9f9f9;
+            outline: none; 
+            font-size: 16px; 
+        }
+
+        /* Canvas Tanda Tangan */
+        .canvas-container { 
+            border: 2px solid #dfe6e9; 
+            border-radius: 10px; 
+            background: #fff; 
+            margin-bottom: 20px; 
+            touch-action: none; 
+        }
+
+        canvas { 
+            width: 100%; 
+            height: 200px; 
+            cursor: crosshair; 
+            display: block; 
+        }
+
+        .btn-group { 
+            display: flex; 
+            gap: 12px; 
+        }
+
+        button { 
+            flex: 1; 
+            padding: 15px; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            transition: 0.3s; 
+        }
+
+        .btn-kirim { 
+            background: var(--primary-green); 
+            color: white; 
+        }
+
+        .btn-kirim:hover { background: var(--dark-green); }
+
+        .btn-reset { 
+            background: #f1f2f6; 
+            color: #7f8c8d; 
+        }
+
+        button:disabled { 
+            background: #dfe6e9; 
+            color: #b2bec3; 
+            cursor: not-allowed; 
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: white;
+            font-size: 0.85rem;
+            margin-top: auto;
+            padding-bottom: 10px;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>PRESENSI DIGITAL SISWA</h2>
+    <div class="header-container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Logo_Kemdikbud.png" alt="Logo">
+        <h2>Presensi Digital</h2>
+        <p>SMAN 1 CARIU</p>
+    </div>
+
+    <hr>
+
     <label>Pilih Kelas</label>
     <select id="sel-kelas" onchange="updateNama()">
         <option value="">-- Pilih Kelas --</option>
@@ -42,13 +175,18 @@
 
     <div class="btn-group">
         <button class="btn-reset" onclick="hapusCanvas()">Reset</button>
-        <button class="btn-kirim" id="btn-kirim" onclick="kirimPresensi()">SIMPAN</button>
+        <button class="btn-kirim" id="btn-kirim" onclick="kirimPresensi()">Simpan Presensi</button>
     </div>
 </div>
 
+<div class="footer">
+    &copy; 2026 SMAN 1 Cariu Digital System<br>
+    Informatika - Developed by Pak Cokro
+</div>
+
 <script>
-    // MASUKKAN URL WEB APP HASIL DEPLOY TERBARU DI SINI
-    const URL_APP = "https://script.google.com/macros/s/AKfycbyq9fCt2esfMJcLhNoFGWjXNKMvc529m_QnGGyWVLRDIf3Gjk2UPGnap9yciF2SnMDK/exec";
+    // PENTING: Gunakan URL Web App Bapak yang terakhir
+    const URL_APP = "https://script.google.com/macros/s/AKfycbziNCF6rUFSMOcW9vxrSWjw5yFturuGBj-8MZ4JJzjYmx1Npdmh43jCjggnmnGQz2bB/exec";
 
     const canvas = document.getElementById('canvas-ttd');
     const ctx = canvas.getContext('2d');
@@ -108,25 +246,26 @@
     function hapusCanvas() {
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
     }
 
     function kirimPresensi() {
         const u = document.getElementById('sel-nama').value;
-        if (!u) return alert("Pilih nama!");
+        if (!u) return alert("Pilih nama siswa!");
 
         const btn = document.getElementById('btn-kirim');
         btn.disabled = true;
-        btn.innerText = "PROSES...";
+        btn.innerText = "MENGIRIM...";
 
-        // --- PERBAIKAN: UKURAN DINAIKKAN AGAR TIDAK PECAH (600x300) ---
         const sCanvas = document.createElement('canvas');
-        sCanvas.width = 800; 
-        sCanvas.height = 400;
+        sCanvas.width = 600; 
+        sCanvas.height = 300;
         const sCtx = sCanvas.getContext('2d');
-        sCtx.drawImage(canvas, 0, 0, 800,400);
+        sCtx.fillStyle = "white";
+        sCtx.fillRect(0,0,600,300);
+        sCtx.drawImage(canvas, 0, 0, 600, 300);
         
-        // Kualitas dinaikkan ke 0.9 agar tajam
-        const dataGambar = sCanvas.toDataURL("image/jpeg", 0.12);
+        const dataGambar = sCanvas.toDataURL("image/jpeg", 0.6);
 
         const payload = {
             nama: u,
@@ -137,11 +276,12 @@
 
         fetch(URL_APP, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
         .then(() => {
-            alert("Berhasil Terkirim!");
+            alert("Presensi Berhasil!");
             location.reload();
         }).catch(() => {
             alert("Gagal koneksi.");
             btn.disabled = false;
+            btn.innerText = "Simpan Presensi";
         });
     }
 </script>
