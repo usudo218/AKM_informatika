@@ -50,7 +50,7 @@
 
         label.input-label { display: block; margin-bottom: 8px; font-weight: 600; color: #636e72; font-size: 14px; text-align: left; }
         
-        input[type="password"], select, textarea {
+        input[type="text"], input[type="password"], select, textarea {
             width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #e0e0e0;
             border-radius: 12px; background-color: #f8faff; font-size: 15px; outline: none; transition: 0.3s;
         }
@@ -59,6 +59,11 @@
         .toggle-password {
             position: absolute; right: 15px; top: 15px; cursor: pointer;
             color: var(--dark-green); font-size: 11px; font-weight: 700;
+        }
+
+        .timer-box { 
+            background: #fff9db; color: #e67e22; padding: 12px; border-radius: 12px; 
+            font-weight: 700; text-align: center; margin-bottom: 20px; border: 1px solid #ffec99;
         }
 
         /* HEADER INFO SISWA + LOGOUT DI ATAS */
@@ -74,13 +79,15 @@
         }
         .info-text { font-size: 12px; line-height: 1.6; color: #2d3436; }
         .btn-logout-top { 
-            background: #ffeaa7; color: #d63031; border: none; padding: 6px 12px; 
-            border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase;
-        }
-
-        .timer-box { 
-            background: #fff9db; color: #e67e22; padding: 12px; border-radius: 12px; 
-            font-weight: 700; text-align: center; margin-bottom: 20px; border: 1px solid #ffec99;
+            background: #ffeaa7; 
+            color: #d63031; 
+            border: none; 
+            padding: 6px 12px; 
+            border-radius: 8px; 
+            font-size: 10px; 
+            font-weight: 800; 
+            cursor: pointer;
+            text-transform: uppercase;
         }
 
         button.btn-utama {
@@ -88,10 +95,11 @@
             color: white; border: none; border-radius: 12px; font-weight: 700;
             cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px;
         }
+
         button.btn-utama:hover { background-color: var(--dark-green); transform: translateY(-2px); }
 
         /* TAMPILAN SOAL */
-        #soal-area h3 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 20px; line-height: 1.5; }
+        #soal-area h3 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 20px; line-height: 1.5; font-weight: 700; }
 
         .opsi-item {
             display: flex; align-items: flex-start; padding: 16px; margin: 12px 0;
@@ -132,7 +140,7 @@
 
 <div id="loading-overlay">
     <div style="border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
-    <p id="loading-text" style="margin-top: 15px; color: white; font-weight: 600;">Sedang Memproses...</p>
+    <p id="loading-text" style="margin-top: 15px; color: white; font-weight: 600;">Sinkronisasi Data...</p>
 </div>
 
 <div class="card">
@@ -167,20 +175,24 @@
             </div>
             <button class="btn-logout-top" onclick="logout()">Ganti Akun</button>
         </div>
+        
         <div class="timer-box" id="timer">Waktu Tersisa: --:--</div>
+        
         <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:#636e72;">
-            <span>PROGRESS PENGERJAAN</span>
-            <span>SOAL <span id="idx">1</span>/40</span>
+            <span>PROGRES PENGERJAAN</span>
+            <span>SOAL <span id="idx">1</span></span>
         </div>
         <div class="bar"><div id="progress"></div></div>
+        
         <div id="soal-area"></div>
+        
         <button id="btn-next" class="btn-utama" style="margin-top:20px" onclick="simpanKeLocal()">Simpan & Lanjut</button>
     </div>
 
     <div id="box-selesai" style="display:none; text-align:center;">
         <div style="font-size: 50px; margin-bottom: 10px;">✅</div>
         <h2 style="color:var(--primary-green); margin-bottom:10px;">UJIAN SELESAI</h2>
-        <p style="color:#636e72; margin-bottom:25px; font-size: 14px;">Jawaban Anda telah tersimpan di server.</p>
+        <p style="color:#636e72; margin-bottom:25px; font-size: 14px;">Jawaban Anda telah berhasil diunggah ke server.</p>
         <button class="btn-utama" onclick="logout()">Keluar Aplikasi</button>
     </div>
 </div>
@@ -193,9 +205,13 @@
 <script>
     const URL_APP = "https://script.google.com/macros/s/AKfycbyP1TXdwXSf8xud0LSM-qIBLRG_eNjOTbfdJwqgvtorfykvMGchOvtOnFQxZmb1BuOt/exec";
     const DURASI_UJIAN = 60; 
-    const JUMLAH_SOAL_DIBUTUHKAN = 40;
 
     let dataSoal = []; let curIdx = 0; let currentUser = ""; let currentKelas = ""; let timerInterval;
+
+    // Proteksi & Inisialisasi (sama seperti sebelumnya)
+    window.history.pushState(null, "", window.location.href);
+    window.onpopstate = function() { window.history.pushState(null, "", window.location.href); };
+    document.addEventListener('contextmenu', e => e.preventDefault());
 
     function intipPass() {
         const p = document.getElementById('pass');
@@ -220,6 +236,17 @@
             opt.value = k; opt.innerText = k;
             selKelas.appendChild(opt);
         });
+
+        const savedUser = localStorage.getItem('active_student');
+        const savedKelas = localStorage.getItem('active_kelas');
+        if (savedUser && savedKelas) {
+            document.getElementById('sel-kelas').value = savedKelas;
+            updateDaftarNama();
+            document.getElementById('sel-nama').value = savedUser;
+            const s = SISWA_BARU.find(x => x.nama === savedUser);
+            if(s) document.getElementById('pass').value = s.pass;
+            mulai(true);
+        }
     };
 
     function updateDaftarNama() {
@@ -233,39 +260,42 @@
         });
     }
 
-    async function mulai() {
+    async function mulai(isAuto = false) {
         const u = document.getElementById('sel-nama').value;
         const k = document.getElementById('sel-kelas').value;
         const p = document.getElementById('pass').value;
         const loading = document.getElementById('loading-overlay');
 
         const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
+
         if(dataSiswa && p === dataSiswa.pass) {
             loading.style.display = "flex";
             try {
-                // MENGAMBIL GUDANG SOAL (240 SOAL)
-                const rSoal = await fetch(`soal.json?v=${Date.now()}`);
-                const gudangSoal = await rSoal.json();
+                const nomorKelas = k.split('-')[1]; 
+                const fileSoal = `soal${nomorKelas}.json`;
+                const rSoal = await fetch(`${fileSoal}?v=${Date.now()}`);
+                const soalAsli = await rSoal.json();
 
-                // CEK STATUS DI SERVER
                 const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
                 const s = await rStatus.json();
 
-                if(s.jumlahDikerjakan >= JUMLAH_SOAL_DIBUTUHKAN) {
+                if(s.jumlahDikerjakan >= soalAsli.length) {
                     loading.style.display = "none";
-                    alert("Akses ditolak: Anda sudah selesai!"); return;
+                    alert("Akses ditolak: Anda sudah selesai!");
+                    logout(); return;
                 }
 
-                // LOGIKA SAMPLING ACAK 40 DARI GUDANG
                 if (!localStorage.getItem('urutan_soal')) {
-                    let diacak = shuffle([...gudangSoal]);
-                    dataSoal = diacak.slice(0, JUMLAH_SOAL_DIBUTUHKAN);
+                    dataSoal = shuffle(soalAsli);
                     localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
                 } else {
                     dataSoal = JSON.parse(localStorage.getItem('urutan_soal'));
                 }
 
                 currentUser = u; currentKelas = k;
+                localStorage.setItem('active_student', u);
+                localStorage.setItem('active_kelas', k);
+                
                 const localAnswers = JSON.parse(localStorage.getItem(`ans_${u}`)) || [];
                 curIdx = Math.max(localAnswers.length, s.jumlahDikerjakan);
 
@@ -276,32 +306,40 @@
                 
                 tampil(); startTimer();
                 loading.style.display = "none";
-            } catch(e) { loading.style.display = "none"; alert("Error: " + e.message); }
-        } else alert("Login Gagal!");
+            } catch(e) { 
+                loading.style.display = "none"; alert("Error: " + e.message); 
+            }
+        } else if(!isAuto) alert("Login Gagal!");
     }
 
     function startTimer() {
         let deadline = localStorage.getItem('ujian_deadline') || (Date.now() + (DURASI_UJIAN * 60 * 1000));
         localStorage.setItem('ujian_deadline', deadline);
+        
         clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             let sisa = Math.floor((deadline - Date.now()) / 1000);
-            if (sisa <= 0) { clearInterval(timerInterval); kirimJawabanAkhir(); }
-            else {
+            if (sisa <= 0) {
+                clearInterval(timerInterval); kirimJawabanAkhir();
+            } else {
                 let m = Math.floor(sisa / 60); let s = sisa % 60;
                 document.getElementById('timer').innerText = `Waktu Tersisa: ${m}:${s < 10 ? '0' : ''}${s}`;
             }
         }, 1000);
     }
 
-    function logout() { if(confirm("Keluar/Ganti Akun?")) { localStorage.clear(); location.reload(); } }
+    function logout() {
+        if(confirm("Apakah Anda yakin ingin keluar/ganti akun?")) {
+            clearInterval(timerInterval); localStorage.clear(); location.reload();
+        }
+    }
 
     function tampil() {
         const s = dataSoal[curIdx];
-        document.getElementById('idx').innerText = (curIdx + 1);
+        document.getElementById('idx').innerText = (curIdx + 1) + "/" + dataSoal.length;
         document.getElementById('progress').style.width = (curIdx / dataSoal.length * 100) + "%";
-        let h = `<h3>${s.pertanyaan}</h3>`;
         
+        let h = `<h3>${s.pertanyaan}</h3>`;
         if (["pilihan-ganda", "pg-kompleks", "benar-salah"].includes(s.tipe)) {
             const opsi = s.tipe === "benar-salah" ? ["Benar", "Salah"] : s.opsi;
             opsi.forEach(o => {
@@ -309,7 +347,7 @@
                 h += `<label class="opsi-item">
                         <input type="${tipe}" name="j" value="${o}">
                         <span class="checkmark"></span>
-                        <span class="opsi-text">${o}</span>
+                        <span style="font-size:14px; color:#444;">${o}</span>
                       </label>`;
             });
         } else if (s.tipe === "menjodohkan") {
@@ -361,10 +399,10 @@
     async function kirimJawabanAkhir() {
         const loading = document.getElementById('loading-overlay');
         const ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
-        if(ans.length === 0) return;
-        
+        if(ans.length === 0) return logout();
+
         loading.style.display = "flex";
-        document.getElementById('loading-text').innerText = "Sedang Mengirim Jawaban (Harap Tunggu)...";
+        document.getElementById('loading-text').innerText = "Mengirim Jawaban...";
 
         try {
             for (let i = 0; i < ans.length; i++) {
@@ -374,7 +412,9 @@
             localStorage.clear();
             document.getElementById('box-kuis').style.display = 'none';
             document.getElementById('box-selesai').style.display = 'block';
-        } catch (e) { loading.style.display = "none"; alert("Gagal kirim, pastikan internet aktif."); }
+        } catch (e) {
+            loading.style.display = "none"; alert("Gagal kirim, coba lagi.");
+        }
     }
 </script>
 </body>
