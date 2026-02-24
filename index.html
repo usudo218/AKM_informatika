@@ -248,7 +248,7 @@
         if(dataSiswa && p === dataSiswa.pass) {
             loading.style.display = "flex";
             try {
-                const rSoal = await fetch(`soal.json?v=${Date.now()}`);
+                const rSoal = await fetch('soal.json');
                 const gudangSoal = await rSoal.json();
 
                 const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
@@ -401,4 +401,5 @@
 </script>
 </body>
 </html>
+
 
