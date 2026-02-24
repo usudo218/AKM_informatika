@@ -3,141 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin - Rekap Ujian</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Ujian Informatika - SMAN 1 Muncar</title>
+    <script src="siswa.js"></script>
     <style>
-        :root { --primary: #27ae60; --dark: #2c3e50; --light: #f4f7f6; }
-        body { font-family: 'Inter', sans-serif; background: var(--light); padding: 20px; margin: 0; }
-        .container { max-width: 1000px; margin: auto; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h2 { color: var(--dark); margin-top: 0; }
-        
-        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #eee; padding: 5px; border-radius: 10px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; background: transparent; }
-        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        
-        .actions { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; color: white; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #f8f9fa; color: #636e72; padding: 12px; text-align: left; font-size: 13px; border-bottom: 2px solid #eee; }
-        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; color: var(--dark); }
-        
-        .badge { padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        .bg-success { background: #d4edda; color: #155724; }
-        .bg-danger { background: #f8d7da; color: #721c24; }
-        mark { background: #fff9db; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+        /* Desain UI Siswa (Hijau) */
+        :root { --primary: #27ae60; --bg: #f4f7f6; }
+        body { font-family: sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; }
+        .box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; }
+        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="card">
-        <h2>Panel Monitoring Guru</h2>
-        
-        <div class="nav-tabs">
-            <button id="btn-rekap" class="tab-btn active" onclick="gantiTab('rekap')">Rekap Nilai Siswa</button>
-            <button id="btn-detail" class="tab-btn" onclick="gantiTab('detail')">Log Jawaban Detail</button>
-        </div>
-
-        <div class="actions">
-            <button class="btn" style="background: var(--primary);" onclick="muatData()">Refresh Data</button>
-            <button class="btn" style="background: var(--dark);" onclick="exportExcel()">Unduh Excel</button>
-        </div>
-
-        <div style="overflow-x: auto;">
-            <table>
-                <thead id="head-table"></thead>
-                <tbody id="body-table">
-                    <tr><td colspan="5" style="text-align:center; padding:50px;">Klik Refresh untuk memuat data...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="box" id="login-box">
+    <h2>Ujian Informatika</h2>
+    <p>Silakan Masuk</p>
+    <select id="sel-kelas" onchange="updateNama()"><option value="">Pilih Kelas</option></select>
+    <select id="sel-nama"><option value="">Pilih Nama</option></select>
+    <input type="password" id="pass" placeholder="Password">
+    <button onclick="mulaiUjian()">MASUK UJIAN</button>
 </div>
 
 <script>
-    // MASUKKAN URL WEB APP BAPAK DI SINI
-    const URL_APP = "https://script.google.com/macros/s/AKfycbw6EOYp7cOid9pPsZoDhtoPOOD-vC2LtGYtRkrH8fK0IHqSn4OBZxh8FEdLxYuCU7Mr/exec";
-    let mode = "rekap";
-    let currentData = [];
+    // Pastikan URL_APP menunjuk ke Web App Google Bapak
+    const URL_APP = "https://script.google.com/macros/s/AKfycbwuCfbFh9ciJZLuzXDdLCPYroH4N2AC8ZijaVq2FfNHEwFPnYYo3jpZnb39o29x69CM/exec";
 
-    async function muatData() {
-        const tbody = document.getElementById('body-table');
-        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:50px;'>⏳ Menghubungkan ke Spreadsheet...</td></tr>";
-        
-        try {
-            const response = await fetch(`${URL_APP}?aksi=${mode === 'rekap' ? 'rekapNilai' : 'ambilSemua'}`);
-            const result = await response.json();
-
-            console.log("Respon Server:", result);
-
-            if (result.error) {
-                tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color:red;'>Error Server: ${result.error}</td></tr>`;
-                return;
-            }
-
-            if (!Array.isArray(result) || result.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:50px;'>📭 Belum ada data jawaban di Spreadsheet.</td></tr>";
-                return;
-            }
-
-            currentData = result;
-            renderTable();
-        } catch (e) {
-            tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color:red;'>❌ Gagal memuat: ${e.message}</td></tr>`;
-        }
+    // Fungsi mulaiUjian, updateNama, dll ditaruh di sini...
+    function mulaiUjian() {
+        // Logika login siswa
+        alert("Menghubungkan ke server...");
     }
-
-    function renderTable() {
-        const thead = document.getElementById('head-table');
-        const tbody = document.getElementById('body-table');
-        tbody.innerHTML = "";
-
-        if (mode === "rekap") {
-            thead.innerHTML = "<tr><th>Nama Siswa</th><th>Benar</th><th>Total Jawab</th><th>Skor (40 Soal)</th></tr>";
-            currentData.forEach(s => {
-                tbody.innerHTML += `<tr>
-                    <td><b>${s.nama}</b></td>
-                    <td>${s.benar}</td>
-                    <td>${s.total}</td>
-                    <td><mark>${s.skor}</mark></td>
-                </tr>`;
-            });
-        } else {
-            thead.innerHTML = "<tr><th>Waktu</th><th>Nama Siswa</th><th>ID</th><th>Jawaban</th><th>Status</th></tr>";
-            // Tampilkan yang terbaru di atas
-            [...currentData].reverse().forEach(row => {
-                const cls = row.status === "Benar" ? "bg-success" : "bg-danger";
-                tbody.innerHTML += `<tr>
-                    <td style="color:#636e72; font-size:12px;">${row.timestamp}</td>
-                    <td><b>${row.nama}</b></td>
-                    <td>${row.id_soal}</td>
-                    <td>${row.jawaban}</td>
-                    <td><span class="badge ${cls}">${row.status}</span></td>
-                </tr>`;
-            });
-        }
-    }
-
-    function gantiTab(m) {
-        mode = m;
-        document.getElementById('btn-rekap').classList.toggle('active', m === 'rekap');
-        document.getElementById('btn-detail').classList.toggle('active', m === 'detail');
-        muatData();
-    }
-
-    function exportExcel() {
-        if(currentData.length === 0) return alert("Data kosong");
-        const ws = XLSX.utils.json_to_sheet(currentData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Hasil Ujian");
-        XLSX.writeFile(wb, `Rekap_Ujian_${mode}.xlsx`);
-    }
-
-    // Load data otomatis saat pertama buka
-    window.onload = muatData;
 </script>
 </body>
 </html>
