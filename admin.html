@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Monitoring Ujian</title>
+    <title>Admin - SMAN 1 Muncar</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #27ae60; --dark: #2c3e50; --light: #f4f7f6; --aksen: #4f46e5; }
         body { font-family: 'Inter', sans-serif; background: var(--light); padding: 20px; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); max-width: 1000px; margin: auto; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); max-width: 1100px; margin: auto; }
         .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #eee; padding: 5px; border-radius: 10px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; background: transparent; transition: 0.3s; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; background: transparent; }
         .tab-btn.active { background: white; color: var(--aksen); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; color: white; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -26,100 +26,57 @@
 <body>
 
 <div class="card">
-    <h2 style="margin-top:0">Panel Monitoring Guru</h2>
-    
+    <h2>Monitoring Guru - AKM SMAN 1 Muncar</h2>
     <div class="nav-tabs">
         <button id="btn-rekap" class="tab-btn active" onclick="gantiTab('rekap')">Rekap Nilai Siswa</button>
-        <button id="btn-detail" class="tab-btn" onclick="gantiTab('detail')">Log Jawaban Detail</button>
+        <button id="btn-detail" class="tab-btn" onclick="gantiTab('detail')">Log Detail</button>
     </div>
-
     <div style="margin-bottom: 20px; display:flex; gap:10px;">
         <button class="btn" style="background: var(--primary);" onclick="muatData()">Refresh Data</button>
         <button class="btn" style="background: var(--dark);" onclick="exportExcel()">Unduh Excel</button>
     </div>
-
     <div style="overflow-x: auto;">
         <table>
             <thead id="head-table"></thead>
-            <tbody id="body-table">
-                <tr><td colspan="5" style="text-align:center; padding:50px;">Klik Refresh Data...</td></tr>
-            </tbody>
+            <tbody id="body-table"><tr><td colspan="6" style="text-align:center; padding:50px;">Memuat...</td></tr></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // MASUKKAN URL WEB APP HASIL DEPLOY TERBARU ANDA
-    const URL_APP = "https://script.google.com/macros/s/AKfycbwuCfbFh9ciJZLuzXDdLCPYroH4N2AC8ZijaVq2FfNHEwFPnYYo3jpZnb39o29x69CM/exec";
-    let mode = "rekap";
-    let currentData = [];
+    const URL_APP = "https://script.google.com/macros/s/AKfycbzRLW7DVhItF6UpWVSqTyRfG94WIIpb-5n6YW6k3wAM3ag-Q9TsUmO9r2nLvaVkbA1l/exec"; // Samakan dengan URL di index.html
+    let mode = "rekap"; let currentData = [];
 
     async function muatData() {
         const tbody = document.getElementById('body-table');
-        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:50px;'>⏳ Menghubungkan ke Server...</td></tr>";
-        
+        tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:50px;'>⏳ Menghubungkan...</td></tr>";
         try {
-            // Memastikan parameter dikirim dengan benar (?aksi=...)
-            const response = await fetch(`${URL_APP}?aksi=${mode === 'rekap' ? 'rekapNilai' : 'ambilSemua'}`);
-            const result = await response.json();
-
-            if (result.error) {
-                tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color:red; padding:30px;'><b>ERROR:</b> ${result.error}</td></tr>`;
-                return;
-            }
-
-            if (!Array.isArray(result) || result.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:50px;'>📭 Belum ada data di Spreadsheet.</td></tr>";
-                return;
-            }
-
-            currentData = result;
+            const resp = await fetch(`${URL_APP}?aksi=${mode === 'rekap' ? 'rekapNilai' : 'ambilSemua'}`);
+            currentData = await resp.json();
             renderTable();
-        } catch (e) {
-            tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color:red; padding:30px;'><b>GAGAL KONEKSI:</b> Periksa internet atau URL Web App.</td></tr>`;
-        }
+        } catch (e) { tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; color:red;'>Gagal Koneksi.</td></tr>"; }
     }
 
     function renderTable() {
         const thead = document.getElementById('head-table');
         const tbody = document.getElementById('body-table');
         tbody.innerHTML = "";
-
         if (mode === "rekap") {
-            thead.innerHTML = "<tr><th>Nama Siswa</th><th>Benar</th><th>Total Jawab</th><th>Skor</th></tr>";
+            thead.innerHTML = "<tr><th>Kelas</th><th>Nama Siswa</th><th>Benar</th><th>Salah</th><th>Total</th><th>Skor</th></tr>";
             currentData.forEach(s => {
-                tbody.innerHTML += `<tr><td><b>${s.nama}</b></td><td>${s.benar}</td><td>${s.total}</td><td><mark>${s.skor}</mark></td></tr>`;
+                tbody.innerHTML += `<tr><td>${s.kelas}</td><td><b>${s.nama}</b></td><td style="color:green"><b>${s.benar}</b></td><td style="color:red"><b>${s.salah}</b></td><td>${s.total}</td><td><mark>${s.skor}</mark></td></tr>`;
             });
         } else {
-            thead.innerHTML = "<tr><th>Waktu</th><th>Nama Siswa</th><th>ID</th><th>Jawaban</th><th>Status</th></tr>";
+            thead.innerHTML = "<tr><th>Waktu</th><th>Kelas</th><th>Nama</th><th>ID</th><th>Jawaban</th><th>Status</th></tr>";
             [...currentData].reverse().forEach(row => {
                 const cls = row.status === "Benar" ? "bg-success" : "bg-danger";
-                tbody.innerHTML += `<tr>
-                    <td style="color:#636e72; font-size:12px;">${row.timestamp}</td>
-                    <td><b>${row.nama}</b></td>
-                    <td>${row.id_soal}</td>
-                    <td>${row.jawaban}</td>
-                    <td><span class="badge ${cls}">${row.status}</span></td>
-                </tr>`;
+                tbody.innerHTML += `<tr><td>${row.timestamp}</td><td>${row.kelas}</td><td><b>${row.nama}</b></td><td>${row.id_soal}</td><td>${row.jawaban}</td><td><span class="badge ${cls}">${row.status}</span></td></tr>`;
             });
         }
     }
 
-    function gantiTab(m) {
-        mode = m;
-        document.getElementById('btn-rekap').classList.toggle('active', m === 'rekap');
-        document.getElementById('btn-detail').classList.toggle('active', m === 'detail');
-        muatData();
-    }
-
-    function exportExcel() {
-        if(currentData.length === 0) return alert("Data kosong");
-        const ws = XLSX.utils.json_to_sheet(currentData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Hasil Ujian");
-        XLSX.writeFile(wb, `Rekap_Ujian_${mode}.xlsx`);
-    }
-
+    function gantiTab(m) { mode = m; document.getElementById('btn-rekap').classList.toggle('active', m === 'rekap'); document.getElementById('btn-detail').classList.toggle('active', m === 'detail'); muatData(); }
+    function exportExcel() { const ws = XLSX.utils.json_to_sheet(currentData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Hasil"); XLSX.writeFile(wb, `Rekap_${mode}.xlsx`); }
     window.onload = muatData;
 </script>
 </body>
