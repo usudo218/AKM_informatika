@@ -39,18 +39,17 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             position: relative;
             margin-bottom: 15px;
-            transition: filter 0.3s ease;
         }
 
-        .blur-mode { filter: blur(15px); pointer-events: none; }
         .header-container { text-align: center; margin-bottom: 25px; }
         .logo-img { width: 80px; height: auto; margin-bottom: 15px; }
         .title-uts { font-size: 1.3rem; font-weight: 700; color: var(--text-dark); text-transform: uppercase; line-height: 1.4; }
+        
         label.input-label { display: block; margin-bottom: 8px; font-weight: 600; color: #636e72; font-size: 14px; text-align: left; }
         
-        input[type="password"], select, textarea {
+        input[type="password"], select {
             width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #e0e0e0;
-            border-radius: 12px; background-color: #f8faff; font-size: 15px; outline: none; transition: 0.3s;
+            border-radius: 12px; background-color: #f8faff; font-size: 15px; outline: none;
         }
 
         .pass-wrapper { position: relative; width: 100%; }
@@ -64,11 +63,6 @@
             background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px; 
             border-left: 4px solid var(--primary-green);
         }
-        .info-text { font-size: 12px; line-height: 1.6; color: #2d3436; }
-        .btn-logout-top { 
-            background: #ffeaa7; color: #d63031; border: none; padding: 6px 12px; 
-            border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase;
-        }
 
         .timer-box { 
             background: #fff9db; color: #e67e22; padding: 12px; border-radius: 12px; 
@@ -78,44 +72,33 @@
         button.btn-utama {
             width: 100%; padding: 15px; background-color: var(--primary-green);
             color: white; border: none; border-radius: 12px; font-weight: 700;
-            cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px;
+            cursor: pointer; text-transform: uppercase;
         }
-        button.btn-utama:hover { background-color: var(--dark-green); transform: translateY(-2px); }
-
-        #soal-area h3 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 20px; line-height: 1.5; font-weight: 700; text-align: left; }
 
         .opsi-item {
             display: flex; align-items: flex-start; padding: 16px; margin: 12px 0;
             border: 2px solid var(--border-light); border-radius: 14px; cursor: pointer;
-            transition: all 0.2s ease; position: relative;
         }
-        .opsi-item:hover { border-color: var(--primary-green); background-color: #f0fff4; }
-        .opsi-item input { position: absolute; opacity: 0; }
 
         .checkmark {
             height: 22px; width: 22px; background-color: #fff; border: 2px solid #cbd5e0;
             margin-right: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
         }
+
         input[type="radio"] + .checkmark { border-radius: 50%; }
         input[type="checkbox"] + .checkmark { border-radius: 6px; }
 
-        .opsi-item input:checked + .checkmark { background-color: var(--primary-green); border-color: var(--primary-green); }
-        .checkmark:after {
-            content: ""; display: none; width: 6px; height: 11px; border: solid white;
-            border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); margin-bottom: 2px;
-        }
-        .opsi-item input:checked + .checkmark:after { display: block; }
-        .opsi-text { font-size: 15px; color: #4a5568; line-height: 1.4; padding-top: 1px; text-align: left; }
-
+        input:checked + .checkmark { background-color: var(--primary-green); border-color: var(--primary-green); }
+        
         .bar { width: 100%; height: 8px; background: #edf2f7; border-radius: 10px; margin: 15px 0; overflow: hidden; }
         #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
-        .footer { width: 100%; max-width: 500px; text-align: center; color: white; font-size: 11px; padding-top: 5px; }
 
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-gradient); display: none;
+            background: rgba(46, 204, 113, 0.9); display: none;
             flex-direction: column; justify-content: center; align-items: center; z-index: 9999;
         }
+
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -130,9 +113,8 @@
     <div id="box-login">
         <div class="header-container">
             <img src="logo.png" class="logo-img" alt="Logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_Tut_Wuri_Handayani.png/100px-Logo_Tut_Wuri_Handayani.png'">
-            <h1 class="title-uts">Sumatif Tengah Semester Genap</h1>
+            <h1 class="title-uts">Sumatif Tengah Semester</h1>
             <p style="color:var(--dark-green); font-weight:600;">INFORMATIKA</p>
-            <hr style="margin-top:20px; border:0; border-top:1px solid #eee;">
         </div>
         <label class="input-label">Pilih Kelas</label>
         <select id="sel-kelas" onchange="updateDaftarNama()">
@@ -152,253 +134,178 @@
 
     <div id="box-kuis" style="display:none">
         <div class="info-header">
-            <div class="info-text">
-                <b>NAMA:</b> <span id="txt-nama"></span><br>
-                <b>KELAS:</b> <span id="txt-kelas"></span>
+            <div style="font-size: 12px;">
+                <b>NAMA:</b> <span id="txt-nama"></span> | <b>KELAS:</b> <span id="txt-kelas"></span>
             </div>
-            <button class="btn-logout-top" onclick="logout()">Ganti Akun</button>
         </div>
         <div class="timer-box" id="timer">Waktu Tersisa: --:--</div>
-        <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:#636e72;">
-            <span>PROGRESS PENGERJAAN</span>
-            <span>SOAL <span id="idx">1</span>/40</span>
-        </div>
         <div class="bar"><div id="progress"></div></div>
         <div id="soal-area"></div>
         <button id="btn-next" class="btn-utama" style="margin-top:20px" onclick="simpanKeLocal()">Simpan & Lanjut</button>
     </div>
 
     <div id="box-selesai" style="display:none; text-align:center;">
-        <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
-        <h2 style="color:var(--primary-green); margin-bottom:10px;">UJIAN SELESAI</h2>
-        <p style="color:#636e72; margin-bottom:25px; font-size: 14px;">Seluruh jawaban Anda telah berhasil diunggah secara aman ke server.</p>
-        <button class="btn-utama" onclick="logout()">Keluar Aplikasi</button>
+        <div style="font-size: 60px;">✅</div>
+        <h2>UJIAN SELESAI</h2>
+        <p>Data Anda telah terkirim ke server.</p>
+        <button class="btn-utama" onclick="location.reload()">Selesai</button>
     </div>
 </div>
 
-<footer class="footer">
-    AKM Application Ver 3.5 SMAN 1 Muncar<br>
-    <strong>Design By Agus Tjakra</strong>
-</footer>
-
 <script>
+    // GANTI URL DI BAWAH INI DENGAN URL DEPLOY ANDA
     const URL_APP = "https://script.google.com/macros/s/AKfycbyb8SKjAktWOrPYQhCKXM9Y8Vn10zdc8jr56aIYwxqXFKkspTjctpR7MGBZEkS1ronR/exec";
-    const DURASI_UJIAN = 60; 
     const JUMLAH_SOAL_DIBUTUHKAN = 40;
-
-    let dataSoal = []; let curIdx = 0; let currentUser = ""; let currentKelas = ""; let timerInterval;
-
-    function intipPass() {
-        const p = document.getElementById('pass');
-        const t = document.querySelector('.toggle-password');
-        p.type = p.type === "password" ? "text" : "password";
-        t.innerText = p.type === "password" ? "LIHAT" : "TUTUP";
-    }
-
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
+    
+    let dataSoal = []; 
+    let curIdx = 0; 
+    let currentUser = ""; 
+    let currentKelas = "";
+    let timerInterval;
 
     window.onload = function() {
         const kelasUnik = [...new Set(SISWA_BARU.map(s => s.kelas))].sort();
         const selKelas = document.getElementById('sel-kelas');
         kelasUnik.forEach(k => {
-            const opt = document.createElement('option');
+            let opt = document.createElement('option');
             opt.value = k; opt.innerText = k;
             selKelas.appendChild(opt);
         });
-
-        // Persistensi login saat refresh
-        const savedUser = localStorage.getItem('active_student');
-        const savedKelas = localStorage.getItem('active_kelas');
-        const savedPass = localStorage.getItem('active_pass');
-        if (savedUser && savedKelas && savedPass) {
-            document.getElementById('sel-kelas').value = savedKelas;
-            updateDaftarNama();
-            document.getElementById('sel-nama').value = savedUser;
-            document.getElementById('pass').value = savedPass;
-            mulai(true);
-        }
     };
 
     function updateDaftarNama() {
         const kelas = document.getElementById('sel-kelas').value;
         const selNama = document.getElementById('sel-nama');
         selNama.innerHTML = '<option value="">-- Pilih Nama --</option>';
-        SISWA_BARU.filter(s => s.kelas === kelas).sort((a,b) => a.nama.localeCompare(b.nama)).forEach(s => {
-            const opt = document.createElement('option');
+        SISWA_BARU.filter(s => s.kelas === kelas).forEach(s => {
+            let opt = document.createElement('option');
             opt.value = s.nama; opt.innerText = s.nama;
             selNama.appendChild(opt);
         });
     }
 
-    async function mulai(isAuto = false) {
+    function intipPass() {
+        const p = document.getElementById('pass');
+        p.type = p.type === "password" ? "text" : "password";
+    }
+
+    async function mulai() {
         const u = document.getElementById('sel-nama').value;
         const k = document.getElementById('sel-kelas').value;
         const p = document.getElementById('pass').value;
-        const loading = document.getElementById('loading-overlay');
+        const overlay = document.getElementById('loading-overlay');
 
-        if(!u || !k || !p) return;
+        if(!u || !p) return alert("Lengkapi data!");
 
-        const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
-        if(dataSiswa && p === dataSiswa.pass) {
-            loading.style.display = "flex";
-            try {
-                const rSoal = await fetch(`soal.json?v=${Date.now()}`);
-                const gudangSoal = await rSoal.json();
+        const sSiswa = SISWA_BARU.find(s => s.nama === u && s.pass === p);
+        if(!sSiswa) return alert("Login Gagal!");
 
-                const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
-                const s = await rStatus.json();
+        overlay.style.display = "flex";
+        try {
+            // 1. Cek Progres di Spreadsheet
+            const resStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}`);
+            const status = await resStatus.json();
 
-                if(s.jumlahDikerjakan >= JUMLAH_SOAL_DIBUTUHKAN) {
-                    loading.style.display = "none";
-                    alert("Akses ditolak: Anda sudah menyelesaikan ujian!"); return;
-                }
-
-                // Logika pembagian komposisi soal (5 BS, 15 PG, 15 PK, 5 MJ)
-                if (!localStorage.getItem('urutan_soal')) {
-                    const bs = gudangSoal.filter(x => x.tipe === 'benar-salah');
-                    const pg = gudangSoal.filter(x => x.tipe === 'pilihan-ganda');
-                    const pk = gudangSoal.filter(x => x.tipe === 'pg-kompleks');
-                    const mj = gudangSoal.filter(x => x.tipe === 'menjodohkan');
-
-                    let selected = [
-                        ...shuffle(bs).slice(0, 5),
-                        ...shuffle(pg).slice(0, 15),
-                        ...shuffle(pk).slice(0, 15),
-                        ...shuffle(mj).slice(0, 5)
-                    ];
-                    
-                    dataSoal = shuffle(selected); 
-                    localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
-                } else {
-                    dataSoal = JSON.parse(localStorage.getItem('urutan_soal'));
-                }
-
-                currentUser = u; currentKelas = k;
-                localStorage.setItem('active_student', u);
-                localStorage.setItem('active_kelas', k);
-                localStorage.setItem('active_pass', p);
-
-                const localAnswers = JSON.parse(localStorage.getItem(`ans_${u}`)) || [];
-                curIdx = Math.max(localAnswers.length, s.jumlahDikerjakan);
-
-                document.getElementById('box-login').style.display = 'none';
-                document.getElementById('box-kuis').style.display = 'block';
-                document.getElementById('txt-nama').innerText = u;
-                document.getElementById('txt-kelas').innerText = k;
-                
-                tampil(); startTimer();
-                loading.style.display = "none";
-            } catch(e) { loading.style.display = "none"; alert("Error Load Soal: " + e.message); }
-        } else if(!isAuto) alert("Login Gagal!");
-    }
-
-    function startTimer() {
-        let deadline = localStorage.getItem('ujian_deadline') || (Date.now() + (DURASI_UJIAN * 60 * 1000));
-        localStorage.setItem('ujian_deadline', deadline);
-        clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            let sisa = Math.floor((deadline - Date.now()) / 1000);
-            if (sisa <= 0) { clearInterval(timerInterval); alert("Waktu Habis!"); kirimJawabanAkhir(); }
-            else {
-                let m = Math.floor(sisa / 60); let s = sisa % 60;
-                document.getElementById('timer').innerText = `Waktu Tersisa: ${m}:${s < 10 ? '0' : ''}${s}`;
+            if(status.jumlahDikerjakan >= JUMLAH_SOAL_DIBUTUHKAN) {
+                overlay.style.display = "none";
+                return alert("Anda sudah menyelesaikan ujian!");
             }
-        }, 1000);
-    }
 
-    function logout() { if(confirm("Keluar/Ganti Akun?")) { localStorage.clear(); location.reload(); } }
+            // 2. Ambil Soal
+            const resSoal = await fetch(`soal.json?v=${Date.now()}`);
+            dataSoal = await resSoal.json();
+            
+            currentUser = u;
+            currentKelas = k;
+            curIdx = status.jumlahDikerjakan;
+
+            document.getElementById('box-login').style.display = 'none';
+            document.getElementById('box-kuis').style.display = 'block';
+            document.getElementById('txt-nama').innerText = u;
+            document.getElementById('txt-kelas').innerText = k;
+
+            tampil();
+            startTimer();
+            overlay.style.display = "none";
+        } catch(e) {
+            overlay.style.display = "none";
+            alert("Error: " + e.message);
+        }
+    }
 
     function tampil() {
-        if(curIdx >= dataSoal.length) return kirimJawabanAkhir();
-        const s = dataSoal[curIdx];
-        document.getElementById('idx').innerText = (curIdx + 1);
-        document.getElementById('progress').style.width = (curIdx / dataSoal.length * 100) + "%";
-        let h = `<h3>${s.pertanyaan}</h3>`;
+        if(curIdx >= dataSoal.length || curIdx >= JUMLAH_SOAL_DIBUTUHKAN) return kirimJawabanAkhir();
         
-        if (["pilihan-ganda", "pg-kompleks", "benar-salah"].includes(s.tipe)) {
-            const opsi = s.tipe === "benar-salah" ? ["Benar", "Salah"] : s.opsi;
-            opsi.forEach(o => {
-                const tipe = s.tipe === "pg-kompleks" ? "checkbox" : "radio";
+        const s = dataSoal[curIdx];
+        document.getElementById('progress').style.width = (curIdx / JUMLAH_SOAL_DIBUTUHKAN * 100) + "%";
+        
+        let h = `<h3>${s.pertanyaan}</h3>`;
+        if(s.tipe === "pilihan-ganda") {
+            s.opsi.forEach(o => {
                 h += `<label class="opsi-item">
-                        <input type="${tipe}" name="j" value="${o}">
+                        <input type="radio" name="j" value="${o}">
                         <span class="checkmark"></span>
-                        <span class="opsi-text">${o}</span>
+                        <span>${o}</span>
                       </label>`;
-            });
-        } else if (s.tipe === "menjodohkan") {
-            s.kiri.forEach(k => {
-                h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid #eee; margin-bottom:10px; border-radius:12px; background:#fafafa;">
-                      <span style="font-size:14px; font-weight:600; color:#4a5568;">${k}</span>
-                      <select name="j-match" data-key="${k}" style="width:55%; margin:0; padding:8px; font-size:13px;">
-                        <option value="">-- Pilih --</option>
-                        ${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}
-                      </select></div>`;
             });
         }
         document.getElementById('soal-area').innerHTML = h;
     }
 
     function simpanKeLocal() {
-        const s = dataSoal[curIdx];
-        let jwb = ""; let stat = "Salah";
-
-        if (s.tipe === "menjodohkan") {
-            let res = {}; let count = 0;
-            document.querySelectorAll('select[name="j-match"]').forEach(sel => {
-                if(sel.value) { res[sel.dataset.key] = sel.value; count++; }
-            });
-            if(count < s.kiri.length) return alert("Jodohkan semua!");
-            jwb = JSON.stringify(res);
-            stat = (jwb === JSON.stringify(s.kunci)) ? "Benar" : "Salah";
-        } else {
-            let p = []; document.querySelectorAll('input[name="j"]:checked').forEach(i => p.push(i.value));
-            if(p.length === 0) return alert("Pilih jawaban!");
-            jwb = p.sort().join(",");
-            const knc = Array.isArray(s.kunci) ? s.kunci.sort().join(",") : s.kunci;
-            stat = (jwb === knc) ? "Benar" : "Salah";
-        }
+        const radio = document.querySelector('input[name="j"]:checked');
+        if(!radio) return alert("Pilih jawaban!");
 
         let ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
-        ans.push({ nama: currentUser, id_soal: s.id, jawaban: jwb, status: stat });
+        ans.push({
+            nama: currentUser,
+            id_soal: dataSoal[curIdx].id,
+            jawaban: radio.value,
+            status: radio.value === dataSoal[curIdx].kunci ? "Benar" : "Salah"
+        });
         localStorage.setItem(`ans_${currentUser}`, JSON.stringify(ans));
 
         curIdx++;
         tampil();
     }
 
-    // FUNGSI PENGIRIMAN MASSAL (Sangat Cepat)
     async function kirimJawabanAkhir() {
-        const loading = document.getElementById('loading-overlay');
-        const loadingText = document.getElementById('loading-text');
+        const overlay = document.getElementById('loading-overlay');
         const ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
-        if(ans.length === 0) return;
         
-        loading.style.display = "flex";
-        loadingText.innerText = "Mengirim Semua Jawaban Sekaligus (Harap Tunggu)...";
+        overlay.style.display = "flex";
+        document.getElementById('loading-text').innerText = "Mengirim data ke Spreadsheet...";
 
         try {
-            // Kirim paket besar (Array) ke Apps Script
-            const response = await fetch(URL_APP, { 
-                method: "POST", 
-                body: JSON.stringify(ans) 
+            await fetch(URL_APP, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify(ans)
             });
-            
-            loading.style.display = "none";
-            localStorage.clear();
-            document.getElementById('box-kuis').style.display = 'none';
-            document.getElementById('box-selesai').style.display = 'block';
-        } catch (e) { 
-            loading.style.display = "none"; 
-            alert("Gagal kirim otomatis. Pastikan internet aktif dan coba lagi."); 
+
+            setTimeout(() => {
+                overlay.style.display = "none";
+                localStorage.removeItem(`ans_${currentUser}`);
+                document.getElementById('box-kuis').style.display = 'none';
+                document.getElementById('box-selesai').style.display = 'block';
+            }, 2000);
+        } catch (e) {
+            alert("Gagal kirim: " + e.message);
+            overlay.style.display = "none";
         }
+    }
+
+    function startTimer() {
+        let sisa = 60 * 60;
+        timerInterval = setInterval(() => {
+            sisa--;
+            let m = Math.floor(sisa / 60);
+            let s = sisa % 60;
+            document.getElementById('timer').innerText = `Waktu Tersisa: ${m}:${s < 10 ? '0' : ''}${s}`;
+            if(sisa <= 0) { clearInterval(timerInterval); kirimJawabanAkhir(); }
+        }, 1000);
     }
 </script>
 </body>
 </html>
-
