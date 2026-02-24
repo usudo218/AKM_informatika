@@ -389,32 +389,32 @@
     }
 
     // FUNGSI PENGIRIMAN MASSAL (Batch Upload - Sangat Cepat)
-    async function kirimJawabanAkhir() {
-        const loading = document.getElementById('loading-overlay');
-        const loadingText = document.getElementById('loading-text');
-        const ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
-        if(ans.length === 0) return;
-        
-        loading.style.display = "flex";
-        loadingText.innerText = "Mengirim Paket Jawaban (Instan)...";
+   async function kirimJawabanAkhir() {
+    const loading = document.getElementById('loading-overlay');
+    const ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
+    if(ans.length === 0) return;
+    
+    loading.style.display = "flex";
+    document.getElementById('loading-text').innerText = "Mengirim Paket Jawaban...";
 
-        try {
-            // KIRIM SELURUH ARRAY DALAM SATU PAKET POST
-            const response = await fetch(URL_APP, { 
-                method: "POST", 
-                body: JSON.stringify(ans) 
-            });
-            
-            loading.style.display = "none";
-            localStorage.clear();
-            document.getElementById('box-kuis').style.display = 'none';
-            document.getElementById('box-selesai').style.display = 'block';
-        } catch (e) { 
-            loading.style.display = "none"; 
-            alert("Gagal kirim otomatis. Pastikan internet aktif dan klik tombol di bawah untuk mencoba lagi."); 
-            // Siswa bisa mencoba lagi dengan me-refresh halaman karena data ans_ masih di localStorage
-        }
+    try {
+        await fetch(URL_APP, { 
+            method: "POST", 
+            mode: "no-cors", // Penting untuk Apps Script
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(ans) 
+        });
+        
+        loading.style.display = "none";
+        localStorage.clear();
+        document.getElementById('box-kuis').style.display = 'none';
+        document.getElementById('box-selesai').style.display = 'block';
+    } catch (e) { 
+        loading.style.display = "none"; 
+        alert("Koneksi bermasalah, silakan coba lagi."); 
     }
+}
 </script>
 </body>
 </html>
+
