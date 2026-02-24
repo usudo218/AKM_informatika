@@ -15,7 +15,6 @@
         button:hover { background: var(--dark); }
         label { display: block; text-align: left; font-size: 13px; font-weight: 600; color: #64748b; margin-top: 10px; }
         
-        /* Area Ujian */
         #box-ujian { display: none; max-width: 800px; width: 95%; text-align: left; padding: 30px; }
         .soal-text { font-size: 18px; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
         .opsi-container { display: flex; flex-direction: column; gap: 10px; }
@@ -26,7 +25,7 @@
 <body>
 
 <div class="card" id="box-login">
-    <h2 style="margin:0;">ELANG DIGITAL</h2>
+    <h2 style="margin:0;">SUMATIF TENGAH SEMESTER GENAP</h2>
     <p style="color:#64748b; font-size:14px; margin-bottom:20px;">SMAN 1 Muncar • Informatika</p>
     
     <label>Pilih Kelas</label>
@@ -56,12 +55,10 @@
         <div class="soal-text" id="display-soal">Memuat soal...</div>
         <div class="opsi-container" id="display-opsi"></div>
     </div>
-
-    <button id="btn-lanjut" onclick="simpanDanLanjut()" style="margin-top:30px; display:none;">Simpan & Lanjut</button>
 </div>
 
 <script>
-    // --- TEMPAT LINK APPS SCRIPT BAPAK ---
+    // --- TEMPAT LINK APPS SCRIPT BAPAK (PASTIKAN SUDAH BENAR) ---
     const URL_APP = "https://script.google.com/macros/s/AKfycbwuCfbFh9ciJZLuzXDdLCPYroH4N2AC8ZijaVq2FfNHEwFPnYYo3jpZnb39o29x69CM/exec";
 
     let dataSoal = [];
@@ -107,6 +104,7 @@
         
         if (dataSiswa && p === dataSiswa.pass) {
             namaAktif = u;
+            // LANGSUNG PINDAH TAMPILAN
             document.getElementById('box-login').style.display = 'none';
             document.getElementById('box-ujian').style.display = 'block';
             document.getElementById('txt-welcome').innerText = "Siswa: " + u;
@@ -119,11 +117,13 @@
 
     async function muatSoal() {
         try {
+            // Pastikan file soal.json sudah ada di GitHub Bapak
             const resp = await fetch('soal.json');
+            if (!resp.ok) throw new Error("File soal.json tidak ditemukan!");
             dataSoal = await resp.json();
             tampilkanSoal();
         } catch (e) {
-            alert("Gagal memuat bank soal!");
+            alert("Gagal memuat bank soal! Periksa file soal.json Anda.");
         }
     }
 
@@ -132,10 +132,8 @@
             selesaiUjian();
             return;
         }
-
         const s = dataSoal[currentIndex];
         document.getElementById('display-soal').innerText = (currentIndex + 1) + ". " + s.pertanyaan;
-        
         let htmlOpsi = "";
         s.opsi.forEach(o => {
             htmlOpsi += `<div class="opsi-item" onclick="pilihOpsi('${o}')">${o}</div>`;
@@ -146,31 +144,22 @@
     function pilihOpsi(jawaban) {
         const soal = dataSoal[currentIndex];
         const status = (jawaban === soal.kunci) ? "Benar" : "Salah";
-        
-        jawabanSiswa.push({
-            nama: namaAktif,
-            id_soal: soal.id,
-            jawaban: jawaban,
-            status: status
-        });
-
+        jawabanSiswa.push({ nama: namaAktif, id_soal: soal.id, jawaban: jawaban, status: status });
         currentIndex++;
         tampilkanSoal();
     }
 
     async function selesaiUjian() {
-        document.getElementById('konten-soal').innerHTML = "<h3>Menyimpan hasil ke Spreadsheet... Mohon tunggu.</h3>";
-        
+        document.getElementById('konten-soal').innerHTML = "<h3>Menyimpan hasil... Mohon tunggu.</h3>";
         try {
             const dataKirim = encodeURIComponent(JSON.stringify(jawabanSiswa));
+            // Metode GET untuk menghindari CORS Error
             await fetch(`${URL_APP}?data=${dataKirim}`, { mode: 'no-cors' });
-            
-            document.getElementById('konten-soal').innerHTML = "<h2>Selesai!</h2><p>Jawaban Anda sudah terekam di Spreadsheet Pak Cokro.</p>";
+            document.getElementById('konten-soal').innerHTML = "<h2>Selesai!</h2><p>Jawaban Anda sudah terekam.</p>";
         } catch (e) {
-            alert("Gagal mengirim data. Pastikan internet aktif.");
+            alert("Gagal mengirim data.");
         }
     }
 </script>
-
 </body>
 </html>
