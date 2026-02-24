@@ -20,6 +20,7 @@
             background: var(--bg-gradient);
             min-height: 100vh;
             display: flex; flex-direction: column; align-items: center; padding: 20px;
+            user-select: none;
         }
 
         .card {
@@ -29,62 +30,44 @@
 
         .info-bar {
             background: #f8faff; padding: 15px; border-radius: 12px;
-            border-left: 5px solid var(--primary-green); margin-bottom: 20px;
-            font-size: 14px; font-weight: 700; color: var(--text-dark);
+            border-left: 5px solid var(--primary-green); margin-bottom: 15px;
+            font-size: 13px; font-weight: 700; display: flex; justify-content: space-between;
         }
+
+        /* PROGRESS BAR */
+        .progress-container { width: 100%; background: #edf2f7; height: 10px; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+        #progress-fill { height: 100%; background: var(--primary-green); width: 0%; transition: 0.3s; }
 
         .timer-box {
-            background: #fff9db; color: #e67e22; padding: 12px;
+            background: #fff9db; color: #e67e22; padding: 10px;
             border-radius: 12px; text-align: center; font-weight: 700;
-            margin-bottom: 20px; border: 1px solid #ffec99; font-size: 1.2rem;
+            margin-bottom: 20px; border: 1px solid #ffec99;
         }
 
-        #soal-area h3 { font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px; font-weight: 700; color: #000; }
+        #soal-area h3 { font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px; color: #000; }
 
-        /* PERBAIKAN OPSI JAWABAN */
         .opsi-label {
-            display: flex; align-items: center; padding: 16px;
-            margin: 12px 0; border: 2px solid #e2e8f0; border-radius: 12px;
-            cursor: pointer; transition: all 0.2s; background: #fff;
+            display: flex; align-items: center; padding: 15px;
+            margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 12px;
+            cursor: pointer; transition: 0.2s; background: #fff;
         }
 
-        .opsi-label:hover { border-color: var(--primary-green); background: #f0fff4; }
-
-        /* Menghilangkan radio asli tapi tetap bisa di-check */
-        .opsi-label input[type="radio"], .opsi-label input[type="checkbox"] {
-            display: none;
-        }
-
+        .opsi-label input { display: none; }
         .checkmark {
-            height: 22px; width: 22px; border: 2px solid #cbd5e0;
-            margin-right: 15px; flex-shrink: 0; position: relative;
-            display: flex; align-items: center; justify-content: center;
+            height: 20px; width: 20px; border: 2px solid #cbd5e0;
+            margin-right: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
         }
-
-        /* Radio Bulat, Checkbox Kotak */
         .radio-mark { border-radius: 50%; }
         .check-mark { border-radius: 4px; }
 
-        /* Warna saat dipilih */
-        input:checked + .checkmark {
-            background-color: var(--primary-green);
-            border-color: var(--primary-green);
-        }
-
-        input:checked + .checkmark::after {
-            content: "✓"; color: white; font-size: 14px; font-weight: bold;
-        }
-
-        /* State saat terpilih untuk seluruh baris */
-        .opsi-label:has(input:checked) {
-            border-color: var(--primary-green);
-            background-color: #f0fff4;
-        }
+        input:checked + .checkmark { background: var(--primary-green); border-color: var(--primary-green); }
+        input:checked + .checkmark::after { content: "✓"; color: white; font-size: 12px; font-weight: bold; }
+        .opsi-label:has(input:checked) { border-color: var(--primary-green); background: #f0fff4; }
 
         .btn-utama {
-            width: 100%; padding: 18px; background: var(--primary-green);
+            width: 100%; padding: 16px; background: var(--primary-green);
             color: white; border: none; border-radius: 12px;
-            font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 16px;
+            font-weight: 700; cursor: pointer; text-transform: uppercase;
         }
 
         #loading-overlay {
@@ -92,46 +75,46 @@
             background: rgba(46, 204, 113, 0.95); display: none;
             flex-direction: column; justify-content: center; align-items: center; z-index: 100;
         }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div id="loading-overlay">
     <div style="border: 5px solid white; border-top: 5px solid transparent; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;"></div>
-    <p id="loading-text" style="color: white; margin-top: 15px; font-weight: 700; font-size: 18px;">Mohon Tunggu...</p>
+    <p id="loading-text" style="color: white; margin-top: 15px; font-weight: 700;">Memproses...</p>
 </div>
 
 <div class="card">
     <div id="box-login">
-        <h2 style="text-align: center; margin-bottom: 25px;">LOGIN SISWA</h2>
-        <label style="font-size:12px; font-weight:700; color:#636e72;">KELAS</label>
-        <select id="sel-kelas" style="width:100%; padding:14px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd;" onchange="updateDaftarNama()">
+        <h2 style="text-align: center; margin-bottom: 25px;">MASUK UJIAN</h2>
+        <select id="sel-kelas" style="width:100%; padding:14px; margin-bottom:15px;" onchange="updateDaftarNama()">
             <option value="">-- Pilih Kelas --</option>
         </select>
-        <label style="font-size:12px; font-weight:700; color:#636e72;">NAMA LENGKAP</label>
-        <select id="sel-nama" style="width:100%; padding:14px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd;">
+        <select id="sel-nama" style="width:100%; padding:14px; margin-bottom:15px;">
             <option value="">-- Pilih Nama --</option>
         </select>
-        <label style="font-size:12px; font-weight:700; color:#636e72;">PASSWORD</label>
-        <input type="password" id="pass" placeholder="Masukkan Password" style="width:100%; padding:14px; margin-bottom:25px; border-radius:10px; border:1px solid #ddd;">
-        <button class="btn-utama" onclick="mulai()">Masuk Ujian</button>
+        <input type="password" id="pass" placeholder="Password Siswa" style="width:100%; padding:14px; margin-bottom:25px;">
+        <button class="btn-utama" onclick="mulai()">Masuk</button>
     </div>
 
     <div id="box-kuis" style="display:none">
         <div class="info-bar">
-            NAMA: <span id="txt-nama"></span><br>
-            KELAS: <span id="txt-kelas"></span>
+            <span>SOAL <span id="txt-idx">1</span> / 40</span>
+            <span id="txt-nama-display"></span>
         </div>
-        <div class="timer-box" id="timer">Waktu Tersisa: 60:00</div>
+        <div class="progress-container"><div id="progress-fill"></div></div>
+        <div class="timer-box" id="timer">Waktu Tersisa: --:--</div>
         <div id="soal-area"></div>
-        <button class="btn-utama" style="margin-top:20px;" onclick="simpanKeLocal()">SIMPAN & LANJUT</button>
+        <button class="btn-utama" style="margin-top:20px;" onclick="simpanKeLocal()">Simpan & Lanjut</button>
     </div>
 
     <div id="box-selesai" style="display:none; text-align:center;">
-        <div style="font-size: 80px; margin-bottom: 20px;">✅</div>
-        <h2 style="color: var(--dark-green);">UJIAN SELESAI</h2>
-        <p style="color: #636e72; margin-bottom: 30px;">Jawaban Anda telah berhasil diunggah.</p>
-        <button class="btn-utama" onclick="location.reload()">LOGOUT</button>
+        <div style="font-size: 60px;">✅</div>
+        <h2>UJIAN SELESAI</h2>
+        <p>Data berhasil dikirim.</p>
+        <button class="btn-utama" onclick="logout()">LOGOUT</button>
     </div>
 </div>
 
@@ -141,8 +124,28 @@
     let curIdx = 0;
     let currentUser = "";
     let sisaWaktu = 3600;
+    let timerInterval;
 
     window.onload = () => {
+        // Cek apakah ada sesi tersimpan
+        const savedUser = localStorage.getItem('active_user');
+        const savedSoal = localStorage.getItem('active_soal');
+        
+        if (savedUser && savedSoal) {
+            currentUser = savedUser;
+            dataSoal = JSON.parse(savedSoal);
+            curIdx = JSON.parse(localStorage.getItem(`ans_${currentUser}`) || "[]").length;
+            sisaWaktu = parseInt(localStorage.getItem('timer_sisa') || "3600");
+            
+            document.getElementById('box-login').style.display = 'none';
+            document.getElementById('box-kuis').style.display = 'block';
+            document.getElementById('txt-nama-display').innerText = currentUser;
+            
+            tampil();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // Load Daftar Kelas
         const kls = [...new Set(SISWA_BARU.map(s => s.kelas))].sort();
         kls.forEach(k => {
             let o = document.createElement('option'); o.value = k; o.text = k;
@@ -154,76 +157,84 @@
         const k = document.getElementById('sel-kelas').value;
         const sel = document.getElementById('sel-nama');
         sel.innerHTML = '<option value="">-- Pilih Nama --</option>';
-        SISWA_BARU.filter(s => s.kelas === k).sort((a,b)=>a.nama.localeCompare(b.nama)).forEach(s => {
+        SISWA_BARU.filter(s => s.kelas === k).forEach(s => {
             let o = document.createElement('option'); o.value = s.nama; o.text = s.nama;
             sel.appendChild(o);
         });
     }
 
+    function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+
     async function mulai() {
         const u = document.getElementById('sel-nama').value;
         const p = document.getElementById('pass').value;
-        const k = document.getElementById('sel-kelas').value;
         const s = SISWA_BARU.find(x => x.nama === u && x.pass === p);
 
-        if(!u || !p) return alert("Silakan isi Nama dan Password!");
-        if(!s) return alert("Password Salah!");
+        if(!s) return alert("Login Gagal!");
 
         document.getElementById('loading-overlay').style.display = 'flex';
         try {
-            const resp = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}`);
-            const status = await resp.json();
+            const respStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}`);
+            const status = await respStatus.json();
             
+            if(status.jumlahDikerjakan >= 40) {
+                document.getElementById('loading-overlay').style.display = 'none';
+                return alert("Anda sudah mengerjakan ujian ini!");
+            }
+
             const respSoal = await fetch(`soal.json?v=${Date.now()}`);
-            dataSoal = await respSoal.json();
+            const gudangSoal = await respSoal.json();
             
+            // LOGIKA KOMPOSISI SOAL (5 BS, 15 PG, 15 PK, 5 MJ)
+            const bs = shuffle(gudangSoal.filter(x => x.tipe === 'benar-salah')).slice(0, 5);
+            const pg = shuffle(gudangSoal.filter(x => x.tipe === 'pilihan-ganda')).slice(0, 15);
+            const pk = shuffle(gudangSoal.filter(x => x.tipe === 'pg-kompleks')).slice(0, 15);
+            const mj = shuffle(gudangSoal.filter(x => x.tipe === 'menjodohkan')).slice(0, 5);
+
+            dataSoal = shuffle([...bs, ...pg, ...pk, ...mj]);
             currentUser = u;
-            curIdx = status.jumlahDikerjakan || 0;
+            curIdx = status.jumlahDikerjakan;
+
+            // Simpan Sesi agar Refresh tidak hilang
+            localStorage.setItem('active_user', u);
+            localStorage.setItem('active_soal', JSON.stringify(dataSoal));
 
             document.getElementById('box-login').style.display = 'none';
             document.getElementById('box-kuis').style.display = 'block';
-            document.getElementById('txt-nama').innerText = u;
-            document.getElementById('txt-kelas').innerText = k;
+            document.getElementById('txt-nama-display').innerText = u;
 
             tampil();
-            setInterval(updateTimer, 1000);
+            timerInterval = setInterval(updateTimer, 1000);
             document.getElementById('loading-overlay').style.display = 'none';
         } catch(e) { 
             document.getElementById('loading-overlay').style.display = 'none';
-            alert("Gagal memuat data. Periksa URL_APP dan file soal.json Anda!"); 
+            alert("Error: " + e.message); 
         }
     }
 
     function tampil() {
-        if(curIdx >= dataSoal.length) return kirimJawabanAkhir();
+        if(curIdx >= 40) return kirimJawabanAkhir();
+        
         const s = dataSoal[curIdx];
+        document.getElementById('txt-idx').innerText = curIdx + 1;
+        document.getElementById('progress-fill').style.width = ((curIdx / 40) * 100) + "%";
+
         let h = `<h3>${s.pertanyaan}</h3>`;
 
         if(s.tipe === "pilihan-ganda" || s.tipe === "benar-salah") {
             const opsi = s.tipe === "benar-salah" ? ["Benar", "Salah"] : s.opsi;
             opsi.forEach(o => {
-                h += `
-                <label class="opsi-label">
-                    <input type="radio" name="j" value="${o}">
-                    <span class="checkmark radio-mark"></span>
-                    <span>${o}</span>
-                </label>`;
+                h += `<label class="opsi-label"><input type="radio" name="j" value="${o}"><span class="checkmark radio-mark"></span><span>${o}</span></label>`;
             });
         } else if(s.tipe === "pg-kompleks") {
             s.opsi.forEach(o => {
-                h += `
-                <label class="opsi-label">
-                    <input type="checkbox" name="j" value="${o}">
-                    <span class="checkmark check-mark"></span>
-                    <span>${o}</span>
-                </label>`;
+                h += `<label class="opsi-label"><input type="checkbox" name="j" value="${o}"><span class="checkmark check-mark"></span><span>${o}</span></label>`;
             });
         } else if(s.tipe === "menjodohkan") {
             s.kiri.forEach(k => {
-                h += `
-                <div style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px;">
-                    <span style="font-weight:600; font-size:14px;">${k}</span>
-                    <select class="match-sel" data-kiri="${k}" style="padding:8px; border-radius:5px; border:1px solid #ccc; width:50%;">
+                h += `<div style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px;">
+                    <span style="font-weight:600;">${k}</span>
+                    <select class="match-sel" data-kiri="${k}" style="padding:8px; width:50%;">
                         <option value="">-- Pilih --</option>
                         ${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}
                     </select>
@@ -235,33 +246,28 @@
 
     function simpanKeLocal() {
         const s = dataSoal[curIdx];
-        let jawaban = "";
-        let status = "Salah";
+        let jawaban = ""; let stat = "Salah";
 
         if(s.tipe === "pilihan-ganda" || s.tipe === "benar-salah") {
             const sel = document.querySelector('input[name="j"]:checked');
-            if(!sel) return alert("Pilih jawaban Anda!");
+            if(!sel) return alert("Pilih jawaban!");
             jawaban = sel.value;
-            status = (jawaban === s.kunci) ? "Benar" : "Salah";
+            stat = (jawaban === s.kunci) ? "Benar" : "Salah";
         } else if(s.tipe === "pg-kompleks") {
             let sels = []; document.querySelectorAll('input[name="j"]:checked').forEach(i => sels.push(i.value));
-            if(sels.length === 0) return alert("Pilih minimal satu jawaban!");
+            if(sels.length === 0) return alert("Pilih minimal satu!");
             jawaban = sels.sort().join(",");
-            status = (jawaban === s.kunci.sort().join(",")) ? "Benar" : "Salah";
+            stat = (jawaban === s.kunci.sort().join(",")) ? "Benar" : "Salah";
         } else if(s.tipe === "menjodohkan") {
-            let res = {}; 
-            let allFilled = true;
-            document.querySelectorAll('.match-sel').forEach(sl => {
-                if(!sl.value) allFilled = false;
-                res[sl.dataset.kiri] = sl.value;
-            });
-            if(!allFilled) return alert("Mohon jodohkan semua pilihan!");
+            let res = {}; let full = true;
+            document.querySelectorAll('.match-sel').forEach(sl => { if(!sl.value) full = false; res[sl.dataset.kiri] = sl.value; });
+            if(!full) return alert("Lengkapi perjodohan!");
             jawaban = JSON.stringify(res);
-            status = (jawaban === JSON.stringify(s.kunci)) ? "Benar" : "Salah";
+            stat = (jawaban === JSON.stringify(s.kunci)) ? "Benar" : "Salah";
         }
 
-        let ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
-        ans.push({ nama: currentUser, id_soal: s.id, jawaban: jawaban, status: status });
+        let ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`) || "[]");
+        ans.push({ nama: currentUser, id_soal: s.id, jawaban: jawaban, status: stat });
         localStorage.setItem(`ans_${currentUser}`, JSON.stringify(ans));
 
         curIdx++;
@@ -270,29 +276,26 @@
 
     async function kirimJawabanAkhir() {
         document.getElementById('loading-overlay').style.display = 'flex';
-        const ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
-        if(ans.length === 0) {
-             document.getElementById('box-kuis').style.display = 'none';
-             document.getElementById('box-selesai').style.display = 'block';
-             return;
-        }
+        const ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`) || "[]");
         try {
             await fetch(URL_APP, { method: "POST", mode: "no-cors", body: JSON.stringify(ans) });
-            localStorage.removeItem(`ans_${currentUser}`);
+            localStorage.clear();
             document.getElementById('box-kuis').style.display = 'none';
             document.getElementById('box-selesai').style.display = 'block';
-        } catch(e) { alert("Gagal mengirim ke server. Periksa koneksi internet!"); }
+        } catch(e) { alert("Gagal Kirim!"); }
         document.getElementById('loading-overlay').style.display = 'none';
     }
 
     function updateTimer() {
         sisaWaktu--;
+        localStorage.setItem('timer_sisa', sisaWaktu);
         let m = Math.floor(sisaWaktu / 60);
         let s = sisaWaktu % 60;
         document.getElementById('timer').innerText = `Waktu Tersisa: ${m}:${s < 10 ? '0'+s : s}`;
-        if(sisaWaktu <= 0) kirimJawabanAkhir();
+        if(sisaWaktu <= 0) { clearInterval(timerInterval); kirimJawabanAkhir(); }
     }
+
+    function logout() { localStorage.clear(); location.reload(); }
 </script>
-<style> @keyframes spin { to { transform: rotate(360deg); } } </style>
 </body>
 </html>
