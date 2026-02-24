@@ -18,14 +18,14 @@
         #box-ujian { display: none; max-width: 800px; width: 95%; text-align: left; padding: 30px; }
         .soal-text { font-size: 18px; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
         .opsi-container { display: flex; flex-direction: column; gap: 10px; }
-        .opsi-item { padding: 12px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; transition: 0.2s; }
+        .opsi-item { padding: 15px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; transition: 0.2s; font-size: 15px; }
         .opsi-item:hover { background: #f0fdf4; border-color: var(--primary); }
     </style>
 </head>
 <body>
 
 <div class="card" id="box-login">
-    <h2 style="margin:0;">SUMATIF TENGAH SEMESTER GENAP</h2>
+    <h2 style="margin:0;">SUMATIF TENGAH SEMESTER</h2>
     <p style="color:#64748b; font-size:14px; margin-bottom:20px;">SMAN 1 Muncar • Informatika</p>
     
     <label>Pilih Kelas</label>
@@ -58,7 +58,6 @@
 </div>
 
 <script>
-    // --- TEMPAT LINK APPS SCRIPT BAPAK (PASTIKAN SUDAH BENAR) ---
     const URL_APP = "https://script.google.com/macros/s/AKfycbwuCfbFh9ciJZLuzXDdLCPYroH4N2AC8ZijaVq2FfNHEwFPnYYo3jpZnb39o29x69CM/exec";
 
     let dataSoal = [];
@@ -104,7 +103,6 @@
         
         if (dataSiswa && p === dataSiswa.pass) {
             namaAktif = u;
-            // LANGSUNG PINDAH TAMPILAN
             document.getElementById('box-login').style.display = 'none';
             document.getElementById('box-ujian').style.display = 'block';
             document.getElementById('txt-welcome').innerText = "Siswa: " + u;
@@ -117,13 +115,20 @@
 
     async function muatSoal() {
         try {
-            // Pastikan file soal.json sudah ada di GitHub Bapak
-            const resp = await fetch('soal.json');
+            // PERBAIKAN DISINI: Tambahkan timestamp agar tidak ambil file cache lama
+            const resp = await fetch(`soal.json?v=${Date.now()}`);
             if (!resp.ok) throw new Error("File soal.json tidak ditemukan!");
-            dataSoal = await resp.json();
+            
+            const rawData = await resp.json();
+            
+            // Validasi data soal
+            if(!Array.isArray(rawData)) throw new Error("Format soal.json harus berupa Array [ ]");
+            
+            dataSoal = rawData;
             tampilkanSoal();
         } catch (e) {
-            alert("Gagal memuat bank soal! Periksa file soal.json Anda.");
+            console.error(e);
+            alert("Gagal memuat bank soal: " + e.message);
         }
     }
 
@@ -150,14 +155,18 @@
     }
 
     async function selesaiUjian() {
-        document.getElementById('konten-soal').innerHTML = "<h3>Menyimpan hasil... Mohon tunggu.</h3>";
+        document.getElementById('konten-soal').innerHTML = "<div style='text-align:center; padding:20px;'><h3>Menyimpan hasil pengerjaan...</h3><p>Mohon jangan menutup halaman ini.</p></div>";
         try {
             const dataKirim = encodeURIComponent(JSON.stringify(jawabanSiswa));
-            // Metode GET untuk menghindari CORS Error
             await fetch(`${URL_APP}?data=${dataKirim}`, { mode: 'no-cors' });
-            document.getElementById('konten-soal').innerHTML = "<h2>Selesai!</h2><p>Jawaban Anda sudah terekam.</p>";
+            
+            document.getElementById('konten-soal').innerHTML = `
+                <div style="text-align:center; padding:20px;">
+                    <h2 style="color:var(--primary);">Ujian Selesai!</h2>
+                    <p>Terima kasih <b>${namaAktif}</b>, jawaban Anda sudah terekam di sistem.</p>
+                </div>`;
         } catch (e) {
-            alert("Gagal mengirim data.");
+            alert("Gagal mengirim data ke server. Silakan screenshot halaman ini sebagai bukti.");
         }
     }
 </script>
