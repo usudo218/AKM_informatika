@@ -49,37 +49,56 @@
     let currentData = [];
 
     async function muatData() {
-        const tbody = document.getElementById('body-table');
-        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center'>Memuat data...</td></tr>";
-        
-        try {
-            const aksi = mode === "rekap" ? "rekapNilai" : "ambilSemua";
-            const response = await fetch(`${URL_APP}?aksi=${aksi}`);
-            currentData = await response.json();
-            renderTable();
-        } catch (e) {
-            alert("Gagal ambil data: " + e.message);
+    const tbody = document.getElementById('body-table');
+    tbody.innerHTML = "<tr><td colspan='5' style='text-align:center'>Memuat data...</td></tr>";
+    
+    try {
+        const aksi = mode === "rekap" ? "rekapNilai" : "ambilSemua";
+        const response = await fetch(`${URL_APP}?aksi=${aksi}`);
+        const result = await response.json();
+
+        // VALIDASI: Jika yang datang bukan Array (misal pesan "Server Ready")
+        if (!Array.isArray(result)) {
+            console.log("Respon server bukan array:", result);
+            currentData = []; // Set kosong agar tidak error saat render
+            tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color:orange;'>
+                ${result.info || "Belum ada data pengerjaan di Spreadsheet"}
+            </td></tr>`;
+            return;
         }
+
+        currentData = result;
+        renderTable();
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color:red;'>Error: ${e.message}</td></tr>`;
+    }
+}
+
+function renderTable() {
+    const thead = document.getElementById('head-table');
+    const tbody = document.getElementById('body-table');
+    tbody.innerHTML = "";
+
+    // Pastikan currentData adalah array sebelum looping
+    if (!currentData || currentData.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center'>Tidak ada data ditemukan.</td></tr>";
+        return;
     }
 
-    function renderTable() {
-        const thead = document.getElementById('head-table');
-        const tbody = document.getElementById('body-table');
-        tbody.innerHTML = "";
-
-        if (mode === "rekap") {
-            thead.innerHTML = "<tr><th>Nama Siswa</th><th>Benar</th><th>Total Jawab</th><th>Skor Akhir</th></tr>";
-            currentData.forEach(s => {
-                tbody.innerHTML += `<tr><td><b>${s.nama}</b></td><td>${s.benar}</td><td>${s.total}</td><td><mark>${s.skor}</mark></td></tr>`;
-            });
-        } else {
-            thead.innerHTML = "<tr><th>Waktu</th><th>Nama</th><th>ID</th><th>Jawaban</th><th>Status</th></tr>";
-            currentData.slice().reverse().forEach(row => {
-                const cls = row.status === "Benar" ? "bg-success" : "bg-danger";
-                tbody.innerHTML += `<tr><td>${row.timestamp}</td><td>${row.nama}</td><td>${row.id_soal}</td><td>${row.jawaban}</td><td><span class="badge ${cls}">${row.status}</span></td></tr>`;
-            });
-        }
+    if (mode === "rekap") {
+        thead.innerHTML = "<tr><th>Nama Siswa</th><th>Benar</th><th>Total Jawab</th><th>Skor Akhir</th></tr>";
+        currentData.forEach(s => {
+            tbody.innerHTML += `<tr><td><b>${s.nama}</b></td><td>${s.benar}</td><td>${s.total}</td><td><mark>${s.skor}</mark></td></tr>`;
+        });
+    } else {
+        thead.innerHTML = "<tr><th>Waktu</th><th>Nama</th><th>ID</th><th>Jawaban</th><th>Status</th></tr>";
+        // .slice().reverse() digunakan agar data terbaru muncul di paling atas
+        currentData.slice().reverse().forEach(row => {
+            const cls = row.status === "Benar" ? "bg-success" : "bg-danger";
+            tbody.innerHTML += `<tr><td>${row.timestamp}</td><td>${row.nama}</td><td>${row.id_soal}</td><td>${row.jawaban}</td><td><span class="badge ${cls}">${row.status}</span></td></tr>`;
+        });
     }
+}
 
     function gantiTab(m, btn) {
         mode = m;
