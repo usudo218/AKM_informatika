@@ -12,212 +12,173 @@
             --dark-green: #27ae60;
             --bg-gradient: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
             --text-dark: #2d3436;
-            --border-light: #e0e6ed;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-gradient);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start; 
-            padding: 40px 20px 20px 20px; 
-            -webkit-user-select: none;
-            user-select: none;
+            display: flex; flex-direction: column; align-items: center; padding: 20px;
         }
 
         .card {
-            background: white;
-            width: 100%;
-            max-width: 550px;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            position: relative;
-            margin-bottom: 15px;
+            background: white; width: 100%; max-width: 600px;
+            padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
-        .header-container { text-align: center; margin-bottom: 25px; }
-        .logo-img { width: 80px; height: auto; margin-bottom: 15px; }
-        .title-uts { font-size: 1.3rem; font-weight: 700; color: var(--text-dark); text-transform: uppercase; line-height: 1.4; }
-        
-        label.input-label { display: block; margin-bottom: 8px; font-weight: 600; color: #636e72; font-size: 14px; text-align: left; }
-        
-        input[type="password"], select {
-            width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #e0e0e0;
-            border-radius: 12px; background-color: #f8faff; font-size: 15px; outline: none;
+        .info-bar {
+            background: #f8faff; padding: 15px; border-radius: 12px;
+            border-left: 5px solid var(--primary-green); margin-bottom: 20px;
+            font-size: 14px; font-weight: 700; color: var(--text-dark);
         }
 
-        .pass-wrapper { position: relative; width: 100%; }
-        .toggle-password {
-            position: absolute; right: 15px; top: 15px; cursor: pointer;
-            color: var(--dark-green); font-size: 11px; font-weight: 700;
+        .timer-box {
+            background: #fff9db; color: #e67e22; padding: 12px;
+            border-radius: 12px; text-align: center; font-weight: 700;
+            margin-bottom: 20px; border: 1px solid #ffec99; font-size: 1.2rem;
         }
 
-        .info-header { 
-            display: flex; justify-content: space-between; align-items: flex-start; 
-            background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px; 
-            border-left: 4px solid var(--primary-green);
+        #soal-area h3 { font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px; font-weight: 700; color: #000; }
+
+        /* PERBAIKAN OPSI JAWABAN */
+        .opsi-label {
+            display: flex; align-items: center; padding: 16px;
+            margin: 12px 0; border: 2px solid #e2e8f0; border-radius: 12px;
+            cursor: pointer; transition: all 0.2s; background: #fff;
         }
 
-        .timer-box { 
-            background: #fff9db; color: #e67e22; padding: 12px; border-radius: 12px; 
-            font-weight: 700; text-align: center; margin-bottom: 20px; border: 1px solid #ffec99;
-        }
+        .opsi-label:hover { border-color: var(--primary-green); background: #f0fff4; }
 
-        button.btn-utama {
-            width: 100%; padding: 15px; background-color: var(--primary-green);
-            color: white; border: none; border-radius: 12px; font-weight: 700;
-            cursor: pointer; text-transform: uppercase;
-        }
-
-        .opsi-item {
-            display: flex; align-items: flex-start; padding: 16px; margin: 12px 0;
-            border: 2px solid var(--border-light); border-radius: 14px; cursor: pointer;
+        /* Menghilangkan radio asli tapi tetap bisa di-check */
+        .opsi-label input[type="radio"], .opsi-label input[type="checkbox"] {
+            display: none;
         }
 
         .checkmark {
-            height: 22px; width: 22px; background-color: #fff; border: 2px solid #cbd5e0;
-            margin-right: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            height: 22px; width: 22px; border: 2px solid #cbd5e0;
+            margin-right: 15px; flex-shrink: 0; position: relative;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        input[type="radio"] + .checkmark { border-radius: 50%; }
-        input[type="checkbox"] + .checkmark { border-radius: 6px; }
+        /* Radio Bulat, Checkbox Kotak */
+        .radio-mark { border-radius: 50%; }
+        .check-mark { border-radius: 4px; }
 
-        input:checked + .checkmark { background-color: var(--primary-green); border-color: var(--primary-green); }
-        
-        .bar { width: 100%; height: 8px; background: #edf2f7; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
+        /* Warna saat dipilih */
+        input:checked + .checkmark {
+            background-color: var(--primary-green);
+            border-color: var(--primary-green);
+        }
+
+        input:checked + .checkmark::after {
+            content: "✓"; color: white; font-size: 14px; font-weight: bold;
+        }
+
+        /* State saat terpilih untuk seluruh baris */
+        .opsi-label:has(input:checked) {
+            border-color: var(--primary-green);
+            background-color: #f0fff4;
+        }
+
+        .btn-utama {
+            width: 100%; padding: 18px; background: var(--primary-green);
+            color: white; border: none; border-radius: 12px;
+            font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 16px;
+        }
 
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(46, 204, 113, 0.9); display: none;
-            flex-direction: column; justify-content: center; align-items: center; z-index: 9999;
+            background: rgba(46, 204, 113, 0.95); display: none;
+            flex-direction: column; justify-content: center; align-items: center; z-index: 100;
         }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div id="loading-overlay">
-    <div style="border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
-    <p id="loading-text" style="margin-top: 15px; color: white; font-weight: 600;">Sedang Memproses...</p>
+    <div style="border: 5px solid white; border-top: 5px solid transparent; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;"></div>
+    <p id="loading-text" style="color: white; margin-top: 15px; font-weight: 700; font-size: 18px;">Mohon Tunggu...</p>
 </div>
 
 <div class="card">
     <div id="box-login">
-        <div class="header-container">
-            <img src="logo.png" class="logo-img" alt="Logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_Tut_Wuri_Handayani.png/100px-Logo_Tut_Wuri_Handayani.png'">
-            <h1 class="title-uts">Sumatif Tengah Semester</h1>
-            <p style="color:var(--dark-green); font-weight:600;">INFORMATIKA</p>
-        </div>
-        <label class="input-label">Pilih Kelas</label>
-        <select id="sel-kelas" onchange="updateDaftarNama()">
+        <h2 style="text-align: center; margin-bottom: 25px;">LOGIN SISWA</h2>
+        <label style="font-size:12px; font-weight:700; color:#636e72;">KELAS</label>
+        <select id="sel-kelas" style="width:100%; padding:14px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd;" onchange="updateDaftarNama()">
             <option value="">-- Pilih Kelas --</option>
         </select>
-        <label class="input-label">Nama Siswa</label>
-        <select id="sel-nama">
+        <label style="font-size:12px; font-weight:700; color:#636e72;">NAMA LENGKAP</label>
+        <select id="sel-nama" style="width:100%; padding:14px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd;">
             <option value="">-- Pilih Nama --</option>
         </select>
-        <label class="input-label">Password</label>
-        <div class="pass-wrapper">
-            <input type="password" id="pass" placeholder="Password Siswa">
-            <span class="toggle-password" onclick="intipPass()">LIHAT</span>
-        </div>
+        <label style="font-size:12px; font-weight:700; color:#636e72;">PASSWORD</label>
+        <input type="password" id="pass" placeholder="Masukkan Password" style="width:100%; padding:14px; margin-bottom:25px; border-radius:10px; border:1px solid #ddd;">
         <button class="btn-utama" onclick="mulai()">Masuk Ujian</button>
     </div>
 
     <div id="box-kuis" style="display:none">
-        <div class="info-header">
-            <div style="font-size: 12px;">
-                <b>NAMA:</b> <span id="txt-nama"></span> | <b>KELAS:</b> <span id="txt-kelas"></span>
-            </div>
+        <div class="info-bar">
+            NAMA: <span id="txt-nama"></span><br>
+            KELAS: <span id="txt-kelas"></span>
         </div>
-        <div class="timer-box" id="timer">Waktu Tersisa: --:--</div>
-        <div class="bar"><div id="progress"></div></div>
+        <div class="timer-box" id="timer">Waktu Tersisa: 60:00</div>
         <div id="soal-area"></div>
-        <button id="btn-next" class="btn-utama" style="margin-top:20px" onclick="simpanKeLocal()">Simpan & Lanjut</button>
+        <button class="btn-utama" style="margin-top:20px;" onclick="simpanKeLocal()">SIMPAN & LANJUT</button>
     </div>
 
     <div id="box-selesai" style="display:none; text-align:center;">
-        <div style="font-size: 60px;">✅</div>
-        <h2>UJIAN SELESAI</h2>
-        <p>Data Anda telah terkirim ke server.</p>
-        <button class="btn-utama" onclick="location.reload()">Selesai</button>
+        <div style="font-size: 80px; margin-bottom: 20px;">✅</div>
+        <h2 style="color: var(--dark-green);">UJIAN SELESAI</h2>
+        <p style="color: #636e72; margin-bottom: 30px;">Jawaban Anda telah berhasil diunggah.</p>
+        <button class="btn-utama" onclick="location.reload()">LOGOUT</button>
     </div>
 </div>
 
 <script>
-    // GANTI URL DI BAWAH INI DENGAN URL DEPLOY ANDA
-    const URL_APP = "https://script.google.com/macros/s/AKfycbyb8SKjAktWOrPYQhCKXM9Y8Vn10zdc8jr56aIYwxqXFKkspTjctpR7MGBZEkS1ronR/exec";
-    const JUMLAH_SOAL_DIBUTUHKAN = 40;
-    
-    let dataSoal = []; 
-    let curIdx = 0; 
-    let currentUser = ""; 
-    let currentKelas = "";
-    let timerInterval;
+    const URL_APP = "https://script.google.com/macros/s/AKfycbz8_cMgChczaPm0owND3h8unDdqvgijjrEZzdyFAsJBbA16_kaAgOWpkjk77lSbxUIa/exec";
+    let dataSoal = [];
+    let curIdx = 0;
+    let currentUser = "";
+    let sisaWaktu = 3600;
 
-    window.onload = function() {
-        const kelasUnik = [...new Set(SISWA_BARU.map(s => s.kelas))].sort();
-        const selKelas = document.getElementById('sel-kelas');
-        kelasUnik.forEach(k => {
-            let opt = document.createElement('option');
-            opt.value = k; opt.innerText = k;
-            selKelas.appendChild(opt);
+    window.onload = () => {
+        const kls = [...new Set(SISWA_BARU.map(s => s.kelas))].sort();
+        kls.forEach(k => {
+            let o = document.createElement('option'); o.value = k; o.text = k;
+            document.getElementById('sel-kelas').appendChild(o);
         });
     };
 
     function updateDaftarNama() {
-        const kelas = document.getElementById('sel-kelas').value;
-        const selNama = document.getElementById('sel-nama');
-        selNama.innerHTML = '<option value="">-- Pilih Nama --</option>';
-        SISWA_BARU.filter(s => s.kelas === kelas).forEach(s => {
-            let opt = document.createElement('option');
-            opt.value = s.nama; opt.innerText = s.nama;
-            selNama.appendChild(opt);
+        const k = document.getElementById('sel-kelas').value;
+        const sel = document.getElementById('sel-nama');
+        sel.innerHTML = '<option value="">-- Pilih Nama --</option>';
+        SISWA_BARU.filter(s => s.kelas === k).sort((a,b)=>a.nama.localeCompare(b.nama)).forEach(s => {
+            let o = document.createElement('option'); o.value = s.nama; o.text = s.nama;
+            sel.appendChild(o);
         });
-    }
-
-    function intipPass() {
-        const p = document.getElementById('pass');
-        p.type = p.type === "password" ? "text" : "password";
     }
 
     async function mulai() {
         const u = document.getElementById('sel-nama').value;
-        const k = document.getElementById('sel-kelas').value;
         const p = document.getElementById('pass').value;
-        const overlay = document.getElementById('loading-overlay');
+        const k = document.getElementById('sel-kelas').value;
+        const s = SISWA_BARU.find(x => x.nama === u && x.pass === p);
 
-        if(!u || !p) return alert("Lengkapi data!");
+        if(!u || !p) return alert("Silakan isi Nama dan Password!");
+        if(!s) return alert("Password Salah!");
 
-        const sSiswa = SISWA_BARU.find(s => s.nama === u && s.pass === p);
-        if(!sSiswa) return alert("Login Gagal!");
-
-        overlay.style.display = "flex";
+        document.getElementById('loading-overlay').style.display = 'flex';
         try {
-            // 1. Cek Progres di Spreadsheet
-            const resStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}`);
-            const status = await resStatus.json();
-
-            if(status.jumlahDikerjakan >= JUMLAH_SOAL_DIBUTUHKAN) {
-                overlay.style.display = "none";
-                return alert("Anda sudah menyelesaikan ujian!");
-            }
-
-            // 2. Ambil Soal
-            const resSoal = await fetch(`soal.json?v=${Date.now()}`);
-            dataSoal = await resSoal.json();
+            const resp = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}`);
+            const status = await resp.json();
+            
+            const respSoal = await fetch(`soal.json?v=${Date.now()}`);
+            dataSoal = await respSoal.json();
             
             currentUser = u;
-            currentKelas = k;
-            curIdx = status.jumlahDikerjakan;
+            curIdx = status.jumlahDikerjakan || 0;
 
             document.getElementById('box-login').style.display = 'none';
             document.getElementById('box-kuis').style.display = 'block';
@@ -225,44 +186,82 @@
             document.getElementById('txt-kelas').innerText = k;
 
             tampil();
-            startTimer();
-            overlay.style.display = "none";
-        } catch(e) {
-            overlay.style.display = "none";
-            alert("Error: " + e.message);
+            setInterval(updateTimer, 1000);
+            document.getElementById('loading-overlay').style.display = 'none';
+        } catch(e) { 
+            document.getElementById('loading-overlay').style.display = 'none';
+            alert("Gagal memuat data. Periksa URL_APP dan file soal.json Anda!"); 
         }
     }
 
     function tampil() {
-        if(curIdx >= dataSoal.length || curIdx >= JUMLAH_SOAL_DIBUTUHKAN) return kirimJawabanAkhir();
-        
+        if(curIdx >= dataSoal.length) return kirimJawabanAkhir();
         const s = dataSoal[curIdx];
-        document.getElementById('progress').style.width = (curIdx / JUMLAH_SOAL_DIBUTUHKAN * 100) + "%";
-        
         let h = `<h3>${s.pertanyaan}</h3>`;
-        if(s.tipe === "pilihan-ganda") {
+
+        if(s.tipe === "pilihan-ganda" || s.tipe === "benar-salah") {
+            const opsi = s.tipe === "benar-salah" ? ["Benar", "Salah"] : s.opsi;
+            opsi.forEach(o => {
+                h += `
+                <label class="opsi-label">
+                    <input type="radio" name="j" value="${o}">
+                    <span class="checkmark radio-mark"></span>
+                    <span>${o}</span>
+                </label>`;
+            });
+        } else if(s.tipe === "pg-kompleks") {
             s.opsi.forEach(o => {
-                h += `<label class="opsi-item">
-                        <input type="radio" name="j" value="${o}">
-                        <span class="checkmark"></span>
-                        <span>${o}</span>
-                      </label>`;
+                h += `
+                <label class="opsi-label">
+                    <input type="checkbox" name="j" value="${o}">
+                    <span class="checkmark check-mark"></span>
+                    <span>${o}</span>
+                </label>`;
+            });
+        } else if(s.tipe === "menjodohkan") {
+            s.kiri.forEach(k => {
+                h += `
+                <div style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px;">
+                    <span style="font-weight:600; font-size:14px;">${k}</span>
+                    <select class="match-sel" data-kiri="${k}" style="padding:8px; border-radius:5px; border:1px solid #ccc; width:50%;">
+                        <option value="">-- Pilih --</option>
+                        ${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}
+                    </select>
+                </div>`;
             });
         }
         document.getElementById('soal-area').innerHTML = h;
     }
 
     function simpanKeLocal() {
-        const radio = document.querySelector('input[name="j"]:checked');
-        if(!radio) return alert("Pilih jawaban!");
+        const s = dataSoal[curIdx];
+        let jawaban = "";
+        let status = "Salah";
+
+        if(s.tipe === "pilihan-ganda" || s.tipe === "benar-salah") {
+            const sel = document.querySelector('input[name="j"]:checked');
+            if(!sel) return alert("Pilih jawaban Anda!");
+            jawaban = sel.value;
+            status = (jawaban === s.kunci) ? "Benar" : "Salah";
+        } else if(s.tipe === "pg-kompleks") {
+            let sels = []; document.querySelectorAll('input[name="j"]:checked').forEach(i => sels.push(i.value));
+            if(sels.length === 0) return alert("Pilih minimal satu jawaban!");
+            jawaban = sels.sort().join(",");
+            status = (jawaban === s.kunci.sort().join(",")) ? "Benar" : "Salah";
+        } else if(s.tipe === "menjodohkan") {
+            let res = {}; 
+            let allFilled = true;
+            document.querySelectorAll('.match-sel').forEach(sl => {
+                if(!sl.value) allFilled = false;
+                res[sl.dataset.kiri] = sl.value;
+            });
+            if(!allFilled) return alert("Mohon jodohkan semua pilihan!");
+            jawaban = JSON.stringify(res);
+            status = (jawaban === JSON.stringify(s.kunci)) ? "Benar" : "Salah";
+        }
 
         let ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
-        ans.push({
-            nama: currentUser,
-            id_soal: dataSoal[curIdx].id,
-            jawaban: radio.value,
-            status: radio.value === dataSoal[curIdx].kunci ? "Benar" : "Salah"
-        });
+        ans.push({ nama: currentUser, id_soal: s.id, jawaban: jawaban, status: status });
         localStorage.setItem(`ans_${currentUser}`, JSON.stringify(ans));
 
         curIdx++;
@@ -270,42 +269,30 @@
     }
 
     async function kirimJawabanAkhir() {
-        const overlay = document.getElementById('loading-overlay');
+        document.getElementById('loading-overlay').style.display = 'flex';
         const ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
-        
-        overlay.style.display = "flex";
-        document.getElementById('loading-text').innerText = "Mengirim data ke Spreadsheet...";
-
-        try {
-            await fetch(URL_APP, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify(ans)
-            });
-
-            setTimeout(() => {
-                overlay.style.display = "none";
-                localStorage.removeItem(`ans_${currentUser}`);
-                document.getElementById('box-kuis').style.display = 'none';
-                document.getElementById('box-selesai').style.display = 'block';
-            }, 2000);
-        } catch (e) {
-            alert("Gagal kirim: " + e.message);
-            overlay.style.display = "none";
+        if(ans.length === 0) {
+             document.getElementById('box-kuis').style.display = 'none';
+             document.getElementById('box-selesai').style.display = 'block';
+             return;
         }
+        try {
+            await fetch(URL_APP, { method: "POST", mode: "no-cors", body: JSON.stringify(ans) });
+            localStorage.removeItem(`ans_${currentUser}`);
+            document.getElementById('box-kuis').style.display = 'none';
+            document.getElementById('box-selesai').style.display = 'block';
+        } catch(e) { alert("Gagal mengirim ke server. Periksa koneksi internet!"); }
+        document.getElementById('loading-overlay').style.display = 'none';
     }
 
-    function startTimer() {
-        let sisa = 60 * 60;
-        timerInterval = setInterval(() => {
-            sisa--;
-            let m = Math.floor(sisa / 60);
-            let s = sisa % 60;
-            document.getElementById('timer').innerText = `Waktu Tersisa: ${m}:${s < 10 ? '0' : ''}${s}`;
-            if(sisa <= 0) { clearInterval(timerInterval); kirimJawabanAkhir(); }
-        }, 1000);
+    function updateTimer() {
+        sisaWaktu--;
+        let m = Math.floor(sisaWaktu / 60);
+        let s = sisaWaktu % 60;
+        document.getElementById('timer').innerText = `Waktu Tersisa: ${m}:${s < 10 ? '0'+s : s}`;
+        if(sisaWaktu <= 0) kirimJawabanAkhir();
     }
 </script>
+<style> @keyframes spin { to { transform: rotate(360deg); } } </style>
 </body>
 </html>
