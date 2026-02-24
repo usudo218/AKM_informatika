@@ -121,52 +121,59 @@
     // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT BAPAK
     const URL_APP = "https://script.google.com/macros/s/AKfycbw6EOYp7cOid9pPsZoDhtoPOOD-vC2LtGYtRkrH8fK0IHqSn4OBZxh8FEdLxYuCU7Mr/exec";
 
-    async function muatData() {
-        const tbody = document.getElementById('isi-tabel');
-        const btn = document.querySelector('.btn-refresh');
-        
-        btn.innerText = "Memuat...";
-        btn.disabled = true;
+   async function muatData() {
+    const tbody = document.getElementById('isi-tabel');
+    const btn = document.querySelector('.btn-refresh');
+    
+    btn.innerText = "Memuat...";
+    btn.disabled = true;
 
-        try {
-            // Kita panggil tanpa parameter nama untuk mengambil semua data
-            const response = await fetch(`${URL_APP}?aksi=ambilSemua`);
-            const data = await response.json();
+    try {
+        const response = await fetch(`${URL_APP}?aksi=ambilSemua`);
+        const data = await response.json();
 
-            if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data masuk.</td></tr>';
-                return;
-            }
-
-            // Update Statistik
-            document.getElementById('total-data').innerText = data.length;
-            const siswaUnik = [...new Set(data.map(item => item.nama))];
-            document.getElementById('total-siswa').innerText = siswaUnik.length;
-            const benar = data.filter(item => item.status === "Benar").length;
-            document.getElementById('total-benar').innerText = benar;
-
-            // Isi Tabel (Tampilkan 100 data terbaru)
-            tbody.innerHTML = "";
-            data.reverse().forEach(row => {
-                const badgeClass = row.status === "Benar" ? "badge-benar" : "badge-salah";
-                tbody.innerHTML += `
-                    <tr>
-                        <td style="color:#7f8c8d; font-size:12px">${row.timestamp}</td>
-                        <td style="font-weight:600">${row.nama}</td>
-                        <td>${row.id_soal}</td>
-                        <td>${row.jawaban}</td>
-                        <td><span class="badge ${badgeClass}">${row.status}</span></td>
-                    </tr>
-                `;
-            });
-
-        } catch (err) {
-            alert("Gagal memuat data: " + err.message);
-        } finally {
-            btn.innerText = "Refresh Data";
-            btn.disabled = false;
+        // PENGECEKAN: Jika data bukan Array, tampilkan pesan error dari server
+        if (!Array.isArray(data)) {
+            console.error("Data dari server:", data);
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Gagal: ${data.error || 'Server tidak mengirim daftar data'}</td></tr>`;
+            return;
         }
+
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data masuk di Spreadsheet.</td></tr>';
+            return;
+        }
+
+        // Statistik
+        document.getElementById('total-data').innerText = data.length;
+        const siswaUnik = [...new Set(data.map(item => item.nama))];
+        document.getElementById('total-siswa').innerText = siswaUnik.length;
+        const benar = data.filter(item => item.status === "Benar").length;
+        document.getElementById('total-benar').innerText = benar;
+
+        // Isi Tabel
+        tbody.innerHTML = "";
+        // Urutkan data terbaru di atas
+        data.reverse().forEach(row => {
+            const badgeClass = row.status === "Benar" ? "badge-benar" : "badge-salah";
+            tbody.innerHTML += `
+                <tr>
+                    <td style="color:#7f8c8d; font-size:12px">${row.timestamp}</td>
+                    <td style="font-weight:600">${row.nama}</td>
+                    <td>${row.id_soal}</td>
+                    <td>${row.jawaban}</td>
+                    <td><span class="badge ${badgeClass}">${row.status}</span></td>
+                </tr>
+            `;
+        });
+
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error: ${err.message}</td></tr>`;
+    } finally {
+        btn.innerText = "Refresh Data";
+        btn.disabled = false;
     }
+}
 </script>
 
 </body>
