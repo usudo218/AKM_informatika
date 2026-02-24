@@ -59,12 +59,13 @@
             color: var(--dark-green); font-size: 11px; font-weight: 700;
         }
 
+        /* HEADER INFO SISWA + LOGOUT DI ATAS */
         .info-header { 
             display: flex; justify-content: space-between; align-items: flex-start; 
             background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px; 
             border-left: 4px solid var(--primary-green);
         }
-        .info-text { font-size: 12px; line-height: 1.6; color: #2d3436; }
+        .info-text { font-size: 12px; line-height: 1.6; color: #2d3436; text-align: left; }
         .btn-logout-top { 
             background: #ffeaa7; color: #d63031; border: none; padding: 6px 12px; 
             border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase;
@@ -82,6 +83,7 @@
         }
         button.btn-utama:hover { background-color: var(--dark-green); transform: translateY(-2px); }
 
+        /* TAMPILAN SOAL PROFESIONAL */
         #soal-area h3 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 20px; line-height: 1.5; font-weight: 700; text-align: left; }
 
         .opsi-item {
@@ -182,7 +184,7 @@
 </footer>
 
 <script>
-    const URL_APP = "https://script.google.com/macros/s/AKfycbxgxJT-N08uhYWzcunsiLkbnMn3kUOJapJLu9_ADOo6mKcNF1g0Kk_FdUci0-ks916l/exec";
+    const URL_APP = "https://script.google.com/macros/s/AKfycbyP1TXdwXSf8xud0LSM-qIBLRG_eNjOTbfdJwqgvtorfykvMGchOvtOnFQxZmb1BuOt/exec";
     const DURASI_UJIAN = 60; 
     const JUMLAH_SOAL_DIBUTUHKAN = 40;
 
@@ -212,7 +214,7 @@
             selKelas.appendChild(opt);
         });
 
-        // Persistensi login saat refresh
+        // CEK LOGIN SAAT REFRESH
         const savedUser = localStorage.getItem('active_student');
         const savedKelas = localStorage.getItem('active_kelas');
         const savedPass = localStorage.getItem('active_pass');
@@ -248,7 +250,8 @@
         if(dataSiswa && p === dataSiswa.pass) {
             loading.style.display = "flex";
             try {
-                const rSoal = await fetch('soal.json');
+                const rSoal = await fetch(`soal.json?v=${Date.now()}`);
+                if (!rSoal.ok) throw new Error("File soal.json tidak ditemukan di server");
                 const gudangSoal = await rSoal.json();
 
                 const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
@@ -256,10 +259,12 @@
 
                 if(s.jumlahDikerjakan >= JUMLAH_SOAL_DIBUTUHKAN) {
                     loading.style.display = "none";
-                    alert("Akses ditolak: Anda sudah menyelesaikan ujian!"); return;
+                    alert("Akses ditolak: Anda sudah menyelesaikan ujian!"); 
+                    logout();
+                    return;
                 }
 
-                // Logika pembagian komposisi soal (5 BS, 15 PG, 15 PK, 5 MJ)
+                // LOGIKA KOMPOSISI SOAL (5-15-15-5)
                 if (!localStorage.getItem('urutan_soal')) {
                     const bs = gudangSoal.filter(x => x.tipe === 'benar-salah');
                     const pg = gudangSoal.filter(x => x.tipe === 'pilihan-ganda');
@@ -285,7 +290,7 @@
                 localStorage.setItem('active_pass', p);
 
                 const localAnswers = JSON.parse(localStorage.getItem(`ans_${u}`)) || [];
-                curIdx = Math.max(localAnswers.length, s.jumlahDikerjakan);
+                curIdx = localAnswers.length;
 
                 document.getElementById('box-login').style.display = 'none';
                 document.getElementById('box-kuis').style.display = 'block';
@@ -294,17 +299,28 @@
                 
                 tampil(); startTimer();
                 loading.style.display = "none";
-            } catch(e) { loading.style.display = "none"; alert("Error Load Soal: " + e.message); }
-        } else if(!isAuto) alert("Login Gagal!");
+            } catch(e) { 
+                loading.style.display = "none"; 
+                alert("Error Load Soal: " + e.message); 
+            }
+        } else if(!isAuto) alert("Login Gagal! Pastikan Nama dan Password benar.");
     }
 
     function startTimer() {
-        let deadline = localStorage.getItem('ujian_deadline') || (Date.now() + (DURASI_UJIAN * 60 * 1000));
-        localStorage.setItem('ujian_deadline', deadline);
+        let deadline = localStorage.getItem('ujian_deadline');
+        if (!deadline) {
+            deadline = Date.now() + (DURASI_UJIAN * 60 * 1000);
+            localStorage.setItem('ujian_deadline', deadline);
+        }
+        
         clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             let sisa = Math.floor((deadline - Date.now()) / 1000);
-            if (sisa <= 0) { clearInterval(timerInterval); alert("Waktu Habis!"); kirimJawabanAkhir(); }
+            if (sisa <= 0) { 
+                clearInterval(timerInterval); 
+                alert("Waktu Habis! Mengirim jawaban yang ada...");
+                kirimJawabanAkhir(); 
+            }
             else {
                 let m = Math.floor(sisa / 60); let s = sisa % 60;
                 document.getElementById('timer').innerText = `Waktu Tersisa: ${m}:${s < 10 ? '0' : ''}${s}`;
@@ -333,8 +349,8 @@
             });
         } else if (s.tipe === "menjodohkan") {
             s.kiri.forEach(k => {
-                h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid #eee; margin-bottom:10px; border-radius:12px; background:#fafafa;">
-                      <span style="font-size:14px; font-weight:600; color:#4a5568;">${k}</span>
+                h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border:1px solid #eee; margin-bottom:10px; border-radius:12px; background:#fafafa;">
+                      <span style="font-size:13px; font-weight:600; color:#2d3436;">${k}</span>
                       <select name="j-match" data-key="${k}" style="width:55%; margin:0; padding:8px; font-size:13px;">
                         <option value="">-- Pilih --</option>
                         ${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}
@@ -372,7 +388,7 @@
         tampil();
     }
 
-    // FUNGSI PENGIRIMAN MASSAL (Sangat Cepat)
+    // FUNGSI PENGIRIMAN MASSAL (Batch Upload - Sangat Cepat)
     async function kirimJawabanAkhir() {
         const loading = document.getElementById('loading-overlay');
         const loadingText = document.getElementById('loading-text');
@@ -380,10 +396,10 @@
         if(ans.length === 0) return;
         
         loading.style.display = "flex";
-        loadingText.innerText = "Mengirim Semua Jawaban Sekaligus (Harap Tunggu)...";
+        loadingText.innerText = "Mengirim Paket Jawaban (Instan)...";
 
         try {
-            // Kirim paket besar (Array) ke Apps Script
+            // KIRIM SELURUH ARRAY DALAM SATU PAKET POST
             const response = await fetch(URL_APP, { 
                 method: "POST", 
                 body: JSON.stringify(ans) 
@@ -395,11 +411,10 @@
             document.getElementById('box-selesai').style.display = 'block';
         } catch (e) { 
             loading.style.display = "none"; 
-            alert("Gagal kirim otomatis. Pastikan internet aktif dan coba lagi."); 
+            alert("Gagal kirim otomatis. Pastikan internet aktif dan klik tombol di bawah untuk mencoba lagi."); 
+            // Siswa bisa mencoba lagi dengan me-refresh halaman karena data ans_ masih di localStorage
         }
     }
 </script>
 </body>
 </html>
-
-
