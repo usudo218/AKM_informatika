@@ -5,35 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ujian Informatika - SMAN 1 Muncar</title>
     <script src="siswa.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Desain UI Siswa (Hijau) */
-        :root { --primary: #27ae60; --bg: #f4f7f6; }
-        body { font-family: sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; }
-        .box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; }
-        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
+        :root { --primary: #2ecc71; --dark: #27ae60; --bg: #f1f5f9; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        select, input, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid #ddd; outline: none; box-sizing: border-box; font-size: 15px; }
+        button { background: var(--primary); color: white; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        button:hover { background: var(--dark); transform: translateY(-2px); }
+        label { display: block; text-align: left; font-size: 13px; font-weight: 600; color: #64748b; margin-top: 10px; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--dark); margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
-<div class="box" id="login-box">
-    <h2>Ujian Informatika</h2>
-    <p>Silakan Masuk</p>
-    <select id="sel-kelas" onchange="updateNama()"><option value="">Pilih Kelas</option></select>
-    <select id="sel-nama"><option value="">Pilih Nama</option></select>
-    <input type="password" id="pass" placeholder="Password">
-    <button onclick="mulaiUjian()">MASUK UJIAN</button>
+<div class="login-card">
+    <div class="logo">ELANG DIGITAL</div>
+    <p style="font-size:14px; color:#64748b; margin-bottom:25px;">SMAN 1 Muncar • Informatika 2026</p>
+    
+    <label>Pilih Kelas</label>
+    <select id="sel-kelas" onchange="updateDaftarNama()">
+        <option value="">-- Pilih Kelas --</option>
+    </select>
+
+    <label>Nama Siswa</label>
+    <select id="sel-nama">
+        <option value="">-- Pilih Nama --</option>
+    </select>
+
+    <label>Password Ujian</label>
+    <input type="password" id="pass" placeholder="Contoh: A8231">
+
+    <button onclick="mulaiLogin()">MASUK UJIAN</button>
 </div>
 
 <script>
-    // Pastikan URL_APP menunjuk ke Web App Google Bapak
-    const URL_APP = "https://script.google.com/macros/s/AKfycbwuCfbFh9ciJZLuzXDdLCPYroH4N2AC8ZijaVq2FfNHEwFPnYYo3jpZnb39o29x69CM/exec";
+    // FUNGSI 1: MENGISI DROPDOWN KELAS SECARA OTOMATIS DARI SISWA_BARU
+    window.onload = function() {
+        if (typeof SISWA_BARU === 'undefined') {
+            alert("⚠️ File siswa.js tidak ditemukan atau variabel SISWA_BARU tidak terbaca!");
+            return;
+        }
 
-    // Fungsi mulaiUjian, updateNama, dll ditaruh di sini...
-    function mulaiUjian() {
-        // Logika login siswa
-        alert("Menghubungkan ke server...");
+        const selKelas = document.getElementById('sel-kelas');
+        // Mengambil daftar kelas unik (10-1 s/d 10-7)
+        const daftarKelas = [...new Set(SISWA_BARU.map(s => s.kelas))].sort();
+        
+        daftarKelas.forEach(k => {
+            let opt = document.createElement('option');
+            opt.value = k;
+            opt.innerText = k;
+            selKelas.appendChild(opt);
+        });
+    };
+
+    // FUNGSI 2: UPDATE DAFTAR NAMA SAAT KELAS DIPILIH
+    function updateDaftarNama() {
+        const kelasDipilih = document.getElementById('sel-kelas').value;
+        const selNama = document.getElementById('sel-nama');
+        selNama.innerHTML = '<option value="">-- Pilih Nama --</option>';
+
+        if (!kelasDipilih) return;
+
+        // Filter siswa berdasarkan kelas yang dipilih
+        const filteredSiswa = SISWA_BARU.filter(s => s.kelas === kelasDipilih);
+        
+        // Urutkan nama sesuai abjad
+        filteredSiswa.sort((a, b) => a.nama.localeCompare(b.nama)).forEach(s => {
+            let opt = document.createElement('option');
+            opt.value = s.nama;
+            opt.innerText = s.nama;
+            selNama.appendChild(opt);
+        });
+    }
+
+    // FUNGSI 3: LOGIKA LOGIN
+    function mulaiLogin() {
+        const u = document.getElementById('sel-nama').value;
+        const k = document.getElementById('sel-kelas').value;
+        const p = document.getElementById('pass').value;
+
+        if (!u || !k || !p) {
+            alert("Harap pilih Kelas, Nama, dan isi Password!");
+            return;
+        }
+
+        // Cari data siswa di array SISWA_BARU
+        const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
+        
+        if (dataSiswa && p === dataSiswa.pass) {
+            // SIMPAN DATA KE STORAGE AGAR BISA DIBACA HALAMAN UJIAN
+            localStorage.setItem('active_student', u);
+            localStorage.setItem('active_kelas', k);
+            
+            alert("Selamat Datang, " + u + "! Menyiapkan soal...");
+            
+            // Masuk ke logika pengerjaan soal (silakan Bapak arahkan ke fungsi ujian Bapak)
+            // window.location.href = "ujian.html"; // Jika dipisah filenya
+        } else {
+            alert("❌ Password Salah! Silakan cek kembali kartu ujian.");
+        }
     }
 </script>
+
 </body>
 </html>
