@@ -104,7 +104,7 @@
 
 <div id="loading-overlay">
     <div style="border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
-    <p style="margin-top: 15px; color: white; font-weight: 600;">Sinkronisasi Data...</p>
+    <p id="loading-text" style="margin-top: 15px; color: white; font-weight: 600;">Sinkronisasi Data...</p>
 </div>
 
 <div class="card">
@@ -143,13 +143,13 @@
         </div>
         <div class="bar"><div id="progress"></div></div>
         <div id="soal-area"></div>
-        <button id="btn-next" style="margin-top:20px" onclick="simpan()">Simpan & Lanjut</button>
+        <button id="btn-next" style="margin-top:20px" onclick="simpanKeLocal()">Simpan & Lanjut</button>
         <button class="btn-logout" onclick="logout()">Logout / Ganti Akun</button>
     </div>
 
     <div id="box-selesai" style="display:none; text-align:center;">
         <h2 style="color:var(--primary-green); margin-bottom:10px;">✔ UJIAN SELESAI</h2>
-        <p style="color:#636e72; margin-bottom:25px;">Jawaban Anda telah tersimpan.</p>
+        <p style="color:#636e72; margin-bottom:25px;">Jawaban Anda telah tersimpan di server.</p>
         <button onclick="logout()">Kembali ke Halaman Login</button>
     </div>
 </div>
@@ -160,12 +160,17 @@
 </footer>
 
 <script>
+    // URL Web App Google Apps Script
     const URL_APP = "https://script.google.com/macros/s/AKfycbyP1TXdwXSf8xud0LSM-qIBLRG_eNjOTbfdJwqgvtorfykvMGchOvtOnFQxZmb1BuOt/exec";
     const DURASI_UJIAN = 60; 
 
-    let dataSoal = []; let curIdx = 0; let currentUser = ""; let currentKelas = ""; let timerInterval;
+    let dataSoal = []; 
+    let curIdx = 0; 
+    let currentUser = ""; 
+    let currentKelas = ""; 
+    let timerInterval;
 
-    // --- PROTEKSI KERAS ---
+    // --- PROTEKSI ---
     window.history.pushState(null, "", window.location.href);
     window.onpopstate = function() { window.history.pushState(null, "", window.location.href); };
     document.addEventListener('contextmenu', e => e.preventDefault());
@@ -222,69 +227,66 @@
         });
     }
 
-   async function mulai(isAuto = false) {
-    const u = document.getElementById('sel-nama').value;
-    const k = document.getElementById('sel-kelas').value;
-    const p = document.getElementById('pass').value;
-    const loading = document.getElementById('loading-overlay');
+    async function mulai(isAuto = false) {
+        const u = document.getElementById('sel-nama').value;
+        const k = document.getElementById('sel-kelas').value;
+        const p = document.getElementById('pass').value;
+        const loading = document.getElementById('loading-overlay');
 
-    // MENCARI DATA SISWA DI DATABASE LOKAL
-    const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
+        const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
 
-    if(dataSiswa && p === dataSiswa.pass) {
-        loading.style.display = "flex";
-        try {
-            // --- LOGIKA OTOMATIS PILIH FILE SOAL ---
-            // Mengambil angka terakhir dari string kelas (Contoh: "KELAS 10-1" mengambil "1")
-            const nomorKelas = k.split('-')[1]; 
-            const fileSoal = `soal${nomorKelas}.json`;
+        if(dataSiswa && p === dataSiswa.pass) {
+            loading.style.display = "flex";
+            try {
+                const nomorKelas = k.split('-')[1]; 
+                const fileSoal = `soal${nomorKelas}.json`;
 
-            // Fetch soal berdasarkan file yang ditentukan di atas
-            const rSoal = await fetch(`${fileSoal}?v=${Date.now()}`);
-            if (!rSoal.ok) throw new Error("File soal tidak ditemukan");
-            
-            const soalAsli = await rSoal.json();
-            // --- AKHIR LOGIKA OTOMATIS ---
+                const rSoal = await fetch(`${fileSoal}?v=${Date.now()}`);
+                if (!rSoal.ok) throw new Error("File soal tidak ditemukan");
+                const soalAsli = await rSoal.json();
 
-            // Cek status pengerjaan ke Google Sheets
-            const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
-            const s = await rStatus.json();
+                // Cek status pengerjaan terakhir di server
+                const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
+                const s = await rStatus.json();
 
-            if(s.jumlahDikerjakan >= soalAsli.length) {
+                if(s.jumlahDikerjakan >= soalAsli.length) {
+                    loading.style.display = "none";
+                    alert("AKSES DITOLAK: Anda sudah menyelesaikan ujian!");
+                    logout();
+                    return;
+                }
+
+                // Logika Acak/Muat Urutan Soal
+                if (s.jumlahDikerjakan === 0 && !localStorage.getItem('urutan_soal')) {
+                    dataSoal = shuffle(soalAsli);
+                    localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
+                } else {
+                    const savedOrder = localStorage.getItem('urutan_soal');
+                    dataSoal = savedOrder ? JSON.parse(savedOrder) : soalAsli;
+                }
+
+                currentUser = u;
+                currentKelas = k;
+                localStorage.setItem('active_student', u);
+                localStorage.setItem('active_kelas', k);
+                
+                // Muat progress lokal jika ada, jika tidak pakai dari server
+                const localAnswers = JSON.parse(localStorage.getItem(`ans_${u}`)) || [];
+                curIdx = localAnswers.length > s.jumlahDikerjakan ? localAnswers.length : s.jumlahDikerjakan;
+
+                document.getElementById('box-login').style.display = 'none';
+                document.getElementById('box-kuis').style.display = 'block';
+                document.getElementById('txt-nama').innerText = u;
+                document.getElementById('txt-kelas').innerText = k;
+                
+                tampil();
+                startTimer();
                 loading.style.display = "none";
-                alert("AKSES DITOLAK: Anda sudah menyelesaikan ujian!");
-                logout();
-                return;
+            } catch(e) { 
+                loading.style.display = "none";
+                alert("Gagal memuat soal: " + e.message); 
             }
-
-            // Logika Acak Soal (Tetap dipertahankan agar urutan antar siswa berbeda)
-            if (s.jumlahDikerjakan === 0 && !localStorage.getItem('urutan_soal')) {
-                dataSoal = shuffle(soalAsli);
-                localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
-            } else {
-                const savedOrder = localStorage.getItem('urutan_soal');
-                dataSoal = savedOrder ? JSON.parse(savedOrder) : soalAsli;
-            }
-
-            currentUser = u;
-            currentKelas = k;
-            localStorage.setItem('active_student', u);
-            localStorage.setItem('active_kelas', k);
-            curIdx = s.jumlahDikerjakan;
-
-            document.getElementById('box-login').style.display = 'none';
-            document.getElementById('box-kuis').style.display = 'block';
-            document.getElementById('txt-nama').innerText = u;
-            document.getElementById('txt-kelas').innerText = k;
-            
-            tampil();
-            startTimer();
-            loading.style.display = "none";
-        } catch(e) { 
-            loading.style.display = "none";
-            alert("Gagal memuat soal: " + e.message); 
-        }
-    } else { if(!isAuto) alert("Nama atau Password salah!"); }
+        } else { if(!isAuto) alert("Nama atau Password salah!"); }
     }
 
     function startTimer() {
@@ -299,7 +301,8 @@
             let sisaWaktu = Math.floor((deadline - sekarang) / 1000);
             if (sisaWaktu <= 0) {
                 clearInterval(timerInterval);
-                alert("Waktu Habis!"); finishUjian();
+                alert("Waktu Habis! Sistem akan mencoba mengirim jawaban otomatis.");
+                kirimJawabanAkhir();
             } else {
                 let min = Math.floor(sisaWaktu / 60);
                 let sec = sisaWaktu % 60;
@@ -315,18 +318,12 @@
         location.reload();
     }
 
-    function finishUjian() {
-        clearInterval(timerInterval);
-        localStorage.clear();
-        document.getElementById('box-kuis').style.display = 'none';
-        document.getElementById('box-selesai').style.display = 'block';
-    }
-
     function tampil() {
         const s = dataSoal[curIdx];
         document.getElementById('idx').innerText = (curIdx + 1) + "/" + dataSoal.length;
         document.getElementById('progress').style.width = (curIdx / dataSoal.length * 100) + "%";
         let h = `<h3>${s.pertanyaan}</h3>`;
+        
         if (["pilihan-ganda", "pg-kompleks"].includes(s.tipe)) {
             const opsiAcak = shuffle([...s.opsi]); 
             opsiAcak.forEach(o => {
@@ -352,11 +349,13 @@
         document.getElementById('soal-area').innerHTML = h;
     }
 
-    async function simpan() {
-        const btnNext = document.getElementById('btn-next');
+    // FUNGSI BARU: Simpan ke Local Storage
+    function simpanKeLocal() {
         const s = dataSoal[curIdx];
-        let jwb = ""; let stat = "Salah";
+        let jwb = ""; 
+        let stat = "Salah";
 
+        // Ambil input berdasarkan tipe soal
         if (s.tipe === "essay") {
             jwb = document.getElementById('j-essay').value.trim();
             if(!jwb) return alert("Isi jawaban!"); stat = "Perlu Koreksi";
@@ -376,24 +375,56 @@
             stat = (jwb === knc) ? "Benar" : "Salah";
         }
 
-        btnNext.disabled = true;
+        // Simpan ke Array Lokal
+        let answers = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
+        answers.push({
+            nama: currentUser,
+            id_soal: s.id,
+            jawaban: jwb,
+            status: stat
+        });
+        localStorage.setItem(`ans_${currentUser}`, JSON.stringify(answers));
+
+        curIdx++;
+        if(curIdx < dataSoal.length) {
+            tampil();
+        } else {
+            kirimJawabanAkhir();
+        }
+    }
+
+    // FUNGSI BARU: Kirim semua sekaligus di akhir
+    async function kirimJawabanAkhir() {
+        const loading = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const answers = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
+
+        if(answers.length === 0) return logout();
+
+        loadingText.innerText = "Mengirim Semua Jawaban ke Server...";
+        loading.style.display = "flex";
+
         try {
-            await fetch(URL_APP, { method: "POST", mode: "no-cors", body: JSON.stringify({ nama: currentUser, id_soal: s.id, jawaban: jwb, status: stat }) });
-            curIdx++;
-            if(curIdx < dataSoal.length) { tampil(); btnNext.disabled = false; }
-            else { finishUjian(); }
-        } catch (e) { alert("Gagal mengirim."); btnNext.disabled = false; }
+            // Kita kirim satu per satu dalam loop agar tidak merombak Apps Script Bapak yang lama
+            // Namun dilakukan secara otomatis di belakang layar saat selesai
+            for (let i = 0; i < answers.length; i++) {
+                await fetch(URL_APP, { 
+                    method: "POST", 
+                    mode: "no-cors", 
+                    body: JSON.stringify(answers[i]) 
+                });
+            }
+            
+            loading.style.display = "none";
+            clearInterval(timerInterval);
+            localStorage.clear();
+            document.getElementById('box-kuis').style.display = 'none';
+            document.getElementById('box-selesai').style.display = 'block';
+        } catch (e) {
+            loading.style.display = "none";
+            alert("Gagal mengirim data. Cek koneksi internet dan tekan tombol kirim ulang.");
+        }
     }
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
