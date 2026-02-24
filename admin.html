@@ -20,13 +20,13 @@
             margin: 0; padding: 20px;
         }
 
-        .container { max-width: 1000px; margin: auto; }
+        .container { max-width: 1100px; margin: auto; }
 
         .header {
             background: white; padding: 20px; border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
         }
 
         .stats-grid {
@@ -42,13 +42,22 @@
         .stat-card h3 { margin: 0; color: #7f8c8d; font-size: 14px; text-transform: uppercase; }
         .stat-card p { margin: 10px 0 0; font-size: 24px; font-weight: bold; color: var(--dark); }
 
+        .controls {
+            display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            padding: 10px 15px; border-radius: 8px; border: 1px solid #ddd;
+            flex-grow: 1; outline: none;
+        }
+
         .table-container {
             background: white; border-radius: 15px; overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
         table { width: 100%; border-collapse: collapse; }
-        th { background: var(--primary); color: white; padding: 15px; text-align: left; }
+        th { background: var(--primary); color: white; padding: 15px; text-align: left; position: sticky; top: 0; }
         td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; }
         
         tr:hover { background-color: #f9f9f9; }
@@ -60,13 +69,14 @@
         .badge-benar { background: #d4edda; color: #155724; }
         .badge-salah { background: #f8d7da; color: #721c24; }
 
-        .btn-refresh {
-            background: var(--primary); color: white; border: none;
-            padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;
+        .btn {
+            border: none; padding: 10px 20px; border-radius: 8px; 
+            cursor: pointer; font-weight: 600; transition: 0.3s;
         }
-        .btn-refresh:hover { background: var(--dark); }
-
-        #loading { display: none; color: var(--primary); font-weight: bold; }
+        .btn-refresh { background: var(--primary); color: white; }
+        .btn-download { background: var(--dark); color: white; }
+        .btn:hover { opacity: 0.8; transform: translateY(-1px); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -74,15 +84,18 @@
 <div class="container">
     <div class="header">
         <div>
-            <h2 style="margin:0; color:var(--dark)">Monitoring Hasil Jawaban</h2>
-            <p style="margin:5px 0 0; color:#7f8c8d; font-size:13px;">Data diambil otomatis dari Spreadsheet</p>
+            <h2 style="margin:0; color:var(--dark)">Monitoring Hasil Ujian</h2>
+            <p style="margin:5px 0 0; color:#7f8c8d; font-size:13px;">Data Real-time dari Spreadsheet</p>
         </div>
-        <button class="btn-refresh" onclick="muatData()">Refresh Data</button>
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-download" onclick="exportKeExcel()">Unduh Excel</button>
+            <button class="btn btn-refresh" onclick="muatData()">Refresh Data</button>
+        </div>
     </div>
 
     <div class="stats-grid">
         <div class="stat-card">
-            <h3>Total Record</h3>
+            <h3>Total Baris Jawaban</h3>
             <p id="total-data">0</p>
         </div>
         <div class="stat-card">
@@ -90,13 +103,17 @@
             <p id="total-siswa">0</p>
         </div>
         <div class="stat-card">
-            <h3>Jawaban Benar</h3>
-            <p id="total-benar" style="color:var(--success)">0</p>
+            <h3>Persentase Benar</h3>
+            <p id="persen-benar" style="color:var(--success)">0%</p>
         </div>
     </div>
 
+    <div class="controls">
+        <input type="text" id="cariNama" placeholder="Cari Nama Siswa..." onkeyup="filterTabel()">
+    </div>
+
     <div class="table-container">
-        <table>
+        <table id="tabelData">
             <thead>
                 <tr>
                     <th>Waktu</th>
@@ -118,62 +135,86 @@
 </div>
 
 <script>
-    // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT BAPAK
     const URL_APP = "https://script.google.com/macros/s/AKfycbw6EOYp7cOid9pPsZoDhtoPOOD-vC2LtGYtRkrH8fK0IHqSn4OBZxh8FEdLxYuCU7Mr/exec";
+    let rawDataGlobal = [];
 
-   async function muatData() {
-    const tbody = document.getElementById('isi-tabel');
-    const btn = document.querySelector('.btn-refresh');
-    
-    btn.innerText = "Memuat...";
-    btn.disabled = true;
+    async function muatData() {
+        const tbody = document.getElementById('isi-tabel');
+        const btn = document.querySelector('.btn-refresh');
+        
+        btn.innerText = "Memuat...";
+        btn.disabled = true;
 
-    try {
-        const response = await fetch(`${URL_APP}?aksi=ambilSemua`);
-        const data = await response.json();
+        try {
+            const response = await fetch(`${URL_APP}?aksi=ambilSemua`);
+            const data = await response.json();
 
-        // PENGECEKAN: Jika data bukan Array, tampilkan pesan error dari server
-        if (!Array.isArray(data)) {
-            console.error("Data dari server:", data);
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Gagal: ${data.error || 'Server tidak mengirim daftar data'}</td></tr>`;
-            return;
+            if (!Array.isArray(data)) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error: ${data.error || 'Gagal mengambil data'}</td></tr>`;
+                return;
+            }
+
+            rawDataGlobal = data; // Simpan untuk filter & excel
+            renderTabel(data);
+
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Koneksi Gagal: ${err.message}</td></tr>`;
+        } finally {
+            btn.innerText = "Refresh Data";
+            btn.disabled = false;
         }
+    }
 
+    function renderTabel(data) {
+        const tbody = document.getElementById('isi-tabel');
         if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data masuk di Spreadsheet.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data masuk.</td></tr>';
             return;
         }
 
-        // Statistik
+        // Update Stats
         document.getElementById('total-data').innerText = data.length;
         const siswaUnik = [...new Set(data.map(item => item.nama))];
         document.getElementById('total-siswa').innerText = siswaUnik.length;
+        
         const benar = data.filter(item => item.status === "Benar").length;
-        document.getElementById('total-benar').innerText = benar;
+        const persen = data.length > 0 ? Math.round((benar / data.length) * 100) : 0;
+        document.getElementById('persen-benar').innerText = persen + "%";
 
-        // Isi Tabel
+        // Tampilkan Data (Terbaru di Atas)
         tbody.innerHTML = "";
-        // Urutkan data terbaru di atas
-        data.reverse().forEach(row => {
+        [...data].reverse().forEach(row => {
             const badgeClass = row.status === "Benar" ? "badge-benar" : "badge-salah";
             tbody.innerHTML += `
                 <tr>
                     <td style="color:#7f8c8d; font-size:12px">${row.timestamp}</td>
                     <td style="font-weight:600">${row.nama}</td>
                     <td>${row.id_soal}</td>
-                    <td>${row.jawaban}</td>
+                    <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${row.jawaban}</td>
                     <td><span class="badge ${badgeClass}">${row.status}</span></td>
                 </tr>
             `;
         });
-
-    } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error: ${err.message}</td></tr>`;
-    } finally {
-        btn.innerText = "Refresh Data";
-        btn.disabled = false;
     }
-}
+
+    function filterTabel() {
+        const keyword = document.getElementById('cariNama').value.toLowerCase();
+        const filtered = rawDataGlobal.filter(item => 
+            item.nama.toLowerCase().includes(keyword)
+        );
+        renderTabel(filtered);
+    }
+
+    function exportKeExcel() {
+        if (rawDataGlobal.length === 0) return alert("Tidak ada data untuk diunduh!");
+        
+        const worksheet = XLSX.utils.json_to_sheet(rawDataGlobal);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Hasil Ujian");
+        
+        // Simpan file
+        XLSX.writeFile(workbook, "Rekap_Ujian_Informatika.xlsx");
+    }
 </script>
 
 </body>
