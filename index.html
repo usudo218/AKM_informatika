@@ -3,19 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AKM Application Ver 3.5 - SMAN 1 Muncar</title>
+    <title>AKM Application Ver 4.5 - SMAN 1 Muncar</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="siswa.js"></script>
     <style>
-        :root { --primary-green: #2ecc71; --dark-green: #27ae60; --bg-gradient: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
+        :root { 
+            --primary-green: #2ecc71; 
+            --dark-green: #27ae60; 
+            --bg-gradient: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); 
+            --text-dark: #2d3436;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-gradient); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; user-select: none; }
-        .card { background: white; width: 100%; max-width: 600px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-gradient); 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            padding: 20px; 
+            user-select: none; 
+        }
+
+        .card { 
+            background: white; 
+            width: 100%; 
+            max-width: 500px; 
+            padding: 40px 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+            text-align: center;
+        }
+
+        /* LOGO STYLE */
+        .logo-container { margin-bottom: 20px; }
+        .logo-img { width: 100px; height: auto; margin-bottom: 10px; }
+        .title-app { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); margin-bottom: 5px; text-transform: uppercase; }
+        .subtitle-app { font-size: 0.9rem; color: var(--dark-green); font-weight: 600; margin-bottom: 25px; }
+
         .info-bar { background: #f8faff; padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary-green); margin-bottom: 15px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; }
         .progress-container { width: 100%; background: #edf2f7; height: 10px; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
         #progress-fill { height: 100%; background: var(--primary-green); width: 0%; transition: 0.3s; }
         .timer-box { background: #fff9db; color: #e67e22; padding: 10px; border-radius: 12px; text-align: center; font-weight: 700; margin-bottom: 20px; border: 1px solid #ffec99; }
-        .opsi-label { display: flex; align-items: center; padding: 15px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: 0.2s; background: #fff; }
+        
+        input, select { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ddd; font-family: inherit; font-size: 14px; outline: none; }
+        input:focus, select:focus { border-color: var(--primary-green); box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1); }
+
+        .opsi-label { display: flex; align-items: center; padding: 15px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: 0.2s; background: #fff; text-align: left; }
         .opsi-label input { display: none; }
         .checkmark { height: 20px; width: 20px; border: 2px solid #cbd5e0; margin-right: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .radio-mark { border-radius: 50%; }
@@ -23,7 +59,13 @@
         input:checked + .checkmark { background: var(--primary-green); border-color: var(--primary-green); }
         input:checked + .checkmark::after { content: "✓"; color: white; font-size: 12px; font-weight: bold; }
         .opsi-label:has(input:checked) { border-color: var(--primary-green); background: #f0fff4; }
-        .btn-utama { width: 100%; padding: 16px; background: var(--primary-green); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+
+        .btn-utama { width: 100%; padding: 16px; background: var(--primary-green); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-utama:hover { background: var(--dark-green); transform: translateY(-2px); }
+
+        /* FOOTER STYLE */
+        .footer { margin-top: 25px; color: white; font-size: 12px; text-align: center; line-height: 1.6; opacity: 0.9; }
+
         #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(46, 204, 113, 0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
@@ -32,19 +74,24 @@
 
 <div id="loading-overlay">
     <div style="border: 5px solid white; border-top: 5px solid transparent; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;"></div>
-    <p style="color: white; margin-top: 15px; font-weight: 700;">Memproses...</p>
+    <p style="color: white; margin-top: 15px; font-weight: 700;">Sedang Memproses...</p>
 </div>
 
 <div class="card">
     <div id="box-login">
-        <h2 style="text-align: center; margin-bottom: 25px;">SMAN 1 MUNCAR - AKM</h2>
-        <select id="sel-kelas" style="width:100%; padding:14px; margin-bottom:15px;" onchange="updateDaftarNama()">
+        <div class="logo-container">
+            <img src="logo.png" class="logo-img" alt="Logo Sekolah" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_Tut_Wuri_Handayani.png'">
+            <h1 class="title-app">SMAN 1 MUNCAR</h1>
+            <p class="subtitle-app">Sumatif Tengah Semester Genap</p>
+        </div>
+
+        <select id="sel-kelas" onchange="updateDaftarNama()">
             <option value="">-- Pilih Kelas --</option>
         </select>
-        <select id="sel-nama" style="width:100%; padding:14px; margin-bottom:15px;">
+        <select id="sel-nama">
             <option value="">-- Pilih Nama --</option>
         </select>
-        <input type="password" id="pass" placeholder="Password Siswa" style="width:100%; padding:14px; margin-bottom:25px; border-radius:8px; border:1px solid #ddd;">
+        <input type="password" id="pass" placeholder="Password Siswa">
         <button class="btn-utama" onclick="mulai()">Masuk Ujian</button>
     </div>
 
@@ -60,15 +107,20 @@
     </div>
 
     <div id="box-selesai" style="display:none; text-align:center;">
-        <div style="font-size: 60px;">✅</div>
-        <h2>UJIAN SELESAI</h2>
-        <p>Jawaban telah terkirim ke server.</p>
-        <button class="btn-utama" onclick="logout()">LOGOUT</button>
+        <div style="font-size: 60px; margin-bottom: 10px;">✅</div>
+        <h2 style="color: var(--dark-green);">UJIAN SELESAI</h2>
+        <p style="margin-bottom: 25px;">Jawaban Anda telah berhasil diunggah secara aman ke server.</p>
+        <button class="btn-utama" onclick="logout()">Keluar Aplikasi</button>
     </div>
 </div>
 
+<div class="footer">
+    AKM Ver. 4.5. | Design By Agus Tjakra (c) 2026<br>
+    <strong>SMAN 1 Muncar - Banyuwangi</strong>
+</div>
+
 <script>
-    const URL_APP = "https://script.google.com/macros/s/AKfycbzRLW7DVhItF6UpWVSqTyRfG94WIIpb-5n6YW6k3wAM3ag-Q9TsUmO9r2nLvaVkbA1l/exec"; // Ganti dengan URL Apps Script Pak Cokro
+    const URL_APP = "https://script.google.com/macros/s/AKfycbzRLW7DVhItF6UpWVSqTyRfG94WIIpb-5n6YW6k3wAM3ag-Q9TsUmO9r2nLvaVkbA1l/exec"; 
     let dataSoal = []; let curIdx = 0; let currentUser = ""; let currentKelas = "";
     let sisaWaktu = 3600; let timerInterval;
 
@@ -96,7 +148,7 @@
         const k = document.getElementById('sel-kelas').value;
         const sel = document.getElementById('sel-nama');
         sel.innerHTML = '<option value="">-- Pilih Nama --</option>';
-        SISWA_BARU.filter(s => s.kelas === k).forEach(s => {
+        SISWA_BARU.filter(s => s.kelas === k).sort((a,b)=>a.nama.localeCompare(b.nama)).forEach(s => {
             let o = document.createElement('option'); o.value = s.nama; o.text = s.nama;
             sel.appendChild(o);
         });
@@ -109,7 +161,7 @@
         const p = document.getElementById('pass').value;
         const k = document.getElementById('sel-kelas').value;
         const s = SISWA_BARU.find(x => x.nama === u && x.pass === p);
-        if(!s) return alert("Login Gagal!");
+        if(!s) return alert("Login Gagal! Periksa Nama & Password.");
 
         document.getElementById('loading-overlay').style.display = 'flex';
         try {
@@ -117,7 +169,7 @@
             const status = await respStatus.json();
             if(status.jumlahDikerjakan >= 40) {
                 document.getElementById('loading-overlay').style.display = 'none';
-                return alert("Anda sudah mengerjakan ujian ini!");
+                return alert("Akses Ditolak: Anda sudah menyelesaikan ujian!");
             }
             const respSoal = await fetch(`soal.json?v=${Date.now()}`);
             const gudangSoal = await respSoal.json();
@@ -138,7 +190,10 @@
             document.getElementById('txt-nama-display').innerText = u;
             tampil(); timerInterval = setInterval(updateTimer, 1000);
             document.getElementById('loading-overlay').style.display = 'none';
-        } catch(e) { alert("Error Server!"); document.getElementById('loading-overlay').style.display = 'none'; }
+        } catch(e) { 
+            alert("Gagal terhubung ke server. Pastikan internet aktif."); 
+            document.getElementById('loading-overlay').style.display = 'none'; 
+        }
     }
 
     function tampil() {
@@ -146,14 +201,14 @@
         const s = dataSoal[curIdx];
         document.getElementById('txt-idx').innerText = curIdx + 1;
         document.getElementById('progress-fill').style.width = ((curIdx / 40) * 100) + "%";
-        let h = `<h3>${s.pertanyaan}</h3>`;
+        let h = `<h3 style="text-align:left; margin-bottom:20px; line-height:1.6;">${s.pertanyaan}</h3>`;
         if(s.tipe === "pilihan-ganda" || s.tipe === "benar-salah") {
             const opsi = s.tipe === "benar-salah" ? ["Benar", "Salah"] : s.opsi;
             opsi.forEach(o => { h += `<label class="opsi-label"><input type="radio" name="j" value="${o}"><span class="checkmark radio-mark"></span><span>${o}</span></label>`; });
         } else if(s.tipe === "pg-kompleks") {
             s.opsi.forEach(o => { h += `<label class="opsi-label"><input type="checkbox" name="j" value="${o}"><span class="checkmark check-mark"></span><span>${o}</span></label>`; });
         } else if(s.tipe === "menjodohkan") {
-            s.kiri.forEach(k => { h += `<div style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px;"><span>${k}</span><select class="match-sel" data-kiri="${k}" style="padding:8px; width:50%;"><option value="">-- Pilih --</option>${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}</select></div>`; });
+            s.kiri.forEach(k => { h += `<div style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px; font-size:14px;"><span>${k}</span><select class="match-sel" data-kiri="${k}" style="padding:5px; width:55%; margin:0;"><option value="">-- Pilih --</option>${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}</select></div>`; });
         }
         document.getElementById('soal-area').innerHTML = h;
     }
@@ -163,16 +218,16 @@
         let jawaban = ""; let stat = "Salah";
         if(s.tipe === "pilihan-ganda" || s.tipe === "benar-salah") {
             const sel = document.querySelector('input[name="j"]:checked');
-            if(!sel) return alert("Pilih jawaban!");
+            if(!sel) return alert("Pilih jawaban sebelum lanjut!");
             jawaban = sel.value; stat = (jawaban === s.kunci) ? "Benar" : "Salah";
         } else if(s.tipe === "pg-kompleks") {
             let sels = []; document.querySelectorAll('input[name="j"]:checked').forEach(i => sels.push(i.value));
-            if(sels.length === 0) return alert("Pilih minimal satu!");
+            if(sels.length === 0) return alert("Pilih minimal satu jawaban!");
             jawaban = sels.sort().join(","); stat = (jawaban === s.kunci.sort().join(",")) ? "Benar" : "Salah";
         } else if(s.tipe === "menjodohkan") {
             let res = {}; let full = true;
             document.querySelectorAll('.match-sel').forEach(sl => { if(!sl.value) full = false; res[sl.dataset.kiri] = sl.value; });
-            if(!full) return alert("Lengkapi perjodohan!");
+            if(!full) return alert("Harap jodohkan semua pilihan!");
             jawaban = JSON.stringify(res); stat = (jawaban === JSON.stringify(s.kunci)) ? "Benar" : "Salah";
         }
         let ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`) || "[]");
@@ -189,11 +244,18 @@
             localStorage.clear();
             document.getElementById('box-kuis').style.display = 'none';
             document.getElementById('box-selesai').style.display = 'block';
-        } catch(e) { alert("Gagal Kirim!"); }
+        } catch(e) { alert("Terjadi gangguan koneksi saat mengirim jawaban."); }
         document.getElementById('loading-overlay').style.display = 'none';
     }
 
-    function updateTimer() { sisaWaktu--; localStorage.setItem('timer_sisa', sisaWaktu); let m = Math.floor(sisaWaktu / 60); let s = sisaWaktu % 60; document.getElementById('timer').innerText = `Waktu Tersisa: ${m}:${s < 10 ? '0'+s : s}`; if(sisaWaktu <= 0) { clearInterval(timerInterval); kirimJawabanAkhir(); } }
+    function updateTimer() { 
+        sisaWaktu--; 
+        localStorage.setItem('timer_sisa', sisaWaktu); 
+        let m = Math.floor(sisaWaktu / 60); 
+        let s = sisaWaktu % 60; 
+        document.getElementById('timer').innerText = `Waktu Tersisa: ${m}:${s < 10 ? '0'+s : s}`; 
+        if(sisaWaktu <= 0) { clearInterval(timerInterval); kirimJawabanAkhir(); } 
+    }
     function logout() { localStorage.clear(); location.reload(); }
 </script>
 </body>
