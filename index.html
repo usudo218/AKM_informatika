@@ -82,7 +82,7 @@
         }
         button.btn-utama:hover { background-color: var(--dark-green); transform: translateY(-2px); }
 
-        #soal-area h3 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 20px; line-height: 1.5; }
+        #soal-area h3 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 20px; line-height: 1.5; font-weight: 700; text-align: left; }
 
         .opsi-item {
             display: flex; align-items: flex-start; padding: 16px; margin: 12px 0;
@@ -105,6 +105,7 @@
             border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); margin-bottom: 2px;
         }
         .opsi-item input:checked + .checkmark:after { display: block; }
+        .opsi-text { font-size: 15px; color: #4a5568; line-height: 1.4; padding-top: 1px; text-align: left; }
 
         .bar { width: 100%; height: 8px; background: #edf2f7; border-radius: 10px; margin: 15px 0; overflow: hidden; }
         #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
@@ -168,9 +169,9 @@
     </div>
 
     <div id="box-selesai" style="display:none; text-align:center;">
-        <div style="font-size: 50px; margin-bottom: 10px;">✅</div>
+        <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
         <h2 style="color:var(--primary-green); margin-bottom:10px;">UJIAN SELESAI</h2>
-        <p style="color:#636e72; margin-bottom:25px; font-size: 14px;">Jawaban Anda telah tersimpan di server.</p>
+        <p style="color:#636e72; margin-bottom:25px; font-size: 14px;">Seluruh jawaban Anda telah berhasil diunggah secara aman ke server.</p>
         <button class="btn-utama" onclick="logout()">Keluar Aplikasi</button>
     </div>
 </div>
@@ -211,7 +212,7 @@
             selKelas.appendChild(opt);
         });
 
-        // CEK LOGIN SAAT REFRESH
+        // Persistensi login saat refresh
         const savedUser = localStorage.getItem('active_student');
         const savedKelas = localStorage.getItem('active_kelas');
         const savedPass = localStorage.getItem('active_pass');
@@ -255,10 +256,10 @@
 
                 if(s.jumlahDikerjakan >= JUMLAH_SOAL_DIBUTUHKAN) {
                     loading.style.display = "none";
-                    alert("Akses ditolak: Anda sudah selesai!"); return;
+                    alert("Akses ditolak: Anda sudah menyelesaikan ujian!"); return;
                 }
 
-                // LOGIKA KOMPOSISI SOAL (5-15-15-5)
+                // Logika pembagian komposisi soal (5 BS, 15 PG, 15 PK, 5 MJ)
                 if (!localStorage.getItem('urutan_soal')) {
                     const bs = gudangSoal.filter(x => x.tipe === 'benar-salah');
                     const pg = gudangSoal.filter(x => x.tipe === 'pilihan-ganda');
@@ -272,14 +273,13 @@
                         ...shuffle(mj).slice(0, 5)
                     ];
                     
-                    dataSoal = shuffle(selected); // Acak lagi urutan antar tipenya
+                    dataSoal = shuffle(selected); 
                     localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
                 } else {
                     dataSoal = JSON.parse(localStorage.getItem('urutan_soal'));
                 }
 
                 currentUser = u; currentKelas = k;
-                // SIMPAN CREDENTIAL UNTUK REFRESH
                 localStorage.setItem('active_student', u);
                 localStorage.setItem('active_kelas', k);
                 localStorage.setItem('active_pass', p);
@@ -294,7 +294,7 @@
                 
                 tampil(); startTimer();
                 loading.style.display = "none";
-            } catch(e) { loading.style.display = "none"; alert("Error: " + e.message); }
+            } catch(e) { loading.style.display = "none"; alert("Error Load Soal: " + e.message); }
         } else if(!isAuto) alert("Login Gagal!");
     }
 
@@ -304,7 +304,7 @@
         clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             let sisa = Math.floor((deadline - Date.now()) / 1000);
-            if (sisa <= 0) { clearInterval(timerInterval); kirimJawabanAkhir(); }
+            if (sisa <= 0) { clearInterval(timerInterval); alert("Waktu Habis!"); kirimJawabanAkhir(); }
             else {
                 let m = Math.floor(sisa / 60); let s = sisa % 60;
                 document.getElementById('timer').innerText = `Waktu Tersisa: ${m}:${s < 10 ? '0' : ''}${s}`;
@@ -333,9 +333,9 @@
             });
         } else if (s.tipe === "menjodohkan") {
             s.kiri.forEach(k => {
-                h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border:1px solid #eee; margin-bottom:8px; border-radius:10px; background:#fafafa;">
-                      <span style="font-size:13px; font-weight:600;">${k}</span>
-                      <select name="j-match" data-key="${k}" style="width:50%; margin:0; padding:5px; font-size:12px;">
+                h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid #eee; margin-bottom:10px; border-radius:12px; background:#fafafa;">
+                      <span style="font-size:14px; font-weight:600; color:#4a5568;">${k}</span>
+                      <select name="j-match" data-key="${k}" style="width:55%; margin:0; padding:8px; font-size:13px;">
                         <option value="">-- Pilih --</option>
                         ${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}
                       </select></div>`;
@@ -372,23 +372,31 @@
         tampil();
     }
 
+    // FUNGSI PENGIRIMAN MASSAL (Sangat Cepat)
     async function kirimJawabanAkhir() {
         const loading = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
         const ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
         if(ans.length === 0) return;
         
         loading.style.display = "flex";
-        document.getElementById('loading-text').innerText = "Sedang Mengirim Jawaban (Harap Tunggu)...";
+        loadingText.innerText = "Mengirim Semua Jawaban Sekaligus (Harap Tunggu)...";
 
         try {
-            for (let i = 0; i < ans.length; i++) {
-                await fetch(URL_APP, { method: "POST", mode: "no-cors", body: JSON.stringify(ans[i]) });
-            }
+            // Kirim paket besar (Array) ke Apps Script
+            const response = await fetch(URL_APP, { 
+                method: "POST", 
+                body: JSON.stringify(ans) 
+            });
+            
             loading.style.display = "none";
             localStorage.clear();
             document.getElementById('box-kuis').style.display = 'none';
             document.getElementById('box-selesai').style.display = 'block';
-        } catch (e) { loading.style.display = "none"; alert("Gagal kirim, pastikan internet aktif."); }
+        } catch (e) { 
+            loading.style.display = "none"; 
+            alert("Gagal kirim otomatis. Pastikan internet aktif dan coba lagi."); 
+        }
     }
 </script>
 </body>
