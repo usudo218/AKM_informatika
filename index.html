@@ -8,19 +8,18 @@
     <script src="siswa.js"></script>
     <style>
         :root {
-            /* Tema Sky Blue Khusus */
-            --bg-sky: #87CEEB;
-            --primary-blue: #00BFFF; /* Deep Sky Blue untuk komponen utama */
-            --dark-blue: #1E90FF;    /* Blue Dodger untuk efek hover */
+            --primary-green: #2ecc71;
+            --dark-green: #27ae60;
+            --bg-gradient: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
             --text-dark: #2d3436;
-            --card-white: #ffffff;
+            --border-light: #e0e6ed;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-sky); /* Background sesuai permintaan */
+            background: var(--bg-gradient);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -32,9 +31,9 @@
         }
 
         .card {
-            background: var(--card-white);
+            background: white;
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
             padding: 30px;
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
@@ -44,63 +43,79 @@
         }
 
         .blur-mode { filter: blur(15px); pointer-events: none; }
-
         .header-container { text-align: center; margin-bottom: 25px; }
-        .logo-img { width: 90px; height: auto; margin-bottom: 15px; }
-        .title-uts { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); text-transform: uppercase; }
-
-        label { display: block; margin-bottom: 5px; font-weight: 600; color: #636e72; font-size: 14px; text-align: left; }
+        .logo-img { width: 80px; height: auto; margin-bottom: 15px; }
+        .title-uts { font-size: 1.3rem; font-weight: 700; color: var(--text-dark); text-transform: uppercase; line-height: 1.4; }
+        label.input-label { display: block; margin-bottom: 8px; font-weight: 600; color: #636e72; font-size: 14px; text-align: left; }
         
-        input, select, textarea {
+        input[type="password"], select, textarea {
             width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #e0e0e0;
-            border-radius: 10px; background-color: #f8faff; font-size: 15px; outline: none;
+            border-radius: 12px; background-color: #f8faff; font-size: 15px; outline: none; transition: 0.3s;
         }
 
         .pass-wrapper { position: relative; width: 100%; }
         .toggle-password {
             position: absolute; right: 15px; top: 15px; cursor: pointer;
-            color: var(--dark-blue); font-size: 11px; font-weight: 700;
+            color: var(--dark-green); font-size: 11px; font-weight: 700;
+        }
+
+        .info-header { 
+            display: flex; justify-content: space-between; align-items: flex-start; 
+            background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px; 
+            border-left: 4px solid var(--primary-green);
+        }
+        .info-text { font-size: 12px; line-height: 1.6; color: #2d3436; }
+        .btn-logout-top { 
+            background: #ffeaa7; color: #d63031; border: none; padding: 6px 12px; 
+            border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase;
         }
 
         .timer-box { 
-            background: #fff9db; color: #e67e22; padding: 10px; border-radius: 10px; 
-            font-weight: 700; text-align: center; margin-bottom: 15px; border: 1px solid #fab005;
+            background: #fff9db; color: #e67e22; padding: 12px; border-radius: 12px; 
+            font-weight: 700; text-align: center; margin-bottom: 20px; border: 1px solid #ffec99;
         }
 
-        .info-siswa { background: #f1f2f6; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; line-height: 1.6; text-align: left; }
-
-        button {
-            width: 100%; padding: 15px; background-color: var(--primary-blue);
-            color: white; border: none; border-radius: 10px; font-weight: 700;
-            cursor: pointer; transition: 0.3s; text-transform: uppercase;
-            box-shadow: 0 4px 6px rgba(0, 191, 255, 0.2);
+        button.btn-utama {
+            width: 100%; padding: 15px; background-color: var(--primary-green);
+            color: white; border: none; border-radius: 12px; font-weight: 700;
+            cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px;
         }
+        button.btn-utama:hover { background-color: var(--dark-green); transform: translateY(-2px); }
 
-        button:hover { background-color: var(--dark-blue); }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        .btn-logout { background-color: #ffcccc; color: #c0392b; margin-top: 10px; font-size: 12px; padding: 10px; box-shadow: none; }
+        #soal-area h3 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 20px; line-height: 1.5; font-weight: 700; text-align: left; }
 
         .opsi-item {
-            display: block; padding: 15px; margin: 10px 0; border: 2px solid #f1f2f6;
-            border-radius: 12px; cursor: pointer; text-align: left; transition: 0.2s;
+            display: flex; align-items: flex-start; padding: 16px; margin: 12px 0;
+            border: 2px solid var(--border-light); border-radius: 14px; cursor: pointer;
+            transition: all 0.2s ease; position: relative;
         }
-        /* Highlight warna biru muda saat opsi dipilih */
-        .opsi-item:has(input:checked) { border-color: var(--primary-blue); background-color: #f0faff; }
+        .opsi-item:hover { border-color: var(--primary-green); background-color: #f0fff4; }
+        .opsi-item input { position: absolute; opacity: 0; }
 
-        .bar { width: 100%; height: 8px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        #progress { height: 100%; background: var(--primary-blue); width: 0%; transition: 0.4s; }
-        
-        .footer {
-            width: 100%; max-width: 500px; text-align: center; color: white;
-            font-size: 11px; line-height: 1.4; padding-top: 5px; text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        .checkmark {
+            height: 22px; width: 22px; background-color: #fff; border: 2px solid #cbd5e0;
+            margin-right: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
         }
+        input[type="radio"] + .checkmark { border-radius: 50%; }
+        input[type="checkbox"] + .checkmark { border-radius: 6px; }
+
+        .opsi-item input:checked + .checkmark { background-color: var(--primary-green); border-color: var(--primary-green); }
+        .checkmark:after {
+            content: ""; display: none; width: 6px; height: 11px; border: solid white;
+            border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); margin-bottom: 2px;
+        }
+        .opsi-item input:checked + .checkmark:after { display: block; }
+        .opsi-text { font-size: 15px; color: #4a5568; line-height: 1.4; padding-top: 1px; text-align: left; }
+
+        .bar { width: 100%; height: 8px; background: #edf2f7; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
+        .footer { width: 100%; max-width: 500px; text-align: center; color: white; font-size: 11px; padding-top: 5px; }
 
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-sky); display: none;
+            background: var(--bg-gradient); display: none;
             flex-direction: column; justify-content: center; align-items: center; z-index: 9999;
         }
-
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -108,7 +123,7 @@
 
 <div id="loading-overlay">
     <div style="border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
-    <p style="margin-top: 15px; color: white; font-weight: 600;">Menghubungkan Server...</p>
+    <p id="loading-text" style="margin-top: 15px; color: white; font-weight: 600;">Sedang Memproses...</p>
 </div>
 
 <div class="card">
@@ -116,45 +131,48 @@
         <div class="header-container">
             <img src="logo.png" class="logo-img" alt="Logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_Tut_Wuri_Handayani.png/100px-Logo_Tut_Wuri_Handayani.png'">
             <h1 class="title-uts">Sumatif Tengah Semester Genap</h1>
-            <p style="color:var(--dark-blue); font-weight:600;">INFORMATIKA</p>
+            <p style="color:var(--dark-green); font-weight:600;">INFORMATIKA</p>
             <hr style="margin-top:20px; border:0; border-top:1px solid #eee;">
         </div>
-        <label>Pilih Kelas</label>
+        <label class="input-label">Pilih Kelas</label>
         <select id="sel-kelas" onchange="updateDaftarNama()">
             <option value="">-- Pilih Kelas --</option>
         </select>
-        <label>Nama Siswa</label>
+        <label class="input-label">Nama Siswa</label>
         <select id="sel-nama">
             <option value="">-- Pilih Nama --</option>
         </select>
-        <label>Password</label>
+        <label class="input-label">Password</label>
         <div class="pass-wrapper">
-            <input type="password" id="pass" placeholder="Ketik Password Anda">
+            <input type="password" id="pass" placeholder="Password Siswa">
             <span class="toggle-password" onclick="intipPass()">LIHAT</span>
         </div>
-        <button onclick="mulai()">Masuk Ujian</button>
+        <button class="btn-utama" onclick="mulai()">Masuk Ujian</button>
     </div>
 
     <div id="box-kuis" style="display:none">
-        <div class="info-siswa">
-            <b>Nama:</b> <span id="txt-nama"></span><br>
-            <b>Kelas:</b> <span id="txt-kelas"></span>
+        <div class="info-header">
+            <div class="info-text">
+                <b>NAMA:</b> <span id="txt-nama"></span><br>
+                <b>KELAS:</b> <span id="txt-kelas"></span>
+            </div>
+            <button class="btn-logout-top" onclick="logout()">Ganti Akun</button>
         </div>
         <div class="timer-box" id="timer">Waktu Tersisa: --:--</div>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#636e72; font-weight:600">
-            <span>Progress Pengerjaan</span>
-            <span>Soal <span id="idx">1</span></span>
+        <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:#636e72;">
+            <span>PROGRESS PENGERJAAN</span>
+            <span>SOAL <span id="idx">1</span>/40</span>
         </div>
         <div class="bar"><div id="progress"></div></div>
         <div id="soal-area"></div>
-        <button id="btn-next" style="margin-top:20px" onclick="simpan()">Simpan & Lanjut</button>
-        <button class="btn-logout" onclick="logout()">Logout / Ganti Akun</button>
+        <button id="btn-next" class="btn-utama" style="margin-top:20px" onclick="simpanKeLocal()">Simpan & Lanjut</button>
     </div>
 
     <div id="box-selesai" style="display:none; text-align:center;">
-        <h2 style="color:var(--dark-blue); margin-bottom:10px;">✔ UJIAN SELESAI</h2>
-        <p style="color:#636e72; margin-bottom:25px;">Jawaban Anda telah aman tersimpan.</p>
-        <button onclick="logout()">Kembali ke Login</button>
+        <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
+        <h2 style="color:var(--primary-green); margin-bottom:10px;">UJIAN SELESAI</h2>
+        <p style="color:#636e72; margin-bottom:25px; font-size: 14px;">Seluruh jawaban Anda telah berhasil diunggah secara aman ke server.</p>
+        <button class="btn-utama" onclick="logout()">Keluar Aplikasi</button>
     </div>
 </div>
 
@@ -166,25 +184,15 @@
 <script>
     const URL_APP = "https://script.google.com/macros/s/AKfycbwuCfbFh9ciJZLuzXDdLCPYroH4N2AC8ZijaVq2FfNHEwFPnYYo3jpZnb39o29x69CM/exec";
     const DURASI_UJIAN = 60; 
+    const JUMLAH_SOAL_DIBUTUHKAN = 40;
 
     let dataSoal = []; let curIdx = 0; let currentUser = ""; let currentKelas = ""; let timerInterval;
-
-    // --- PROTEKSI & LOGIKA LIHAT PASSWORD ---
-    window.history.pushState(null, "", window.location.href);
-    window.onpopstate = function() { window.history.pushState(null, "", window.location.href); };
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    
-    document.addEventListener("visibilitychange", function() {
-        const card = document.querySelector('.card');
-        if (document.hidden) card.classList.add('blur-mode');
-        else card.classList.remove('blur-mode');
-    });
 
     function intipPass() {
         const p = document.getElementById('pass');
         const t = document.querySelector('.toggle-password');
-        if (p.type === "password") { p.type = "text"; t.innerText = "TUTUP"; }
-        else { p.type = "password"; t.innerText = "LIHAT"; }
+        p.type = p.type === "password" ? "text" : "password";
+        t.innerText = p.type === "password" ? "LIHAT" : "TUTUP";
     }
 
     function shuffle(array) {
@@ -196,22 +204,23 @@
     }
 
     window.onload = function() {
-        const kelasUnik = [...new Set(SISWA_BARU.map(s => s.kelas))];
+        const kelasUnik = [...new Set(SISWA_BARU.map(s => s.kelas))].sort();
         const selKelas = document.getElementById('sel-kelas');
-        kelasUnik.sort().forEach(k => {
+        kelasUnik.forEach(k => {
             const opt = document.createElement('option');
             opt.value = k; opt.innerText = k;
             selKelas.appendChild(opt);
         });
 
+        // Persistensi login saat refresh
         const savedUser = localStorage.getItem('active_student');
         const savedKelas = localStorage.getItem('active_kelas');
-        if (savedUser && savedKelas) {
+        const savedPass = localStorage.getItem('active_pass');
+        if (savedUser && savedKelas && savedPass) {
             document.getElementById('sel-kelas').value = savedKelas;
             updateDaftarNama();
             document.getElementById('sel-nama').value = savedUser;
-            const s = SISWA_BARU.find(x => x.nama === savedUser);
-            if(s) document.getElementById('pass').value = s.pass;
+            document.getElementById('pass').value = savedPass;
             mulai(true);
         }
     };
@@ -233,40 +242,50 @@
         const p = document.getElementById('pass').value;
         const loading = document.getElementById('loading-overlay');
 
-        const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
+        if(!u || !k || !p) return;
 
+        const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
         if(dataSiswa && p === dataSiswa.pass) {
             loading.style.display = "flex";
             try {
-                // LOGIKA OTOMATIS PILIH SOAL BERDASARKAN KELAS
-                const nomorKelas = k.split('-')[1]; 
-                const fileSoal = `soal${nomorKelas}.json`;
-
-                const rSoal = await fetch(`${fileSoal}?v=${Date.now()}`);
-                if (!rSoal.ok) throw new Error("File " + fileSoal + " tidak ada!");
-                const soalAsli = await rSoal.json();
+                const rSoal = await fetch(`soal.json?v=${Date.now()}`);
+                const gudangSoal = await rSoal.json();
 
                 const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
                 const s = await rStatus.json();
 
-                if(s.jumlahDikerjakan >= soalAsli.length) {
+                if(s.jumlahDikerjakan >= JUMLAH_SOAL_DIBUTUHKAN) {
                     loading.style.display = "none";
-                    alert("Akses Ditolak: Anda sudah menyelesaikan semua soal!");
-                    logout(); return;
+                    alert("Akses ditolak: Anda sudah menyelesaikan ujian!"); return;
                 }
 
-                if (s.jumlahDikerjakan === 0 && !localStorage.getItem('urutan_soal')) {
-                    dataSoal = shuffle(soalAsli);
+                // Logika pembagian komposisi soal (5 BS, 15 PG, 15 PK, 5 MJ)
+                if (!localStorage.getItem('urutan_soal')) {
+                    const bs = gudangSoal.filter(x => x.tipe === 'benar-salah');
+                    const pg = gudangSoal.filter(x => x.tipe === 'pilihan-ganda');
+                    const pk = gudangSoal.filter(x => x.tipe === 'pg-kompleks');
+                    const mj = gudangSoal.filter(x => x.tipe === 'menjodohkan');
+
+                    let selected = [
+                        ...shuffle(bs).slice(0, 5),
+                        ...shuffle(pg).slice(0, 15),
+                        ...shuffle(pk).slice(0, 15),
+                        ...shuffle(mj).slice(0, 5)
+                    ];
+                    
+                    dataSoal = shuffle(selected); 
                     localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
                 } else {
-                    const savedOrder = localStorage.getItem('urutan_soal');
-                    dataSoal = savedOrder ? JSON.parse(savedOrder) : soalAsli;
+                    dataSoal = JSON.parse(localStorage.getItem('urutan_soal'));
                 }
 
                 currentUser = u; currentKelas = k;
                 localStorage.setItem('active_student', u);
                 localStorage.setItem('active_kelas', k);
-                curIdx = s.jumlahDikerjakan;
+                localStorage.setItem('active_pass', p);
+
+                const localAnswers = JSON.parse(localStorage.getItem(`ans_${u}`)) || [];
+                curIdx = Math.max(localAnswers.length, s.jumlahDikerjakan);
 
                 document.getElementById('box-login').style.display = 'none';
                 document.getElementById('box-kuis').style.display = 'block';
@@ -275,113 +294,110 @@
                 
                 tampil(); startTimer();
                 loading.style.display = "none";
-            } catch(e) { 
-                loading.style.display = "none";
-                alert("Kesalahan Server: " + e.message); 
-            }
-        } else { if(!isAuto) alert("Nama atau Password Salah!"); }
+            } catch(e) { loading.style.display = "none"; alert("Error Load Soal: " + e.message); }
+        } else if(!isAuto) alert("Login Gagal!");
     }
 
     function startTimer() {
-        let deadline = localStorage.getItem('ujian_deadline');
-        if (!deadline) {
-            deadline = Date.now() + (DURASI_UJIAN * 60 * 1000);
-            localStorage.setItem('ujian_deadline', deadline);
-        }
+        let deadline = localStorage.getItem('ujian_deadline') || (Date.now() + (DURASI_UJIAN * 60 * 1000));
+        localStorage.setItem('ujian_deadline', deadline);
         clearInterval(timerInterval);
         timerInterval = setInterval(() => {
-            let sekarang = Date.now();
-            let sisaWaktu = Math.floor((deadline - sekarang) / 1000);
-            if (sisaWaktu <= 0) {
-                clearInterval(timerInterval);
-                alert("Waktu Habis!"); finishUjian();
-            } else {
-                let min = Math.floor(sisaWaktu / 60);
-                let sec = sisaWaktu % 60;
-                document.getElementById('timer').innerText = `Waktu Tersisa: ${min}:${sec < 10 ? '0' : ''}${sec}`;
+            let sisa = Math.floor((deadline - Date.now()) / 1000);
+            if (sisa <= 0) { clearInterval(timerInterval); alert("Waktu Habis!"); kirimJawabanAkhir(); }
+            else {
+                let m = Math.floor(sisa / 60); let s = sisa % 60;
+                document.getElementById('timer').innerText = `Waktu Tersisa: ${m}:${s < 10 ? '0' : ''}${s}`;
             }
         }, 1000);
     }
 
-    function logout() {
-        clearInterval(timerInterval);
-        localStorage.clear();
-        sessionStorage.clear();
-        location.reload();
-    }
-
-    function finishUjian() {
-        clearInterval(timerInterval);
-        localStorage.clear();
-        document.getElementById('box-kuis').style.display = 'none';
-        document.getElementById('box-selesai').style.display = 'block';
-    }
+    function logout() { if(confirm("Keluar/Ganti Akun?")) { localStorage.clear(); location.reload(); } }
 
     function tampil() {
+        if(curIdx >= dataSoal.length) return kirimJawabanAkhir();
         const s = dataSoal[curIdx];
-        document.getElementById('idx').innerText = (curIdx + 1) + "/" + dataSoal.length;
+        document.getElementById('idx').innerText = (curIdx + 1);
         document.getElementById('progress').style.width = (curIdx / dataSoal.length * 100) + "%";
-        let h = `<h3 style="margin-bottom:15px;">${s.pertanyaan}</h3>`;
-        if (["pilihan-ganda", "pg-kompleks"].includes(s.tipe)) {
-            const opsiAcak = shuffle([...s.opsi]); 
-            opsiAcak.forEach(o => {
+        let h = `<h3>${s.pertanyaan}</h3>`;
+        
+        if (["pilihan-ganda", "pg-kompleks", "benar-salah"].includes(s.tipe)) {
+            const opsi = s.tipe === "benar-salah" ? ["Benar", "Salah"] : s.opsi;
+            opsi.forEach(o => {
                 const tipe = s.tipe === "pg-kompleks" ? "checkbox" : "radio";
-                h += `<label class="opsi-item"><input type="${tipe}" name="j" value="${o}"> <span>${o}</span></label>`;
-            });
-        } else if (s.tipe === "benar-salah") {
-            ["Benar", "Salah"].forEach(o => {
-                h += `<label class="opsi-item"><input type="radio" name="j" value="${o}"> <span>${o}</span></label>`;
+                h += `<label class="opsi-item">
+                        <input type="${tipe}" name="j" value="${o}">
+                        <span class="checkmark"></span>
+                        <span class="opsi-text">${o}</span>
+                      </label>`;
             });
         } else if (s.tipe === "menjodohkan") {
             s.kiri.forEach(k => {
-                h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border:1px solid #eee; margin-bottom:8px; border-radius:8px;">
-                      <span>${k}</span>
-                      <select name="j-match" data-key="${k}" style="width:50%; margin:0; padding:5px;">
-                      <option value="">-- Pilih --</option>
-                      ${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}
+                h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid #eee; margin-bottom:10px; border-radius:12px; background:#fafafa;">
+                      <span style="font-size:14px; font-weight:600; color:#4a5568;">${k}</span>
+                      <select name="j-match" data-key="${k}" style="width:55%; margin:0; padding:8px; font-size:13px;">
+                        <option value="">-- Pilih --</option>
+                        ${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}
                       </select></div>`;
             });
-        } else if (s.tipe === "essay") {
-            h += `<textarea id="j-essay" rows="5" placeholder="Ketik jawaban lengkap Anda..."></textarea>`;
         }
         document.getElementById('soal-area').innerHTML = h;
     }
 
-    async function simpan() {
-        const btnNext = document.getElementById('btn-next');
+    function simpanKeLocal() {
         const s = dataSoal[curIdx];
         let jwb = ""; let stat = "Salah";
 
-        if (s.tipe === "essay") {
-            jwb = document.getElementById('j-essay').value.trim();
-            if(!jwb) return alert("Jawaban tidak boleh kosong!"); stat = "Perlu Koreksi";
-        } else if (s.tipe === "menjodohkan") {
+        if (s.tipe === "menjodohkan") {
             let res = {}; let count = 0;
             document.querySelectorAll('select[name="j-match"]').forEach(sel => {
                 if(sel.value) { res[sel.dataset.key] = sel.value; count++; }
             });
-            if(count < s.kiri.length) return alert("Mohon jodohkan semua pilihan!");
+            if(count < s.kiri.length) return alert("Jodohkan semua!");
             jwb = JSON.stringify(res);
             stat = (jwb === JSON.stringify(s.kunci)) ? "Benar" : "Salah";
         } else {
             let p = []; document.querySelectorAll('input[name="j"]:checked').forEach(i => p.push(i.value));
-            if(p.length === 0) return alert("Pilih salah satu jawaban!");
+            if(p.length === 0) return alert("Pilih jawaban!");
             jwb = p.sort().join(",");
             const knc = Array.isArray(s.kunci) ? s.kunci.sort().join(",") : s.kunci;
             stat = (jwb === knc) ? "Benar" : "Salah";
         }
 
-        btnNext.disabled = true;
+        let ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
+        ans.push({ nama: currentUser, id_soal: s.id, jawaban: jwb, status: stat });
+        localStorage.setItem(`ans_${currentUser}`, JSON.stringify(ans));
+
+        curIdx++;
+        tampil();
+    }
+
+    // FUNGSI PENGIRIMAN MASSAL (Sangat Cepat)
+    async function kirimJawabanAkhir() {
+        const loading = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
+        if(ans.length === 0) return;
+        
+        loading.style.display = "flex";
+        loadingText.innerText = "Mengirim Semua Jawaban Sekaligus (Harap Tunggu)...";
+
         try {
-            await fetch(URL_APP, { method: "POST", mode: "no-cors", body: JSON.stringify({ nama: currentUser, id_soal: s.id, jawaban: jwb, status: stat }) });
-            curIdx++;
-            if(curIdx < dataSoal.length) { tampil(); btnNext.disabled = false; }
-            else { finishUjian(); }
-        } catch (e) { alert("Gagal mengirim jawaban. Cek koneksi."); btnNext.disabled = false; }
+            // Kirim paket besar (Array) ke Apps Script
+            const response = await fetch(URL_APP, { 
+                method: "POST", 
+                body: JSON.stringify(ans) 
+            });
+            
+            loading.style.display = "none";
+            localStorage.clear();
+            document.getElementById('box-kuis').style.display = 'none';
+            document.getElementById('box-selesai').style.display = 'block';
+        } catch (e) { 
+            loading.style.display = "none"; 
+            alert("Gagal kirim otomatis. Pastikan internet aktif dan coba lagi."); 
+        }
     }
 </script>
 </body>
 </html>
-
-
-
