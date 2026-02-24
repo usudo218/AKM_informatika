@@ -37,20 +37,27 @@
             text-align: center;
         }
 
-        /* LOGO STYLE */
         .logo-container { margin-bottom: 20px; }
         .logo-img { width: 100px; height: auto; margin-bottom: 10px; }
         .title-app { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); margin-bottom: 5px; text-transform: uppercase; }
         .subtitle-app { font-size: 0.9rem; color: var(--dark-green); font-weight: 600; margin-bottom: 25px; }
+
+        /* PASSWORD WRAPPER */
+        .pass-wrapper { position: relative; width: 100%; margin-bottom: 25px; }
+        .toggle-password {
+            position: absolute; right: 15px; top: 14px; cursor: pointer;
+            color: var(--dark-green); font-size: 11px; font-weight: 800;
+            background: #e8f5e9; padding: 4px 8px; border-radius: 6px;
+        }
+
+        input, select { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ddd; font-family: inherit; font-size: 14px; outline: none; }
+        .pass-input { margin-bottom: 0; } /* Reset margin karena sudah dibungkus wrapper */
 
         .info-bar { background: #f8faff; padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary-green); margin-bottom: 15px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; }
         .progress-container { width: 100%; background: #edf2f7; height: 10px; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
         #progress-fill { height: 100%; background: var(--primary-green); width: 0%; transition: 0.3s; }
         .timer-box { background: #fff9db; color: #e67e22; padding: 10px; border-radius: 12px; text-align: center; font-weight: 700; margin-bottom: 20px; border: 1px solid #ffec99; }
         
-        input, select { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ddd; font-family: inherit; font-size: 14px; outline: none; }
-        input:focus, select:focus { border-color: var(--primary-green); box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1); }
-
         .opsi-label { display: flex; align-items: center; padding: 15px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: 0.2s; background: #fff; text-align: left; }
         .opsi-label input { display: none; }
         .checkmark { height: 20px; width: 20px; border: 2px solid #cbd5e0; margin-right: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
@@ -58,12 +65,9 @@
         .check-mark { border-radius: 4px; }
         input:checked + .checkmark { background: var(--primary-green); border-color: var(--primary-green); }
         input:checked + .checkmark::after { content: "✓"; color: white; font-size: 12px; font-weight: bold; }
-        .opsi-label:has(input:checked) { border-color: var(--primary-green); background: #f0fff4; }
 
         .btn-utama { width: 100%; padding: 16px; background: var(--primary-green); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
-        .btn-utama:hover { background: var(--dark-green); transform: translateY(-2px); }
-
-        /* FOOTER STYLE */
+        
         .footer { margin-top: 25px; color: white; font-size: 12px; text-align: center; line-height: 1.6; opacity: 0.9; }
 
         #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(46, 204, 113, 0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
@@ -91,7 +95,12 @@
         <select id="sel-nama">
             <option value="">-- Pilih Nama --</option>
         </select>
-        <input type="password" id="pass" placeholder="Password Siswa">
+        
+        <div class="pass-wrapper">
+            <input type="password" id="pass" class="pass-input" placeholder="Password Siswa">
+            <span class="toggle-password" onclick="intipPass()">LIHAT</span>
+        </div>
+        
         <button class="btn-utama" onclick="mulai()">Masuk Ujian</button>
     </div>
 
@@ -123,6 +132,19 @@
     const URL_APP = "https://script.google.com/macros/s/AKfycbzRLW7DVhItF6UpWVSqTyRfG94WIIpb-5n6YW6k3wAM3ag-Q9TsUmO9r2nLvaVkbA1l/exec"; 
     let dataSoal = []; let curIdx = 0; let currentUser = ""; let currentKelas = "";
     let sisaWaktu = 3600; let timerInterval;
+
+    // FUNGSI LIHAT PASSWORD
+    function intipPass() {
+        const p = document.getElementById('pass');
+        const t = document.querySelector('.toggle-password');
+        if (p.type === "password") {
+            p.type = "text";
+            t.innerText = "TUTUP";
+        } else {
+            p.type = "password";
+            t.innerText = "LIHAT";
+        }
+    }
 
     window.onload = () => {
         const savedUser = localStorage.getItem('active_user');
@@ -161,7 +183,7 @@
         const p = document.getElementById('pass').value;
         const k = document.getElementById('sel-kelas').value;
         const s = SISWA_BARU.find(x => x.nama === u && x.pass === p);
-        if(!s) return alert("Login Gagal! Periksa Nama & Password.");
+        if(!s) return alert("Login Gagal! Password mungkin salah (Perhatikan Huruf Besar/Kecil).");
 
         document.getElementById('loading-overlay').style.display = 'flex';
         try {
@@ -169,7 +191,7 @@
             const status = await respStatus.json();
             if(status.jumlahDikerjakan >= 40) {
                 document.getElementById('loading-overlay').style.display = 'none';
-                return alert("Akses Ditolak: Anda sudah menyelesaikan ujian!");
+                return alert("Anda sudah menyelesaikan ujian!");
             }
             const respSoal = await fetch(`soal.json?v=${Date.now()}`);
             const gudangSoal = await respSoal.json();
@@ -191,7 +213,7 @@
             tampil(); timerInterval = setInterval(updateTimer, 1000);
             document.getElementById('loading-overlay').style.display = 'none';
         } catch(e) { 
-            alert("Gagal terhubung ke server. Pastikan internet aktif."); 
+            alert("Koneksi gagal."); 
             document.getElementById('loading-overlay').style.display = 'none'; 
         }
     }
@@ -201,14 +223,14 @@
         const s = dataSoal[curIdx];
         document.getElementById('txt-idx').innerText = curIdx + 1;
         document.getElementById('progress-fill').style.width = ((curIdx / 40) * 100) + "%";
-        let h = `<h3 style="text-align:left; margin-bottom:20px; line-height:1.6;">${s.pertanyaan}</h3>`;
+        let h = `<h3 style="text-align:left; margin-bottom:20px;">${s.pertanyaan}</h3>`;
         if(s.tipe === "pilihan-ganda" || s.tipe === "benar-salah") {
             const opsi = s.tipe === "benar-salah" ? ["Benar", "Salah"] : s.opsi;
             opsi.forEach(o => { h += `<label class="opsi-label"><input type="radio" name="j" value="${o}"><span class="checkmark radio-mark"></span><span>${o}</span></label>`; });
         } else if(s.tipe === "pg-kompleks") {
             s.opsi.forEach(o => { h += `<label class="opsi-label"><input type="checkbox" name="j" value="${o}"><span class="checkmark check-mark"></span><span>${o}</span></label>`; });
         } else if(s.tipe === "menjodohkan") {
-            s.kiri.forEach(k => { h += `<div style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px; font-size:14px;"><span>${k}</span><select class="match-sel" data-kiri="${k}" style="padding:5px; width:55%; margin:0;"><option value="">-- Pilih --</option>${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}</select></div>`; });
+            s.kiri.forEach(k => { h += `<div style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px;"><span>${k}</span><select class="match-sel" data-kiri="${k}" style="padding:5px; width:55%; margin:0;"><option value="">-- Pilih --</option>${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}</select></div>`; });
         }
         document.getElementById('soal-area').innerHTML = h;
     }
@@ -218,16 +240,16 @@
         let jawaban = ""; let stat = "Salah";
         if(s.tipe === "pilihan-ganda" || s.tipe === "benar-salah") {
             const sel = document.querySelector('input[name="j"]:checked');
-            if(!sel) return alert("Pilih jawaban sebelum lanjut!");
+            if(!sel) return alert("Pilih jawaban!");
             jawaban = sel.value; stat = (jawaban === s.kunci) ? "Benar" : "Salah";
         } else if(s.tipe === "pg-kompleks") {
             let sels = []; document.querySelectorAll('input[name="j"]:checked').forEach(i => sels.push(i.value));
-            if(sels.length === 0) return alert("Pilih minimal satu jawaban!");
+            if(sels.length === 0) return alert("Pilih minimal satu!");
             jawaban = sels.sort().join(","); stat = (jawaban === s.kunci.sort().join(",")) ? "Benar" : "Salah";
         } else if(s.tipe === "menjodohkan") {
             let res = {}; let full = true;
             document.querySelectorAll('.match-sel').forEach(sl => { if(!sl.value) full = false; res[sl.dataset.kiri] = sl.value; });
-            if(!full) return alert("Harap jodohkan semua pilihan!");
+            if(!full) return alert("Lengkapi perjodohan!");
             jawaban = JSON.stringify(res); stat = (jawaban === JSON.stringify(s.kunci)) ? "Benar" : "Salah";
         }
         let ans = JSON.parse(localStorage.getItem(`ans_${currentUser}`) || "[]");
@@ -244,7 +266,7 @@
             localStorage.clear();
             document.getElementById('box-kuis').style.display = 'none';
             document.getElementById('box-selesai').style.display = 'block';
-        } catch(e) { alert("Terjadi gangguan koneksi saat mengirim jawaban."); }
+        } catch(e) { alert("Gagal kirim."); }
         document.getElementById('loading-overlay').style.display = 'none';
     }
 
