@@ -12,6 +12,7 @@
             --dark-green: #27ae60;
             --bg-gradient: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
             --text-dark: #2d3436;
+            --border-light: #e0e6ed;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,7 +33,7 @@
         .card {
             background: white;
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
             padding: 30px;
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
@@ -44,15 +45,17 @@
         .blur-mode { filter: blur(15px); pointer-events: none; }
 
         .header-container { text-align: center; margin-bottom: 25px; }
-        .logo-img { width: 90px; height: auto; margin-bottom: 15px; }
-        .title-uts { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); text-transform: uppercase; }
+        .logo-img { width: 80px; height: auto; margin-bottom: 15px; }
+        .title-uts { font-size: 1.3rem; font-weight: 700; color: var(--text-dark); text-transform: uppercase; line-height: 1.4; }
 
-        label { display: block; margin-bottom: 5px; font-weight: 600; color: #636e72; font-size: 14px; text-align: left; }
+        label.input-label { display: block; margin-bottom: 8px; font-weight: 600; color: #636e72; font-size: 14px; text-align: left; }
         
-        input, select, textarea {
+        input[type="text"], input[type="password"], select, textarea {
             width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #e0e0e0;
-            border-radius: 10px; background-color: #f8faff; font-size: 15px; outline: none;
+            border-radius: 12px; background-color: #f8faff; font-size: 15px; outline: none; transition: 0.3s;
         }
+
+        input:focus, select:focus { border-color: var(--primary-green); box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1); }
 
         .pass-wrapper { position: relative; width: 100%; }
         .toggle-password {
@@ -61,29 +64,88 @@
         }
 
         .timer-box { 
-            background: #ffeaa7; color: #d63031; padding: 10px; border-radius: 10px; 
-            font-weight: 700; text-align: center; margin-bottom: 15px; border: 1px solid #fdcb6e;
+            background: #fff9db; color: #e67e22; padding: 12px; border-radius: 12px; 
+            font-weight: 700; text-align: center; margin-bottom: 20px; border: 1px solid #ffec99;
         }
 
-        .info-siswa { background: #f1f2f6; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; line-height: 1.6; text-align: left; }
+        .info-siswa { background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; line-height: 1.6; border-left: 4px solid var(--primary-green); }
 
         button {
             width: 100%; padding: 15px; background-color: var(--primary-green);
-            color: white; border: none; border-radius: 10px; font-weight: 700;
-            cursor: pointer; transition: 0.3s; text-transform: uppercase;
+            color: white; border: none; border-radius: 12px; font-weight: 700;
+            cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px;
         }
 
-        button:hover { background-color: var(--dark-green); }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        .btn-logout { background-color: #fab1a0; color: #d63031; margin-top: 10px; font-size: 12px; padding: 10px; }
+        button:hover { background-color: var(--dark-green); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3); }
+        button:active { transform: translateY(0); }
+        button:disabled { background-color: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-logout { background-color: #fff0f0; color: #e74c3c; margin-top: 15px; font-size: 12px; padding: 10px; border: 1px solid #ffdada; }
+
+        /* TAMPILAN SOAL PROFESIONAL */
+        #soal-area h3 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 20px; line-height: 1.5; font-weight: 700; }
 
         .opsi-item {
-            display: block; padding: 15px; margin: 10px 0; border: 2px solid #f1f2f6;
-            border-radius: 12px; cursor: pointer; text-align: left;
+            display: flex;
+            align-items: flex-start;
+            padding: 16px;
+            margin: 12px 0;
+            border: 2px solid var(--border-light);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
         }
+
+        .opsi-item:hover { border-color: var(--primary-green); background-color: #f0fff4; }
+
+        /* Sembunyikan Input Asli */
+        .opsi-item input { position: absolute; opacity: 0; cursor: pointer; }
+
+        /* Custom Checkmark/Radio */
+        .checkmark {
+            height: 22px;
+            width: 22px;
+            background-color: #fff;
+            border: 2px solid #cbd5e0;
+            margin-right: 15px;
+            flex-shrink: 0;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Styling Bulat untuk Radio (PG Tunggal & Benar/Salah) */
+        input[type="radio"] + .checkmark { border-radius: 50%; }
+        /* Styling Kotak untuk Checkbox (PG Kompleks) */
+        input[type="checkbox"] + .checkmark { border-radius: 6px; }
+
+        /* Saat Input Dipilih */
+        .opsi-item input:checked + .checkmark {
+            background-color: var(--primary-green);
+            border-color: var(--primary-green);
+        }
+
+        .opsi-item input:checked ~ span { color: var(--dark-green); font-weight: 600; }
         .opsi-item:has(input:checked) { border-color: var(--primary-green); background-color: #f0fff4; }
 
-        .bar { width: 100%; height: 8px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        /* Icon centang di dalam kotak/bulat */
+        .checkmark:after {
+            content: "";
+            display: none;
+            width: 6px;
+            height: 11px;
+            border: solid white;
+            border-width: 0 2.5px 2.5px 0;
+            transform: rotate(45deg);
+            margin-bottom: 2px;
+        }
+
+        .opsi-item input:checked + .checkmark:after { display: block; }
+
+        .opsi-text { font-size: 15px; color: #4a5568; line-height: 1.4; padding-top: 1px; }
+
+        .bar { width: 100%; height: 8px; background: #edf2f7; border-radius: 10px; margin: 15px 0; overflow: hidden; }
         #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
         
         .footer {
@@ -112,18 +174,18 @@
         <div class="header-container">
             <img src="logo.png" class="logo-img" alt="Logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_Tut_Wuri_Handayani.png/100px-Logo_Tut_Wuri_Handayani.png'">
             <h1 class="title-uts">Sumatif Tengah Semester Genap</h1>
-            <p style="color:var(--dark-green); font-weight:600;">INFORMATIKA</p>
+            <p style="color:var(--dark-green); font-weight:600; letter-spacing: 1px;">INFORMATIKA</p>
             <hr style="margin-top:20px; border:0; border-top:1px solid #eee;">
         </div>
-        <label>Pilih Kelas</label>
+        <label class="input-label">Pilih Kelas</label>
         <select id="sel-kelas" onchange="updateDaftarNama()">
             <option value="">-- Pilih Kelas --</option>
         </select>
-        <label>Nama Siswa</label>
+        <label class="input-label">Nama Siswa</label>
         <select id="sel-nama">
             <option value="">-- Pilih Nama --</option>
         </select>
-        <label>Password</label>
+        <label class="input-label">Password</label>
         <div class="pass-wrapper">
             <input type="password" id="pass" placeholder="Password Siswa">
             <span class="toggle-password" onclick="intipPass()">LIHAT</span>
@@ -137,7 +199,7 @@
             <b>Kelas:</b> <span id="txt-kelas"></span>
         </div>
         <div class="timer-box" id="timer">Waktu Tersisa: --:--</div>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#636e72; font-weight:600">
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:#636e72; font-weight:700; text-transform: uppercase;">
             <span>Progress</span>
             <span>Soal <span id="idx">1</span></span>
         </div>
@@ -148,8 +210,9 @@
     </div>
 
     <div id="box-selesai" style="display:none; text-align:center;">
-        <h2 style="color:var(--primary-green); margin-bottom:10px;">✔ UJIAN SELESAI</h2>
-        <p style="color:#636e72; margin-bottom:25px;">Jawaban Anda telah tersimpan di server.</p>
+        <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
+        <h2 style="color:var(--primary-green); margin-bottom:10px;">UJIAN SELESAI</h2>
+        <p style="color:#636e72; margin-bottom:25px; line-height: 1.5;">Jawaban Anda telah berhasil diunggah dan disimpan di server.</p>
         <button onclick="logout()">Kembali ke Halaman Login</button>
     </div>
 </div>
@@ -160,7 +223,6 @@
 </footer>
 
 <script>
-    // URL Web App Google Apps Script
     const URL_APP = "https://script.google.com/macros/s/AKfycbyP1TXdwXSf8xud0LSM-qIBLRG_eNjOTbfdJwqgvtorfykvMGchOvtOnFQxZmb1BuOt/exec";
     const DURASI_UJIAN = 60; 
 
@@ -170,7 +232,6 @@
     let currentKelas = ""; 
     let timerInterval;
 
-    // --- PROTEKSI ---
     window.history.pushState(null, "", window.location.href);
     window.onpopstate = function() { window.history.pushState(null, "", window.location.href); };
     document.addEventListener('contextmenu', e => e.preventDefault());
@@ -245,7 +306,6 @@
                 if (!rSoal.ok) throw new Error("File soal tidak ditemukan");
                 const soalAsli = await rSoal.json();
 
-                // Cek status pengerjaan terakhir di server
                 const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
                 const s = await rStatus.json();
 
@@ -256,7 +316,6 @@
                     return;
                 }
 
-                // Logika Acak/Muat Urutan Soal
                 if (s.jumlahDikerjakan === 0 && !localStorage.getItem('urutan_soal')) {
                     dataSoal = shuffle(soalAsli);
                     localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
@@ -270,7 +329,6 @@
                 localStorage.setItem('active_student', u);
                 localStorage.setItem('active_kelas', k);
                 
-                // Muat progress lokal jika ada, jika tidak pakai dari server
                 const localAnswers = JSON.parse(localStorage.getItem(`ans_${u}`)) || [];
                 curIdx = localAnswers.length > s.jumlahDikerjakan ? localAnswers.length : s.jumlahDikerjakan;
 
@@ -328,34 +386,40 @@
             const opsiAcak = shuffle([...s.opsi]); 
             opsiAcak.forEach(o => {
                 const tipe = s.tipe === "pg-kompleks" ? "checkbox" : "radio";
-                h += `<label class="opsi-item"><input type="${tipe}" name="j" value="${o}"> <span>${o}</span></label>`;
+                h += `<label class="opsi-item">
+                        <input type="${tipe}" name="j" value="${o}">
+                        <span class="checkmark"></span>
+                        <span class="opsi-text">${o}</span>
+                      </label>`;
             });
         } else if (s.tipe === "benar-salah") {
             ["Benar", "Salah"].forEach(o => {
-                h += `<label class="opsi-item"><input type="radio" name="j" value="${o}"> <span>${o}</span></label>`;
+                h += `<label class="opsi-item">
+                        <input type="radio" name="j" value="${o}">
+                        <span class="checkmark"></span>
+                        <span class="opsi-text">${o}</span>
+                      </label>`;
             });
         } else if (s.tipe === "menjodohkan") {
             s.kiri.forEach(k => {
-                h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border:1px solid #eee; margin-bottom:8px; border-radius:8px;">
-                      <span>${k}</span>
-                      <select name="j-match" data-key="${k}" style="width:50%; margin:0; padding:5px;">
+                h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid #eee; margin-bottom:10px; border-radius:12px; background:#fafafa;">
+                      <span style="font-size:14px; font-weight:600; color:#4a5568;">${k}</span>
+                      <select name="j-match" data-key="${k}" style="width:55%; margin:0; padding:8px; font-size:13px;">
                       <option value="">-- Pilih --</option>
                       ${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}
                       </select></div>`;
             });
         } else if (s.tipe === "essay") {
-            h += `<textarea id="j-essay" rows="5" placeholder="Ketik jawaban Anda..."></textarea>`;
+            h += `<textarea id="j-essay" rows="6" placeholder="Ketik jawaban Anda secara lengkap di sini..."></textarea>`;
         }
         document.getElementById('soal-area').innerHTML = h;
     }
 
-    // FUNGSI BARU: Simpan ke Local Storage
     function simpanKeLocal() {
         const s = dataSoal[curIdx];
         let jwb = ""; 
         let stat = "Salah";
 
-        // Ambil input berdasarkan tipe soal
         if (s.tipe === "essay") {
             jwb = document.getElementById('j-essay').value.trim();
             if(!jwb) return alert("Isi jawaban!"); stat = "Perlu Koreksi";
@@ -375,7 +439,6 @@
             stat = (jwb === knc) ? "Benar" : "Salah";
         }
 
-        // Simpan ke Array Lokal
         let answers = JSON.parse(localStorage.getItem(`ans_${currentUser}`)) || [];
         answers.push({
             nama: currentUser,
@@ -393,7 +456,6 @@
         }
     }
 
-    // FUNGSI BARU: Kirim semua sekaligus di akhir
     async function kirimJawabanAkhir() {
         const loading = document.getElementById('loading-overlay');
         const loadingText = document.getElementById('loading-text');
@@ -405,8 +467,6 @@
         loading.style.display = "flex";
 
         try {
-            // Kita kirim satu per satu dalam loop agar tidak merombak Apps Script Bapak yang lama
-            // Namun dilakukan secara otomatis di belakang layar saat selesai
             for (let i = 0; i < answers.length; i++) {
                 await fetch(URL_APP, { 
                     method: "POST", 
