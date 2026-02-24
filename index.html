@@ -43,11 +43,9 @@
         }
 
         .blur-mode { filter: blur(15px); pointer-events: none; }
-
         .header-container { text-align: center; margin-bottom: 25px; }
         .logo-img { width: 80px; height: auto; margin-bottom: 15px; }
         .title-uts { font-size: 1.3rem; font-weight: 700; color: var(--text-dark); text-transform: uppercase; line-height: 1.4; }
-
         label.input-label { display: block; margin-bottom: 8px; font-weight: 600; color: #636e72; font-size: 14px; text-align: left; }
         
         input[type="password"], select, textarea {
@@ -61,15 +59,9 @@
             color: var(--dark-green); font-size: 11px; font-weight: 700;
         }
 
-        /* HEADER INFO SISWA + LOGOUT DI ATAS */
         .info-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-start; 
-            background: #f8f9fa; 
-            padding: 12px; 
-            border-radius: 12px; 
-            margin-bottom: 15px; 
+            display: flex; justify-content: space-between; align-items: flex-start; 
+            background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px; 
             border-left: 4px solid var(--primary-green);
         }
         .info-text { font-size: 12px; line-height: 1.6; color: #2d3436; }
@@ -90,7 +82,6 @@
         }
         button.btn-utama:hover { background-color: var(--dark-green); transform: translateY(-2px); }
 
-        /* TAMPILAN SOAL */
         #soal-area h3 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 20px; line-height: 1.5; }
 
         .opsi-item {
@@ -117,7 +108,6 @@
 
         .bar { width: 100%; height: 8px; background: #edf2f7; border-radius: 10px; margin: 15px 0; overflow: hidden; }
         #progress { height: 100%; background: var(--primary-green); width: 0%; transition: 0.4s; }
-        
         .footer { width: 100%; max-width: 500px; text-align: center; color: white; font-size: 11px; padding-top: 5px; }
 
         #loading-overlay {
@@ -220,6 +210,18 @@
             opt.value = k; opt.innerText = k;
             selKelas.appendChild(opt);
         });
+
+        // CEK LOGIN SAAT REFRESH
+        const savedUser = localStorage.getItem('active_student');
+        const savedKelas = localStorage.getItem('active_kelas');
+        const savedPass = localStorage.getItem('active_pass');
+        if (savedUser && savedKelas && savedPass) {
+            document.getElementById('sel-kelas').value = savedKelas;
+            updateDaftarNama();
+            document.getElementById('sel-nama').value = savedUser;
+            document.getElementById('pass').value = savedPass;
+            mulai(true);
+        }
     };
 
     function updateDaftarNama() {
@@ -233,21 +235,21 @@
         });
     }
 
-    async function mulai() {
+    async function mulai(isAuto = false) {
         const u = document.getElementById('sel-nama').value;
         const k = document.getElementById('sel-kelas').value;
         const p = document.getElementById('pass').value;
         const loading = document.getElementById('loading-overlay');
 
+        if(!u || !k || !p) return;
+
         const dataSiswa = SISWA_BARU.find(s => s.nama === u && s.kelas === k);
         if(dataSiswa && p === dataSiswa.pass) {
             loading.style.display = "flex";
             try {
-                // MENGAMBIL GUDANG SOAL (240 SOAL)
                 const rSoal = await fetch(`soal.json?v=${Date.now()}`);
                 const gudangSoal = await rSoal.json();
 
-                // CEK STATUS DI SERVER
                 const rStatus = await fetch(`${URL_APP}?nama=${encodeURIComponent(u)}&t=${Date.now()}`);
                 const s = await rStatus.json();
 
@@ -256,16 +258,32 @@
                     alert("Akses ditolak: Anda sudah selesai!"); return;
                 }
 
-                // LOGIKA SAMPLING ACAK 40 DARI GUDANG
+                // LOGIKA KOMPOSISI SOAL (5-15-15-5)
                 if (!localStorage.getItem('urutan_soal')) {
-                    let diacak = shuffle([...gudangSoal]);
-                    dataSoal = diacak.slice(0, JUMLAH_SOAL_DIBUTUHKAN);
+                    const bs = gudangSoal.filter(x => x.tipe === 'benar-salah');
+                    const pg = gudangSoal.filter(x => x.tipe === 'pilihan-ganda');
+                    const pk = gudangSoal.filter(x => x.tipe === 'pg-kompleks');
+                    const mj = gudangSoal.filter(x => x.tipe === 'menjodohkan');
+
+                    let selected = [
+                        ...shuffle(bs).slice(0, 5),
+                        ...shuffle(pg).slice(0, 15),
+                        ...shuffle(pk).slice(0, 15),
+                        ...shuffle(mj).slice(0, 5)
+                    ];
+                    
+                    dataSoal = shuffle(selected); // Acak lagi urutan antar tipenya
                     localStorage.setItem('urutan_soal', JSON.stringify(dataSoal));
                 } else {
                     dataSoal = JSON.parse(localStorage.getItem('urutan_soal'));
                 }
 
                 currentUser = u; currentKelas = k;
+                // SIMPAN CREDENTIAL UNTUK REFRESH
+                localStorage.setItem('active_student', u);
+                localStorage.setItem('active_kelas', k);
+                localStorage.setItem('active_pass', p);
+
                 const localAnswers = JSON.parse(localStorage.getItem(`ans_${u}`)) || [];
                 curIdx = Math.max(localAnswers.length, s.jumlahDikerjakan);
 
@@ -277,7 +295,7 @@
                 tampil(); startTimer();
                 loading.style.display = "none";
             } catch(e) { loading.style.display = "none"; alert("Error: " + e.message); }
-        } else alert("Login Gagal!");
+        } else if(!isAuto) alert("Login Gagal!");
     }
 
     function startTimer() {
@@ -297,6 +315,7 @@
     function logout() { if(confirm("Keluar/Ganti Akun?")) { localStorage.clear(); location.reload(); } }
 
     function tampil() {
+        if(curIdx >= dataSoal.length) return kirimJawabanAkhir();
         const s = dataSoal[curIdx];
         document.getElementById('idx').innerText = (curIdx + 1);
         document.getElementById('progress').style.width = (curIdx / dataSoal.length * 100) + "%";
@@ -321,8 +340,6 @@
                         ${s.kanan.map(kn => `<option value="${kn}">${kn}</option>`).join('')}
                       </select></div>`;
             });
-        } else if (s.tipe === "essay") {
-            h += `<textarea id="j-essay" rows="6" placeholder="Ketik jawaban lengkap..."></textarea>`;
         }
         document.getElementById('soal-area').innerHTML = h;
     }
@@ -331,10 +348,7 @@
         const s = dataSoal[curIdx];
         let jwb = ""; let stat = "Salah";
 
-        if (s.tipe === "essay") {
-            jwb = document.getElementById('j-essay').value.trim();
-            if(!jwb) return alert("Isi jawaban!"); stat = "Perlu Koreksi";
-        } else if (s.tipe === "menjodohkan") {
+        if (s.tipe === "menjodohkan") {
             let res = {}; let count = 0;
             document.querySelectorAll('select[name="j-match"]').forEach(sel => {
                 if(sel.value) { res[sel.dataset.key] = sel.value; count++; }
@@ -355,7 +369,7 @@
         localStorage.setItem(`ans_${currentUser}`, JSON.stringify(ans));
 
         curIdx++;
-        if(curIdx < dataSoal.length) tampil(); else kirimJawabanAkhir();
+        tampil();
     }
 
     async function kirimJawabanAkhir() {
