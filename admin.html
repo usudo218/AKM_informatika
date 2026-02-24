@@ -3,115 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Rekap Nilai Ujian</title>
+    <title>Admin - Monitoring Ujian</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #27ae60; --dark: #2c3e50; --light: #f4f7f6; }
+        :root { --primary: #27ae60; --dark: #2c3e50; --light: #f4f7f6; --aksen: #4f46e5; }
         body { font-family: 'Inter', sans-serif; background: var(--light); padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; background: #ddd; }
-        .tab-btn.active { background: var(--primary); color: white; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); max-width: 1000px; margin: auto; }
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #eee; padding: 5px; border-radius: 10px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; background: transparent; transition: 0.3s; }
+        .tab-btn.active { background: white; color: var(--aksen); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; color: white; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: var(--dark); color: white; padding: 12px; text-align: left; }
-        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }
-        .badge { padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; }
+        th { background: #f8f9fa; color: #636e72; padding: 12px; text-align: left; border-bottom: 2px solid #eee; font-size: 13px; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .badge { padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .bg-success { background: #d4edda; color: #155724; }
         .bg-danger { background: #f8d7da; color: #721c24; }
-        .btn-action { padding: 8px 15px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
+        mark { background: #fff9db; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Panel Kontrol Guru</h2>
+    <h2 style="margin-top:0">Panel Monitoring Guru</h2>
+    
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="gantiTab('rekap', this)">Rekap Nilai Siswa</button>
-        <button class="tab-btn" onclick="gantiTab('detail', this)">Log Jawaban Detail</button>
+        <button id="btn-rekap" class="tab-btn active" onclick="gantiTab('rekap')">Rekap Nilai Siswa</button>
+        <button id="btn-detail" class="tab-btn" onclick="gantiTab('detail')">Log Jawaban Detail</button>
     </div>
 
-    <div style="margin-bottom: 15px; display:flex; gap:10px;">
-        <button class="btn-action" style="background:#2ecc71; color:white;" onclick="muatData()">Refresh Data</button>
-        <button class="btn-action" style="background:#34495e; color:white;" onclick="exportExcel()">Unduh Excel</button>
+    <div style="margin-bottom: 20px; display:flex; gap:10px;">
+        <button class="btn" style="background: var(--primary);" onclick="muatData()">Refresh Data</button>
+        <button class="btn" style="background: var(--dark);" onclick="exportExcel()">Unduh Excel</button>
     </div>
 
-    <div id="table-container">
-        <table id="main-table">
+    <div style="overflow-x: auto;">
+        <table>
             <thead id="head-table"></thead>
-            <tbody id="body-table"></tbody>
+            <tbody id="body-table">
+                <tr><td colspan="5" style="text-align:center; padding:50px;">Klik Refresh Data...</td></tr>
+            </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    const URL_APP = "https://script.google.com/macros/s/AKfycbw6EOYp7cOid9pPsZoDhtoPOOD-vC2LtGYtRkrH8fK0IHqSn4OBZxh8FEdLxYuCU7Mr/exec";
-    let mode = "rekap"; // Default mode
+    // MASUKKAN URL WEB APP HASIL DEPLOY TERBARU ANDA
+    const URL_APP = "https://script.google.com/macros/s/AKfycbwuCfbFh9ciJZLuzXDdLCPYroH4N2AC8ZijaVq2FfNHEwFPnYYo3jpZnb39o29x69CM/exec";
+    let mode = "rekap";
     let currentData = [];
 
     async function muatData() {
-    const tbody = document.getElementById('body-table');
-    tbody.innerHTML = "<tr><td colspan='5' style='text-align:center'>Memuat data...</td></tr>";
-    
-    try {
-        const aksi = mode === "rekap" ? "rekapNilai" : "ambilSemua";
-        const response = await fetch(`${URL_APP}?aksi=${aksi}`);
-        const result = await response.json();
+        const tbody = document.getElementById('body-table');
+        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:50px;'>⏳ Menghubungkan ke Server...</td></tr>";
+        
+        try {
+            // Memastikan parameter dikirim dengan benar (?aksi=...)
+            const response = await fetch(`${URL_APP}?aksi=${mode === 'rekap' ? 'rekapNilai' : 'ambilSemua'}`);
+            const result = await response.json();
 
-        // VALIDASI: Jika yang datang bukan Array (misal pesan "Server Ready")
-        if (!Array.isArray(result)) {
-            console.log("Respon server bukan array:", result);
-            currentData = []; // Set kosong agar tidak error saat render
-            tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color:orange;'>
-                ${result.info || "Belum ada data pengerjaan di Spreadsheet"}
-            </td></tr>`;
-            return;
+            if (result.error) {
+                tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color:red; padding:30px;'><b>ERROR:</b> ${result.error}</td></tr>`;
+                return;
+            }
+
+            if (!Array.isArray(result) || result.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:50px;'>📭 Belum ada data di Spreadsheet.</td></tr>";
+                return;
+            }
+
+            currentData = result;
+            renderTable();
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color:red; padding:30px;'><b>GAGAL KONEKSI:</b> Periksa internet atau URL Web App.</td></tr>`;
         }
-
-        currentData = result;
-        renderTable();
-    } catch (e) {
-        tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color:red;'>Error: ${e.message}</td></tr>`;
-    }
-}
-
-function renderTable() {
-    const thead = document.getElementById('head-table');
-    const tbody = document.getElementById('body-table');
-    tbody.innerHTML = "";
-
-    // Pastikan currentData adalah array sebelum looping
-    if (!currentData || currentData.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center'>Tidak ada data ditemukan.</td></tr>";
-        return;
     }
 
-    if (mode === "rekap") {
-        thead.innerHTML = "<tr><th>Nama Siswa</th><th>Benar</th><th>Total Jawab</th><th>Skor Akhir</th></tr>";
-        currentData.forEach(s => {
-            tbody.innerHTML += `<tr><td><b>${s.nama}</b></td><td>${s.benar}</td><td>${s.total}</td><td><mark>${s.skor}</mark></td></tr>`;
-        });
-    } else {
-        thead.innerHTML = "<tr><th>Waktu</th><th>Nama</th><th>ID</th><th>Jawaban</th><th>Status</th></tr>";
-        // .slice().reverse() digunakan agar data terbaru muncul di paling atas
-        currentData.slice().reverse().forEach(row => {
-            const cls = row.status === "Benar" ? "bg-success" : "bg-danger";
-            tbody.innerHTML += `<tr><td>${row.timestamp}</td><td>${row.nama}</td><td>${row.id_soal}</td><td>${row.jawaban}</td><td><span class="badge ${cls}">${row.status}</span></td></tr>`;
-        });
-    }
-}
+    function renderTable() {
+        const thead = document.getElementById('head-table');
+        const tbody = document.getElementById('body-table');
+        tbody.innerHTML = "";
 
-    function gantiTab(m, btn) {
+        if (mode === "rekap") {
+            thead.innerHTML = "<tr><th>Nama Siswa</th><th>Benar</th><th>Total Jawab</th><th>Skor</th></tr>";
+            currentData.forEach(s => {
+                tbody.innerHTML += `<tr><td><b>${s.nama}</b></td><td>${s.benar}</td><td>${s.total}</td><td><mark>${s.skor}</mark></td></tr>`;
+            });
+        } else {
+            thead.innerHTML = "<tr><th>Waktu</th><th>Nama Siswa</th><th>ID</th><th>Jawaban</th><th>Status</th></tr>";
+            [...currentData].reverse().forEach(row => {
+                const cls = row.status === "Benar" ? "bg-success" : "bg-danger";
+                tbody.innerHTML += `<tr>
+                    <td style="color:#636e72; font-size:12px;">${row.timestamp}</td>
+                    <td><b>${row.nama}</b></td>
+                    <td>${row.id_soal}</td>
+                    <td>${row.jawaban}</td>
+                    <td><span class="badge ${cls}">${row.status}</span></td>
+                </tr>`;
+            });
+        }
+    }
+
+    function gantiTab(m) {
         mode = m;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        document.getElementById('btn-rekap').classList.toggle('active', m === 'rekap');
+        document.getElementById('btn-detail').classList.toggle('active', m === 'detail');
         muatData();
     }
 
     function exportExcel() {
+        if(currentData.length === 0) return alert("Data kosong");
         const ws = XLSX.utils.json_to_sheet(currentData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Data");
-        XLSX.writeFile(wb, `Laporan_Ujian_${mode}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "Hasil Ujian");
+        XLSX.writeFile(wb, `Rekap_Ujian_${mode}.xlsx`);
     }
 
     window.onload = muatData;
