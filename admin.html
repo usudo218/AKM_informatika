@@ -11,74 +11,170 @@
         body { font-family: 'Inter', sans-serif; background: var(--light); padding: 20px; }
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); max-width: 1100px; margin: auto; }
         .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #eee; padding: 5px; border-radius: 10px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; background: transparent; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; background: transparent; transition: 0.3s; }
         .tab-btn.active { background: white; color: var(--aksen); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; color: white; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; color: white; transition: 0.3s; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        
+        /* Form Filter Style */
+        .filter-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .input-filter { padding: 10px 15px; border-radius: 8px; border: 1px solid #ddd; outline: none; font-family: inherit; }
+        .input-filter:focus { border-color: var(--aksen); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1); }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #f8f9fa; color: #636e72; padding: 12px; text-align: left; border-bottom: 2px solid #eee; font-size: 13px; }
+        th { background: #f8f9fa; color: #636e72; padding: 12px; text-align: left; border-bottom: 2px solid #eee; font-size: 13px; cursor: pointer; }
         td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
         .badge { padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .bg-success { background: #d4edda; color: #155724; }
         .bg-danger { background: #f8d7da; color: #721c24; }
         mark { background: #fff9db; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+        
+        @media (max-width: 600px) {
+            .filter-group { flex-direction: column; align-items: stretch; }
+        }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h2>Monitoring Guru - AKM SMAN 1 Muncar</h2>
-    <P>INFORMATIKA</P>
+    <p>INFORMATIKA | AGUS SUYATNO, S.Kom
+    <p><strong>Mata Pelajaran:</strong> INFORMATIKA</p>
+    
     <div class="nav-tabs">
         <button id="btn-rekap" class="tab-btn active" onclick="gantiTab('rekap')">Rekap Nilai Siswa</button>
         <button id="btn-detail" class="tab-btn" onclick="gantiTab('detail')">Log Detail</button>
     </div>
-    <div style="margin-bottom: 20px; display:flex; gap:10px;">
+
+    <div class="filter-group">
+        <select id="filter-kelas" class="input-filter" onchange="renderTable()" style="min-width: 150px;">
+            <option value="">-- Pilih Kelas --</option>
+        </select>
+        
+        <input type="text" id="cari-nama" class="input-filter" onkeyup="renderTable()" placeholder="Cari nama siswa manual..." style="flex: 1;">
+        
         <button class="btn" style="background: var(--primary);" onclick="muatData()">Refresh Data</button>
         <button class="btn" style="background: var(--dark);" onclick="exportExcel()">Unduh Excel</button>
     </div>
+
     <div style="overflow-x: auto;">
         <table>
             <thead id="head-table"></thead>
-            <tbody id="body-table"><tr><td colspan="6" style="text-align:center; padding:50px;">Memuat...</td></tr></tbody>
+            <tbody id="body-table">
+                <tr><td colspan="6" style="text-align:center; padding:50px;">Memuat data...</td></tr>
+            </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    const URL_APP = "https://script.google.com/macros/s/AKfycbzRLW7DVhItF6UpWVSqTyRfG94WIIpb-5n6YW6k3wAM3ag-Q9TsUmO9r2nLvaVkbA1l/exec"; // Samakan dengan URL di index.html
-    let mode = "rekap"; let currentData = [];
+    const URL_APP = "https://script.google.com/macros/s/AKfycbzRLW7DVhItF6UpWVSqTyRfG94WIIpb-5n6YW6k3wAM3ag-Q9TsUmO9r2nLvaVkbA1l/exec";
+    let mode = "rekap"; 
+    let currentData = [];
 
+    // 1. Fungsi Mengambil Data dari Google Script
     async function muatData() {
         const tbody = document.getElementById('body-table');
-        tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:50px;'>⏳ Menghubungkan...</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:50px;'>⏳ Menghubungkan ke server...</td></tr>";
         try {
-            const resp = await fetch(`${URL_APP}?aksi=${mode === 'rekap' ? 'rekapNilai' : 'ambilSemua'}`);
+            const endpoint = mode === 'rekap' ? 'rekapNilai' : 'ambilSemua';
+            const resp = await fetch(`${URL_APP}?aksi=${endpoint}`);
             currentData = await resp.json();
+            
+            // Update pilihan kelas di dropdown secara otomatis
+            updateDropdownKelas();
             renderTable();
-        } catch (e) { tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; color:red;'>Gagal Koneksi.</td></tr>"; }
-    }
-
-    function renderTable() {
-        const thead = document.getElementById('head-table');
-        const tbody = document.getElementById('body-table');
-        tbody.innerHTML = "";
-        if (mode === "rekap") {
-            thead.innerHTML = "<tr><th>Kelas</th><th>Nama Siswa</th><th>Benar</th><th>Salah</th><th>Total</th><th>Skor</th></tr>";
-            currentData.forEach(s => {
-                tbody.innerHTML += `<tr><td>${s.kelas}</td><td><b>${s.nama}</b></td><td style="color:green"><b>${s.benar}</b></td><td style="color:red"><b>${s.salah}</b></td><td>${s.total}</td><td><mark>${s.skor}</mark></td></tr>`;
-            });
-        } else {
-            thead.innerHTML = "<tr><th>Waktu</th><th>Kelas</th><th>Nama</th><th>ID</th><th>Jawaban</th><th>Status</th></tr>";
-            [...currentData].reverse().forEach(row => {
-                const cls = row.status === "Benar" ? "bg-success" : "bg-danger";
-                tbody.innerHTML += `<tr><td>${row.timestamp}</td><td>${row.kelas}</td><td><b>${row.nama}</b></td><td>${row.id_soal}</td><td>${row.jawaban}</td><td><span class="badge ${cls}">${row.status}</span></td></tr>`;
-            });
+        } catch (e) { 
+            tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; color:red; padding:50px;'>Gagal memuat data. Pastikan URL Script benar.</td></tr>"; 
         }
     }
 
-    function gantiTab(m) { mode = m; document.getElementById('btn-rekap').classList.toggle('active', m === 'rekap'); document.getElementById('btn-detail').classList.toggle('active', m === 'detail'); muatData(); }
-    function exportExcel() { const ws = XLSX.utils.json_to_sheet(currentData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Hasil"); XLSX.writeFile(wb, `Rekap_${mode}.xlsx`); }
+    // 2. Fungsi Membuat Daftar Kelas Unik untuk Dropdown
+    function updateDropdownKelas() {
+        const select = document.getElementById('filter-kelas');
+        const nilaiLama = select.value; // Simpan pilihan user sebelumnya
+        
+        // Ambil kelas unik dan urutkan
+        const daftarKelas = [...new Set(currentData.map(item => item.kelas))].sort();
+        
+        let html = '<option value="">-- Semua Kelas --</option>';
+        daftarKelas.forEach(kls => {
+            html += `<option value="${kls}" ${kls === nilaiLama ? 'selected' : ''}>${kls}</option>`;
+        });
+        select.innerHTML = html;
+    }
+
+    // 3. Fungsi Render Tabel (Termasuk Filter)
+    function renderTable() {
+        const thead = document.getElementById('head-table');
+        const tbody = document.getElementById('body-table');
+        const filterKelas = document.getElementById('filter-kelas').value;
+        const kataKunci = document.getElementById('cari-nama').value.toLowerCase();
+        
+        tbody.innerHTML = "";
+
+        // Proses Filter
+        let dataFilter = currentData.filter(item => {
+            const cekKelas = filterKelas === "" || item.kelas === filterKelas;
+            const cekNama = item.nama.toLowerCase().includes(kataKunci);
+            return cekKelas && cekNama;
+        });
+
+        if (mode === "rekap") {
+            thead.innerHTML = "<tr><th>Kelas</th><th>Nama Siswa</th><th>Benar</th><th>Salah</th><th>Total Soal</th><th>Skor</th></tr>";
+            dataFilter.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${s.kelas}</td>
+                        <td><b>${s.nama}</b></td>
+                        <td style="color:green"><b>${s.benar}</b></td>
+                        <td style="color:red"><b>${s.salah}</b></td>
+                        <td>${s.total}</td>
+                        <td><mark>${s.skor}</mark></td>
+                    </tr>`;
+            });
+        } else {
+            thead.innerHTML = "<tr><th>Waktu</th><th>Kelas</th><th>Nama</th><th>ID Soal</th><th>Jawaban</th><th>Status</th></tr>";
+            // Untuk log detail, kita tampilkan dari yang terbaru (reverse)
+            [...dataFilter].reverse().forEach(row => {
+                const badgeClass = row.status === "Benar" ? "bg-success" : "bg-danger";
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${row.timestamp}</td>
+                        <td>${row.kelas}</td>
+                        <td><b>${row.nama}</b></td>
+                        <td>${row.id_soal}</td>
+                        <td>${row.jawaban}</td>
+                        <td><span class="badge ${badgeClass}">${row.status}</span></td>
+                    </tr>`;
+            });
+        }
+
+        if (dataFilter.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px;'>Data tidak ditemukan.</td></tr>";
+        }
+    }
+
+    // 4. Navigasi Tab
+    function gantiTab(m) { 
+        mode = m; 
+        document.getElementById('btn-rekap').classList.toggle('active', m === 'rekap'); 
+        document.getElementById('btn-detail').classList.toggle('active', m === 'detail'); 
+        muatData(); 
+    }
+
+    // 5. Fitur Download Excel
+    function exportExcel() { 
+        if (currentData.length === 0) return alert("Data kosong!");
+        const ws = XLSX.utils.json_to_sheet(currentData); 
+        const wb = XLSX.utils.book_new(); 
+        XLSX.utils.book_append_sheet(wb, ws, "Data_AKM"); 
+        XLSX.writeFile(wb, `Monitoring_${mode}_${new Date().toLocaleDateString()}.xlsx`); 
+    }
+
+    // Jalankan saat pertama kali dibuka
     window.onload = muatData;
 </script>
+
 </body>
 </html>
